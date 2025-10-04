@@ -247,7 +247,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   curve: {fileID: 8669965828570914712}
   resolution: 50
-  roadWidth: 20
+  roadWidth: 25
+  wallHeight: 1
 --- !u!64 &665508033707116382
 MeshCollider:
   m_ObjectHideFlags: 0
