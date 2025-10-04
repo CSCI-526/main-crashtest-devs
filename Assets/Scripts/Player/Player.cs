@@ -24,7 +24,7 @@ public class SimpleCarController : MonoBehaviour
 
     void FixedUpdate()
     {
-        if (startLights.activeSelf) return;
+        //if (startLights.activeSelf) return;
         
         float accel = 0f;
         if (Input.GetKey(KeyCode.W)) accel = 1f;

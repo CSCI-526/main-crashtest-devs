@@ -574,6 +574,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Track
       objectReference: {fileID: 0}
+    - target: {fileID: 2498073188907776803, guid: 17c398f015d5f421aacf299bb1825ff6, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 2531357155801181707, guid: 17c398f015d5f421aacf299bb1825ff6, type: 3}
       propertyPath: progressBar
       value: 
