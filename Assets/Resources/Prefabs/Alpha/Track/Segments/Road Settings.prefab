@@ -246,7 +246,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   curve: {fileID: 8669965828570914712}
-  resolution: 50
+  resolution: 25
   roadWidth: 25
   wallHeight: 1
 --- !u!64 &665508033707116382

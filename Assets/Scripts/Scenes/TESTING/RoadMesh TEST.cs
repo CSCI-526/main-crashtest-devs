@@ -7,7 +7,7 @@ public class ReadMeshTEST : MonoBehaviour
     public BezierCurveTEST curve;
     public int resolution = 50;
     public float roadWidth = 4f;
-    public float wallHeight = 2f; // NEW: height of the side walls
+    public float wallHeight = 2f;
 
     private Mesh mesh;
 
@@ -178,7 +178,5 @@ public class ReadMeshTEST : MonoBehaviour
             mc.sharedMesh = mesh;
             mc.convex = false;
         }
-
-        Debug.Log($"Generated road with walls: {vertices.Length} vertices, {triangles.Length / 3} tris.");
     }
 }
