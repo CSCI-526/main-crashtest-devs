@@ -1,14 +1,10 @@
 using System.Collections.Generic;
-using Unity.Collections;
-using Unity.VisualScripting;
-using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 
 public class TrackGen : MonoBehaviour
 {
     public List<GameObject> trackPrefabs;
-    public BezierCurveTEST startTrack;
-    //public int segmentsToGenerate = 5;
+    public GameObject trackObject;
     private BezierCurveTEST lastCurve;
 
     private enum TrackSegmentsChoices { smallS, largeS, smallT, largeT }
@@ -24,22 +20,41 @@ public class TrackGen : MonoBehaviour
     */
 
     private readonly List<GameObject> raceTrack = new();
-    
+
+    private int numberOfRedos = 0;
+
 
     private void Start()
     {
-        GenerateTrack();
+        MakeTrack();
+    }
 
-        if (startTrack == null || trackPrefabs.Count == 0)
+    private void MakeTrack()
+    {
+        bool success = false;
+
+        while (!success && numberOfRedos < 100)
         {
-            Debug.LogError("TrackGenerator: Missing startTrack or trackPrefabs!");
-            return;
-        }
+            raceTrack.Clear();
 
-        lastCurve = startTrack;
-        
-        raceTrack.Add(trackPrefabs[^1]);
-        foreach (GameObject prefab in raceTrack) SpawnNextSegment(prefab);
+            for (int i = trackObject.transform.childCount - 1; i >= 1; i--)
+                DestroyImmediate(trackObject.transform.GetChild(i).gameObject);
+
+            GenerateTrack();
+
+            lastCurve = trackObject.transform.GetChild(0).GetComponent<BezierCurveTEST>();
+            raceTrack.Add(trackPrefabs[^1]);
+            foreach (GameObject prefab in raceTrack)
+                SpawnNextSegment(prefab);
+
+            if (CheckTrack())
+            {
+                success = true;
+                foreach (Transform child in trackObject.transform)
+                    child.GetComponent<BoxCollider>().enabled = false;
+            }
+            numberOfRedos++;
+        }
     }
 
     private void GenerateTrack()
@@ -140,7 +155,6 @@ public class TrackGen : MonoBehaviour
 
     private void SpawnNextSegment(GameObject prefab)
     {
-        //GameObject prefab = PickSegment();
         GameObject newSegment = Instantiate(prefab, Vector3.zero, Quaternion.identity, transform);
         BezierCurveTEST newCurve = newSegment.GetComponent<BezierCurveTEST>();
 
@@ -155,8 +169,29 @@ public class TrackGen : MonoBehaviour
         Quaternion rotation = Quaternion.LookRotation(tangent, lastCurve.transform.up);
         newSegment.transform.rotation = rotation;
 
-        if (newSegment.TryGetComponent<ReadMeshTEST>(out var roadMesh)) roadMesh.GenerateRoad();
-
         lastCurve = newCurve;
+    }
+
+    private bool CheckTrack()
+    {
+        Physics.SyncTransforms();
+
+        BoxCollider one;
+        BoxCollider two;
+        int numSegments = raceTrack.Count;
+
+        for (int i = 3; i < numSegments; i++)
+        {
+            one = trackObject.transform.GetChild(i).GetComponent<BoxCollider>();
+
+            for (int j = i - 2; j >= 0; j--)
+            {
+                two = trackObject.transform.GetChild(j).GetComponent<BoxCollider>();
+                if (Physics.ComputePenetration(one, one.transform.position, one.transform.rotation, two, two.transform.position, two.transform.rotation, out Vector3 _, out float _))
+                    return false;
+            }
+        }
+
+        return true;
     }
 }
