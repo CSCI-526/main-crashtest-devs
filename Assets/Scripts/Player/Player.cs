@@ -13,6 +13,13 @@ public class SimpleCarController : MonoBehaviour
     public float brakeDrag = 1f;       // extra drag when braking
     public float normalDrag = 0.1f;
 
+    // drift settings
+    public float normalGrip = 0.8f;        // normal friction
+    public float driftGrip = 0.25f;        // reduced grip while drifting
+    public float driftSteerBoost = 1.3f;   // steering multiplier during drift
+    public float driftDrag = 0.6f;         // extra drag while drifting (slows you down)
+    public float minDriftSpeed = 30f;      // minimum speed to drift
+
     Rigidbody rb;
 
     void Start()
@@ -40,6 +47,12 @@ public class SimpleCarController : MonoBehaviour
 
         // limit forward speed
         float forwardVel = Vector3.Dot(rb.linearVelocity, forward);
+
+        // drift only when turning + holding shift + going fast enough
+        bool attemptDrift = Input.GetKey(KeyCode.LeftShift);
+        bool isSteering = Mathf.Abs(steer) > 0.1f;
+        bool hasSpeed = Mathf.Abs(forwardVel) > minDriftSpeed;
+        bool drifting = attemptDrift && isSteering && hasSpeed;
         if (accel > 0f && forwardVel > maxSpeed)
         {
             // don't add more forward force if at speed cap
@@ -49,18 +62,20 @@ public class SimpleCarController : MonoBehaviour
             rb.AddForce(forward * accel * motorPower * Time.fixedDeltaTime, ForceMode.Acceleration);
         }
 
-        // steering: apply torque around Y-axis, reduced at low speeds for stability
-        float steerFactor = 10f; //Mathf.Clamp01(Mathf.Abs(forwardVel) / 1f);
-        rb.AddRelativeTorque(Vector3.up * steer * steerTorque * steerFactor * Time.fixedDeltaTime, ForceMode.Acceleration);
+        // steering: apply torque, boosted during drift for tighter turns
+        float steerMultiplier = drifting ? driftSteerBoost : 1f;
+        float steerFactor = 9.5f; //Mathf.Clamp01(Mathf.Abs(forwardVel) / 1f);
+        rb.AddRelativeTorque(Vector3.up * steer * steerTorque * steerFactor * steerMultiplier * Time.fixedDeltaTime, ForceMode.Acceleration);
 
-        // simple drift / lateral friction: remove some sideways velocity
+        // friction: reduced grip while drifting allows sliding
         Vector3 right = transform.right;
         float lateralVel = Vector3.Dot(rb.linearVelocity, right);
-        Vector3 lateralImpulse = -right * lateralVel * 0.8f;
+        float gripStrength = drifting ? driftGrip : normalGrip;
+        Vector3 lateralImpulse = -right * lateralVel * gripStrength;
         rb.AddForce(lateralImpulse, ForceMode.VelocityChange);
 
-        // braking
-        rb.linearDamping = braking ? brakeDrag : normalDrag;
+        // braking: space for hard brake, drift also slows you down
+        rb.linearDamping = braking ? brakeDrag : (drifting ? driftDrag : normalDrag);
 
         speed.GetComponent<TMP_Text>().text = $"{Mathf.RoundToInt(forwardVel*2.237f)}";
 
