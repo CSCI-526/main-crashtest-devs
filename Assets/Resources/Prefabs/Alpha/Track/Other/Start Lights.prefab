@@ -13,12 +13,12 @@ GameObject:
   - component: {fileID: 315104276216881865}
   - component: {fileID: 406157761903210227}
   m_Layer: 0
-  m_Name: lightL
+  m_Name: light
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &4599810908405978759
 RectTransform:
   m_ObjectHideFlags: 0
@@ -487,12 +487,12 @@ GameObject:
   - component: {fileID: 6114226754542035196}
   - component: {fileID: 6832514995472802885}
   m_Layer: 0
-  m_Name: lightL
+  m_Name: light
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1057562097397201619
 RectTransform:
   m_ObjectHideFlags: 0
@@ -888,12 +888,12 @@ GameObject:
   - component: {fileID: 2927046681631659987}
   - component: {fileID: 1916172083305465753}
   m_Layer: 0
-  m_Name: lightL
+  m_Name: light
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &5605673973183424052
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1362,12 +1362,12 @@ GameObject:
   - component: {fileID: 673751721635020953}
   - component: {fileID: 3085432124027141746}
   m_Layer: 0
-  m_Name: lightL
+  m_Name: light
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &7384871171131640726
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1618,12 +1618,12 @@ GameObject:
   - component: {fileID: 6490667860654973664}
   - component: {fileID: 9170243942086050850}
   m_Layer: 0
-  m_Name: lightL
+  m_Name: light
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &348589042889892790
 RectTransform:
   m_ObjectHideFlags: 0

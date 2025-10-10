@@ -171,8 +171,7 @@ public class ReadMeshTEST : MonoBehaviour
 
         GetComponent<MeshFilter>().sharedMesh = mesh;
 
-        MeshCollider mc = GetComponent<MeshCollider>();
-        if (mc != null)
+        if (TryGetComponent<MeshCollider>(out var mc))
         {
             mc.sharedMesh = null;
             mc.sharedMesh = mesh;

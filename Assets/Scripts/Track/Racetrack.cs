@@ -30,7 +30,7 @@ public class Racetrack : MonoBehaviour
 
     private void Start()
     {
-        players.Add(new CheckPointCheck(0, GameObject.Find("Player 0"), GameObject.Find("Track/StartStraight 0/Checkpoint")));
+        players.Add(new CheckPointCheck(0, GameObject.Find("Player 0"), GameObject.Find("RaceTrack/StartStraight 0/Checkpoint")));
         if (SceneManager.GetActiveScene().name == "MultiPlayer") players.Add(new CheckPointCheck(1, GameObject.Find("Player 1"), GameObject.Find("Track/StartStraight 0/Checkpoint")));
     }
 
@@ -62,15 +62,37 @@ public class Racetrack : MonoBehaviour
                 players[i].playerTimer = 5f;
 
                 RectTransform rt = players[i].player.GetComponent<RectTransform>();
+                Vector3 pos = players[i].checkpoint.transform.position;
+                pos.y -= 12.5f;
                 if (players.Count > 1)
                 {
-                    Vector3 pos = players[i].checkpoint.transform.position;
                     if (i == 0) pos.x -= 1;
                     else pos.x += 1;
                     rt.position = pos;
                 }
-                else rt.position = players[i].checkpoint.GetComponent<Transform>().position;
-                rt.rotation = players[i].checkpoint.transform.parent.GetComponent<Transform>().rotation;
+                else rt.position = pos;
+
+                Quaternion baseRot = players[i].checkpoint.transform.parent.rotation;
+                Vector3 euler = baseRot.eulerAngles;
+                int roty = 0;
+                switch (players[i].checkpoint.transform.parent.name[..2])
+                {
+                    case "90":
+                        roty = 90;
+                        break;
+                    case "60":
+                        roty = 60;
+                        break;
+                    case "45":
+                        roty = 45;
+                        break;
+                    case "30":
+                        roty = 30;
+                        break;
+                }
+                if (players[i].checkpoint.transform.parent.name[2] == 'L') roty *= -1;
+                euler.y += roty;
+                rt.rotation = Quaternion.Euler(euler);
 
                 Rigidbody rb = players[i].player.GetComponent<Rigidbody>();
                 rb.linearVelocity = Vector3.zero;
@@ -81,10 +103,7 @@ public class Racetrack : MonoBehaviour
 
     private void TurnOnLight()
     {
-        if (lightCount == 5)
-        {
-            startLights.SetActive(false);
-        }
+        if (lightCount == 5) startLights.SetActive(false);
         else
         {
             GameObject light = startLights.transform.Find($"l{lightCount + 1}/light").gameObject;
@@ -108,7 +127,7 @@ public class Racetrack : MonoBehaviour
         int playerID = int.Parse(parts1[1]);
 
         string[] parts2 = section.name.Split();
-        int sectionID = int.Parse(parts2[1]);
+        int sectionID = int.Parse(parts2[2]);
 
         UpdateSection(playerID, sectionID, section.Find("Checkpoint").gameObject);
     }
@@ -125,7 +144,7 @@ public class Racetrack : MonoBehaviour
 
             if (players.Count > 1) UpdateHeadLights();
 
-            UpdateProgressBar();
+            //UpdateProgressBar();
         }
     }
 

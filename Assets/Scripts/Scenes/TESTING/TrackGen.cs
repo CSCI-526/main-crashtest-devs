@@ -6,12 +6,12 @@ public class TrackGen : MonoBehaviour
     public List<GameObject> trackPrefabs;
     public GameObject trackObject;
     private BezierCurveTEST lastCurve;
-
+    private int segmentCount = 1;
     private enum TrackSegmentsChoices { smallS, largeS, smallT, largeT }
     /*
         smallS: 3-4 straights,                  # -> 4-5
-        largeS: 5-7 straights,                 # -> 4-5
-        smallT: 2-3 turns,                     # -> 5-6
+        largeS: 5-7 straights,                  # -> 4-5
+        smallT: 2-3 turns,                      # -> 5-6
         largeT: 4-6 turns,                      # -> 1-2
         slope: deltaSlope during straights,     # -> 2-4
 
@@ -20,7 +20,6 @@ public class TrackGen : MonoBehaviour
     */
 
     private readonly List<GameObject> raceTrack = new();
-
     private int numberOfRedos = 0;
 
 
@@ -36,6 +35,7 @@ public class TrackGen : MonoBehaviour
         while (!success && numberOfRedos < 100)
         {
             raceTrack.Clear();
+            segmentCount = 1;
 
             for (int i = trackObject.transform.childCount - 1; i >= 1; i--)
                 DestroyImmediate(trackObject.transform.GetChild(i).gameObject);
@@ -156,6 +156,8 @@ public class TrackGen : MonoBehaviour
     private void SpawnNextSegment(GameObject prefab)
     {
         GameObject newSegment = Instantiate(prefab, Vector3.zero, Quaternion.identity, transform);
+        newSegment.name += $" {segmentCount}";
+        segmentCount++;
         BezierCurveTEST newCurve = newSegment.GetComponent<BezierCurveTEST>();
 
         Vector3 lastP2 = lastCurve.p2.position;
