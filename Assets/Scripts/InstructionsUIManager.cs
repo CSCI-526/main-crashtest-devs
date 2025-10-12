@@ -15,4 +15,8 @@ public class InstructionsUIManager : MonoBehaviour
     {
         SceneManager.LoadScene("Assets/Scenes/SinglePlayer.unity");
     }
+        public void OnTutorialButton()
+    {
+        SceneManager.LoadScene("Assets/Scenes/Tutorial.unity");
+    }
 }
