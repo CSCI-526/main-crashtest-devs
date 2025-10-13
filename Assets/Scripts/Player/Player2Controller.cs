@@ -13,17 +13,22 @@ public class Player2Controller : MonoBehaviour
     public float normalDrag = 0.1f;
 
     Rigidbody rb;
+    Racetrack racetrack;
 
     void Start()
     {
         rb = GetComponent<Rigidbody>();
         rb.centerOfMass = new Vector3(0f, -0.5f, 0f);
         rb.linearDamping = normalDrag;
+        racetrack = FindFirstObjectByType<Racetrack>();
     }
 
     void FixedUpdate()
     {
         if (startLights.activeSelf) return;
+
+        // Don't allow movement during reset
+        if (racetrack != null && racetrack.IsPlayerDuringReset(1)) return;
 
         float accel = 0f;
         if (Input.GetKey(KeyCode.UpArrow)) accel = 1f;

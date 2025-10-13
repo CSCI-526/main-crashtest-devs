@@ -14,18 +14,23 @@ public class SimpleCarController : MonoBehaviour
     public float normalDrag = 0.1f;
 
     Rigidbody rb;
+    Racetrack racetrack;
 
     void Start()
     {
         rb = GetComponent<Rigidbody>();
         rb.centerOfMass = new Vector3(0f, -0.5f, 0f); // lowers center for stability
         rb.linearDamping = normalDrag;
+        racetrack = FindFirstObjectByType<Racetrack>();
     }
 
     void FixedUpdate()
     {
         //if (startLights.activeSelf) return;
-        
+
+        // Don't allow movement during reset
+        if (racetrack != null && racetrack.IsPlayerDuringReset(0)) return;
+
         float accel = 0f;
         if (Input.GetKey(KeyCode.W)) accel = 1f;
         else if (Input.GetKey(KeyCode.S)) accel = -1f;

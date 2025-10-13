@@ -5,8 +5,9 @@ using UnityEngine.SceneManagement;
 public class Racetrack : MonoBehaviour
 {
     public GameObject startLights;
-    public GameObject progressBar;
+    // public GameObject progressBar;
     private float startTimer = 1.5f;
+    public float resetFreezeDuration = 1.5f;
     private int lightCount = 0;
     private readonly List<CheckPointCheck> players = new();
 
@@ -17,6 +18,8 @@ public class Racetrack : MonoBehaviour
         public float playerTimer;
         public int currentSection;
         public GameObject checkpoint;
+        public bool isDuringReset;
+        public float resetLockTimer;
 
         public CheckPointCheck(int playerID, GameObject player, GameObject checkpoint)
         {
@@ -25,6 +28,8 @@ public class Racetrack : MonoBehaviour
             this.player = player;
             this.playerID = playerID;
             this.checkpoint = checkpoint;
+            this.isDuringReset = false;
+            this.resetLockTimer = 0f;
         }
     }
 
@@ -55,6 +60,13 @@ public class Racetrack : MonoBehaviour
         for (int i = 0; i < players.Count; i++)
         {
             players[i].playerTimer -= Time.deltaTime;
+
+            if (players[i].isDuringReset)
+            {
+                players[i].resetLockTimer -= Time.deltaTime;
+                // Unlock when timer expires
+                if (players[i].resetLockTimer <= 0f) players[i].isDuringReset = false;
+            }
 
             if (players[i].playerTimer <= 0f)
             {
@@ -97,6 +109,9 @@ public class Racetrack : MonoBehaviour
                 Rigidbody rb = players[i].player.GetComponent<Rigidbody>();
                 rb.linearVelocity = Vector3.zero;
                 rb.angularVelocity = Vector3.zero;
+
+                players[i].isDuringReset = true;
+                players[i].resetLockTimer = resetFreezeDuration;
             }
         }
     }
@@ -176,14 +191,22 @@ public class Racetrack : MonoBehaviour
         }
     }
 
-    private void UpdateProgressBar()
-    {
-        for (int i = 0; i < players.Count; i++)
-        {
-            GameObject marker = progressBar.transform.Find($"p{i}m").gameObject;
+    // private void UpdateProgressBar()
+    // {
+    //     for (int i = 0; i < players.Count; i++)
+    //     {
+    //         GameObject marker = progressBar.transform.Find($"p{i}m").gameObject;
 
-            marker.GetComponent<RectTransform>().pivot = new Vector2(players[i].currentSection / 91f, 0);
-            marker.GetComponent<RectTransform>().anchoredPosition = Vector3.zero;
-        }
+    //         marker.GetComponent<RectTransform>().pivot = new Vector2(players[i].currentSection / 91f, 0);
+    //         marker.GetComponent<RectTransform>().anchoredPosition = Vector3.zero;
+    //     }
+    // }
+
+    // Public method to check if a player is during reset
+    public bool IsPlayerDuringReset(int playerID)
+    {
+        if (playerID < 0 || playerID >= players.Count) return false;
+        return players[playerID].isDuringReset;
     }
 }
+
