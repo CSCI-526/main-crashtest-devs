@@ -510,6 +510,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b1c427caf604b4e139eeafd111e2c64d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  player0: 1
   startLights: {fileID: 1581626676}
   speed: {fileID: 244254919}
   motorPower: 2000
@@ -517,6 +518,15 @@ MonoBehaviour:
   maxSpeed: 98
   brakeDrag: 1
   normalDrag: 0.1
+  groundCheckDistance: 0.75
+  roadLayer:
+    serializedVersion: 2
+    m_Bits: 0
+  normalGrip: 0.8
+  driftGrip: 0.25
+  driftSteerBoost: 1.3
+  driftDrag: 0.6
+  minDriftSpeed: 30
 --- !u!1 &1366808699
 GameObject:
   m_ObjectHideFlags: 0
@@ -1123,7 +1133,7 @@ PrefabInstance:
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 4662243687726584147, guid: 329da1dea4dc048d294a80d671969222, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 2039307265}
+      addedObject: {fileID: 2039307267}
     - targetCorrespondingSourceObject: {fileID: 8226165196356963, guid: 329da1dea4dc048d294a80d671969222, type: 3}
       insertIndex: -1
       addedObject: {fileID: 0}
@@ -1133,7 +1143,12 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 4662243687726584147, guid: 329da1dea4dc048d294a80d671969222, type: 3}
   m_PrefabInstance: {fileID: 2039307263}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &2039307265
+--- !u!1 &2039307266 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 8226165196356963, guid: 329da1dea4dc048d294a80d671969222, type: 3}
+  m_PrefabInstance: {fileID: 2039307263}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &2039307267
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1142,9 +1157,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 2039307264}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 86e9751df4dda4d4cbba1a691f381c2e, type: 3}
+  m_Script: {fileID: 11500000, guid: b1c427caf604b4e139eeafd111e2c64d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  player0: 1
   startLights: {fileID: 1581626676}
   speed: {fileID: 2039307266}
   motorPower: 2000
@@ -1152,11 +1168,15 @@ MonoBehaviour:
   maxSpeed: 98
   brakeDrag: 1
   normalDrag: 0.1
---- !u!1 &2039307266 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 8226165196356963, guid: 329da1dea4dc048d294a80d671969222, type: 3}
-  m_PrefabInstance: {fileID: 2039307263}
-  m_PrefabAsset: {fileID: 0}
+  groundCheckDistance: 0.75
+  roadLayer:
+    serializedVersion: 2
+    m_Bits: 8
+  normalGrip: 0.8
+  driftGrip: 0.25
+  driftSteerBoost: 1.3
+  driftDrag: 0.6
+  minDriftSpeed: 30
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

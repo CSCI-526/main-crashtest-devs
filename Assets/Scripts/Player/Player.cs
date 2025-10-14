@@ -5,6 +5,7 @@ using UnityEngine;
 [RequireComponent(typeof(Rigidbody))]
 public class SimpleCarController : MonoBehaviour
 {
+    public bool player0 = true;
     public GameObject startLights;
     public GameObject speed;
     public float motorPower = 2000;    // forward/backward force
@@ -38,7 +39,7 @@ public class SimpleCarController : MonoBehaviour
         Vector3 forward = transform.forward;
         float forwardVel = Vector3.Dot(rb.linearVelocity, forward);
 
-        speed.GetComponent<TMP_Text>().text = $"{Mathf.RoundToInt(forwardVel * 2.237f)}";
+        speed.GetComponent<TMP_Text>().text = $"{Mathf.Abs(Mathf.RoundToInt(rb.linearVelocity.magnitude * 2.237f))}";
 
         //if (startLights.activeSelf) return;
         if (!Physics.Raycast(transform.position, Vector3.down, groundCheckDistance, roadLayer)) return;
@@ -47,20 +48,37 @@ public class SimpleCarController : MonoBehaviour
         //if (racetrack != null && racetrack.IsPlayerDuringReset(0)) return;
 
         float accel = 0f;
-        if (Input.GetKey(KeyCode.W)) accel = 1f;
-        else if (Input.GetKey(KeyCode.S)) accel = -1f;
-
         float steer = 0f;
-        if (Input.GetKey(KeyCode.D)) steer = 1f;
-        else if (Input.GetKey(KeyCode.A)) steer = -1f;
+        bool braking;
+        bool attemptDrift;
+        switch (player0)
+        {
+            case true:
+                if (Input.GetKey(KeyCode.W)) accel = 1f;
+                else if (Input.GetKey(KeyCode.S)) accel = -.5f;
 
-        bool braking = Input.GetKey(KeyCode.Space);
+                if (Input.GetKey(KeyCode.D)) steer = 1f;
+                else if (Input.GetKey(KeyCode.A)) steer = -1f;
+
+                braking = Input.GetKey(KeyCode.LeftCommand);
+                attemptDrift = Input.GetKey(KeyCode.LeftShift);
+                break;
+            case false:
+                if (Input.GetKey(KeyCode.UpArrow)) accel = 1f;
+                else if (Input.GetKey(KeyCode.DownArrow)) accel = -1f;
+
+                if (Input.GetKey(KeyCode.RightArrow)) steer = 1f;
+                else if (Input.GetKey(KeyCode.LeftArrow)) steer = -1f;
+
+                braking = Input.GetKey(KeyCode.RightCommand);
+                attemptDrift = Input.GetKey(KeyCode.RightShift);
+                break;
+        }
 
         // limit forward speed
         //float forwardVel = Vector3.Dot(rb.linearVelocity, forward);
 
         // drift only when turning + holding shift + going fast enough
-        bool attemptDrift = Input.GetKey(KeyCode.LeftShift);
         bool isSteering = Mathf.Abs(steer) > 0.1f;
         bool hasSpeed = Mathf.Abs(forwardVel) > minDriftSpeed;
         bool drifting = attemptDrift && isSteering && hasSpeed;
@@ -88,7 +106,7 @@ public class SimpleCarController : MonoBehaviour
         // braking: space for hard brake, drift also slows you down
         rb.linearDamping = braking ? brakeDrag : (drifting ? driftDrag : normalDrag);
 
-        speed.GetComponent<TMP_Text>().text = $"{Mathf.RoundToInt(forwardVel * 2.237f)}";
+        speed.GetComponent<TMP_Text>().text = $"{Mathf.Abs(Mathf.RoundToInt(rb.linearVelocity.magnitude * 2.237f))}";
     }
 
 }
