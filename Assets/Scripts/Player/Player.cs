@@ -1,4 +1,5 @@
 
+using System.Data.Common;
 using TMPro;
 using UnityEngine;
 
@@ -41,7 +42,7 @@ public class SimpleCarController : MonoBehaviour
 
         speed.GetComponent<TMP_Text>().text = $"{Mathf.Abs(Mathf.RoundToInt(rb.linearVelocity.magnitude * 2.237f))}";
 
-        //if (startLights.activeSelf) return;
+        if (startLights.activeSelf) return;
         if (!Physics.Raycast(transform.position, Vector3.down, groundCheckDistance, roadLayer)) return;
 
         // Don't allow movement during reset

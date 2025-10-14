@@ -2,9 +2,9 @@ using UnityEngine;
 
 [ExecuteAlways]
 [RequireComponent(typeof(MeshFilter), typeof(MeshRenderer), typeof(MeshCollider))]
-public class ReadMeshTEST : MonoBehaviour
+public class ReadMesh : MonoBehaviour
 {
-    public BezierCurveTEST curve;
+    public BezierCurve curve;
     public int resolution = 50;
     public float roadWidth = 35f;
     public float wallHeight = 5f;
@@ -51,7 +51,7 @@ public class ReadMeshTEST : MonoBehaviour
 
         Vector3 up = Vector3.up;
 
-        // ROAD BASE (flat surface)
+        // flat road
         Vector3[] baseVertices = new Vector3[(resolution + 1) * 2];
         Vector2[] baseUVs = new Vector2[baseVertices.Length];
         int[] baseTriangles = new int[resolution * 6];
@@ -95,8 +95,7 @@ public class ReadMeshTEST : MonoBehaviour
             }
         }
 
-        // WALLS (extruded sides)
-        // Each side has (resolution + 1) * 2 vertices and resolution * 6 triangles
+        // walls
         Vector3[] wallVertices = new Vector3[(resolution + 1) * 4];
         Vector2[] wallUVs = new Vector2[wallVertices.Length];
         int[] wallTriangles = new int[resolution * 12]; // 6 per side per segment
@@ -148,7 +147,7 @@ public class ReadMeshTEST : MonoBehaviour
             }
         }
 
-        // COMBINE ROAD + WALLS
+        // combine
         Vector3[] vertices = new Vector3[baseVertices.Length + wallVertices.Length];
         baseVertices.CopyTo(vertices, 0);
         wallVertices.CopyTo(vertices, baseVertices.Length);

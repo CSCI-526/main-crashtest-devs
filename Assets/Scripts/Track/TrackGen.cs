@@ -5,7 +5,7 @@ public class TrackGen : MonoBehaviour
 {
     public List<GameObject> trackPrefabs;
     public GameObject trackObject;
-    private BezierCurveTEST lastCurve;
+    private BezierCurve lastCurve;
     private int segmentCount = 1;
     private enum TrackSegmentsChoices { smallS, largeS, smallT, largeT }
     /*
@@ -42,7 +42,7 @@ public class TrackGen : MonoBehaviour
 
             GenerateTrack();
 
-            lastCurve = trackObject.transform.GetChild(0).GetComponent<BezierCurveTEST>();
+            lastCurve = trackObject.transform.GetChild(0).GetComponent<BezierCurve>();
             raceTrack.Add(trackPrefabs[^1]);
             foreach (GameObject prefab in raceTrack)
                 SpawnNextSegment(prefab);
@@ -158,7 +158,7 @@ public class TrackGen : MonoBehaviour
         GameObject newSegment = Instantiate(prefab, Vector3.zero, Quaternion.identity, transform);
         newSegment.name += $" {segmentCount}";
         segmentCount++;
-        BezierCurveTEST newCurve = newSegment.GetComponent<BezierCurveTEST>();
+        BezierCurve newCurve = newSegment.GetComponent<BezierCurve>();
 
         Vector3 lastP2 = lastCurve.p2.position;
         Vector3 lastP3 = lastCurve.p3.position;

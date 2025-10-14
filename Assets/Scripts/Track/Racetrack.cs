@@ -7,7 +7,7 @@ public class Racetrack : MonoBehaviour
     public GameObject startLights;
     public GameObject progressBar;
     private float startTimer = 1.5f;
-    public float resetFreezeDuration = 1.5f;
+    //public float resetFreezeDuration = 1.5f;
     private int lightCount = 0;
     private readonly List<CheckPointCheck> players = new();
 
@@ -160,7 +160,7 @@ public class Racetrack : MonoBehaviour
 
             if (players.Count > 1) UpdateHeadLights();
 
-            //UpdateProgressBar();
+            UpdateProgressBar();
         }
     }
 
