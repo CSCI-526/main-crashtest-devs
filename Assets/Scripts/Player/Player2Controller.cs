@@ -6,29 +6,32 @@ public class Player2Controller : MonoBehaviour
 {
     public GameObject startLights;
     public GameObject speed;
-    public float motorPower = 800f;
-    public float steerTorque = 200f;
-    public float maxSpeed = 40f;
-    public float brakeDrag = 2f;
+    public float motorPower = 2000;    // forward/backward force
+    public float steerTorque = 200f;   // turning torque
+    public float maxSpeed = 98;       // m/s
+    public float brakeDrag = 1f;       // extra drag when braking
     public float normalDrag = 0.1f;
+    [SerializeField] private float groundCheckDistance = .75f;
+    [SerializeField] private LayerMask roadLayer;
 
     Rigidbody rb;
-    Racetrack racetrack;
+    //Racetrack racetrack;
 
     void Start()
     {
         rb = GetComponent<Rigidbody>();
         rb.centerOfMass = new Vector3(0f, -0.5f, 0f);
         rb.linearDamping = normalDrag;
-        racetrack = FindFirstObjectByType<Racetrack>();
+        //racetrack = FindFirstObjectByType<Racetrack>();
     }
 
     void FixedUpdate()
     {
         if (startLights.activeSelf) return;
+        if (!Physics.Raycast(transform.position, Vector3.down, groundCheckDistance, roadLayer)) return;
 
         // Don't allow movement during reset
-        if (racetrack != null && racetrack.IsPlayerDuringReset(1)) return;
+        //if (racetrack != null && racetrack.IsPlayerDuringReset(1)) return;
 
         float accel = 0f;
         if (Input.GetKey(KeyCode.UpArrow)) accel = 1f;

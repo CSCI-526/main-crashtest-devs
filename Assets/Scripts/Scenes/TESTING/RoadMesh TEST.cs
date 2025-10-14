@@ -6,8 +6,8 @@ public class ReadMeshTEST : MonoBehaviour
 {
     public BezierCurveTEST curve;
     public int resolution = 50;
-    public float roadWidth = 4f;
-    public float wallHeight = 2f;
+    public float roadWidth = 35f;
+    public float wallHeight = 5f;
 
     private Mesh mesh;
 

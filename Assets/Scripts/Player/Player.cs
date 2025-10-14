@@ -1,4 +1,4 @@
-// SimpleCarController.cs
+
 using TMPro;
 using UnityEngine;
 
@@ -12,24 +12,32 @@ public class SimpleCarController : MonoBehaviour
     public float maxSpeed = 98;       // m/s
     public float brakeDrag = 1f;       // extra drag when braking
     public float normalDrag = 0.1f;
+    [SerializeField] private float groundCheckDistance = .75f;
+    [SerializeField] private LayerMask roadLayer;
 
     Rigidbody rb;
-    Racetrack racetrack;
+    //Racetrack racetrack;
 
     void Start()
     {
         rb = GetComponent<Rigidbody>();
         rb.centerOfMass = new Vector3(0f, -0.5f, 0f); // lowers center for stability
         rb.linearDamping = normalDrag;
-        racetrack = FindFirstObjectByType<Racetrack>();
+        //racetrack = FindFirstObjectByType<Racetrack>();
     }
 
     void FixedUpdate()
     {
+        Vector3 forward = transform.forward;
+        float forwardVel = Vector3.Dot(rb.linearVelocity, forward);
+
+        speed.GetComponent<TMP_Text>().text = $"{Mathf.RoundToInt(forwardVel * 2.237f)}";
+
         //if (startLights.activeSelf) return;
+        if (!Physics.Raycast(transform.position, Vector3.down, groundCheckDistance, roadLayer)) return;
 
         // Don't allow movement during reset
-        if (racetrack != null && racetrack.IsPlayerDuringReset(0)) return;
+        //if (racetrack != null && racetrack.IsPlayerDuringReset(0)) return;
 
         float accel = 0f;
         if (Input.GetKey(KeyCode.W)) accel = 1f;
@@ -41,10 +49,7 @@ public class SimpleCarController : MonoBehaviour
 
         bool braking = Input.GetKey(KeyCode.Space);
 
-        Vector3 forward = transform.forward;
-
         // limit forward speed
-        float forwardVel = Vector3.Dot(rb.linearVelocity, forward);
         if (accel > 0f && forwardVel > maxSpeed)
         {
             // don't add more forward force if at speed cap
@@ -67,7 +72,7 @@ public class SimpleCarController : MonoBehaviour
         // braking
         rb.linearDamping = braking ? brakeDrag : normalDrag;
 
-        speed.GetComponent<TMP_Text>().text = $"{Mathf.RoundToInt(forwardVel*2.237f)}";
-
+        speed.GetComponent<TMP_Text>().text = $"{Mathf.RoundToInt(forwardVel * 2.237f)}";
     }
+
 }
