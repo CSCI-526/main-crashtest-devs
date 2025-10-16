@@ -2,7 +2,7 @@ using UnityEngine;
 
 [ExecuteAlways]
 [RequireComponent(typeof(MeshFilter), typeof(MeshRenderer), typeof(MeshCollider))]
-public class ReadMesh : MonoBehaviour
+public class RoadMesh : MonoBehaviour
 {
     public BezierCurve curve;
     public int resolution = 50;

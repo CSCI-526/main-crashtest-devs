@@ -7,32 +7,33 @@ using UnityEngine;
 public class SimpleCarController : MonoBehaviour
 {
     public bool player0 = true;
+    public Racetrack racetrack;
     public GameObject startLights;
     public GameObject speed;
-    public float motorPower = 2000;    // forward/backward force
-    public float steerTorque = 200f;   // turning torque
-    public float maxSpeed = 98;       // m/s
-    public float brakeDrag = 1f;       // extra drag when braking
-    public float normalDrag = 0.1f;
-    [SerializeField] private float groundCheckDistance = .75f;
+    [SerializeField] private float groundCheckDistance = 0.75f;
     [SerializeField] private LayerMask roadLayer;
 
-    // drift settings
-    public float normalGrip = 0.8f;        // normal friction
-    public float driftGrip = 0.25f;        // reduced grip while drifting
-    public float driftSteerBoost = 1.3f;   // steering multiplier during drift
-    public float driftDrag = 0.6f;         // extra drag while drifting (slows you down)
-    public float minDriftSpeed = 30f;      // minimum speed to drift
+    [Header("Car Physics")]
+    public float motorPower = 2000f;
+    public float steerTorque = 200f;
+    public float maxSpeed = 98f;
+    public float brakeDrag = 1f;
+    public float normalDrag = 0.1f;
 
-    Rigidbody rb;
-    //Racetrack racetrack;
+    [Header("Grip / Handling")]
+    public float normalGrip = 0.8f;
+    public float driftGrip = 0.25f;
+    public float driftSteerBoost = 1.3f;
+    public float driftDrag = 0.6f;
+    public float minDriftSpeed = 30f;
+
+    private Rigidbody rb;
 
     void Start()
     {
         rb = GetComponent<Rigidbody>();
         rb.centerOfMass = new Vector3(0f, -0.5f, 0f); // lowers center for stability
         rb.linearDamping = normalDrag;
-        //racetrack = FindFirstObjectByType<Racetrack>();
     }
 
     void FixedUpdate()
@@ -42,7 +43,7 @@ public class SimpleCarController : MonoBehaviour
 
         speed.GetComponent<TMP_Text>().text = $"{Mathf.Abs(Mathf.RoundToInt(rb.linearVelocity.magnitude * 2.237f))}";
 
-        if (startLights.activeSelf) return;
+        if (!racetrack.lightsOutAndAwayWeGOOOOO) return;
         if (!Physics.Raycast(transform.position, Vector3.down, groundCheckDistance, roadLayer)) return;
 
         // Don't allow movement during reset

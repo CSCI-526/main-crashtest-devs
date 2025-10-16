@@ -6,10 +6,12 @@ public class Racetrack : MonoBehaviour
 {
     public GameObject startLights;
     public GameObject progressBar;
+    public bool lightsOutAndAwayWeGOOOOO = false;
     private float startTimer = 1.5f;
     //public float resetFreezeDuration = 1.5f;
     private int lightCount = 0;
     private readonly List<CheckPointCheck> players = new();
+    private List<BezierCurve> curves = new();
 
     private class CheckPointCheck
     {
@@ -36,10 +38,26 @@ public class Racetrack : MonoBehaviour
     private void Start()
     {
         players.Add(new CheckPointCheck(0, GameObject.Find("Player 0"), GameObject.Find("RaceTrack/Start Straight 0/Checkpoint")));
+        players.Add(new CheckPointCheck(0, GameObject.Find("Bot 0"), GameObject.Find("RaceTrack/Start Straight 0/Checkpoint")));
+        players.Add(new CheckPointCheck(0, GameObject.Find("Bot 1"), GameObject.Find("RaceTrack/Start Straight 0/Checkpoint")));
+        players.Add(new CheckPointCheck(0, GameObject.Find("Bot 2"), GameObject.Find("RaceTrack/Start Straight 0/Checkpoint")));
+        players.Add(new CheckPointCheck(0, GameObject.Find("Bot 3"), GameObject.Find("RaceTrack/Start Straight 0/Checkpoint")));
+        players.Add(new CheckPointCheck(0, GameObject.Find("Bot 4"), GameObject.Find("RaceTrack/Start Straight 0/Checkpoint")));
+        players.Add(new CheckPointCheck(0, GameObject.Find("Bot 5"), GameObject.Find("RaceTrack/Start Straight 0/Checkpoint")));
+        players.Add(new CheckPointCheck(0, GameObject.Find("Bot 6"), GameObject.Find("RaceTrack/Start Straight 0/Checkpoint")));
         if (SceneManager.GetActiveScene().name == "MultiPlayer") players.Add(new CheckPointCheck(1, GameObject.Find("Player 1"), GameObject.Find("Track/Start Straight 0/Checkpoint")));
     }
 
-    private void Update()
+    public BezierCurve GetCurve(int index) { return curves[index]; }
+
+    public int GetCurveCount() { return curves.Count; }
+
+    public void AddTrackCurves()
+    {
+        for (int i = 0; i < gameObject.transform.childCount; i++) curves.Add(gameObject.transform.GetChild(i).GetComponent<RoadMesh>().curve);
+    }
+
+    void FixedUpdate()
     {
         if (lightCount < 6)
         {
@@ -119,7 +137,7 @@ public class Racetrack : MonoBehaviour
 
     private void TurnOnLight()
     {
-        if (lightCount == 5) startLights.SetActive(false);
+        if (lightCount == 5) { startLights.SetActive(false); lightsOutAndAwayWeGOOOOO = true; }
         else
         {
             GameObject light = startLights.transform.Find($"l{lightCount + 1}/light").gameObject;
@@ -160,7 +178,7 @@ public class Racetrack : MonoBehaviour
 
             if (players.Count > 1) UpdateHeadLights();
 
-            UpdateProgressBar();
+            //UpdateProgressBar();
         }
     }
 

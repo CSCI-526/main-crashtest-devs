@@ -55,6 +55,9 @@ public class TrackGen : MonoBehaviour
             }
             numberOfRedos++;
         }
+
+        trackObject.GetComponent<Racetrack>().AddTrackCurves();
+
     }
 
     private void GenerateTrack()
