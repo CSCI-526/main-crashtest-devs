@@ -69,7 +69,8 @@ MonoBehaviour:
 
 
     Race in the dark! Use arrow keys or WASD to drive.
-    Use Space to activate power-ups. Your headlights are your only vision.
+    Use Space to activate power-ups. Use Shift to drift.Your headlights are your
+    only vision.
 
 '
   m_isRightToLeft: 0

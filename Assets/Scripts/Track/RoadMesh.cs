@@ -1,5 +1,12 @@
 using UnityEngine;
 
+public enum RoadType
+{
+    Normal,
+    Dirt,
+    Wet
+}
+
 [ExecuteAlways]
 [RequireComponent(typeof(MeshFilter), typeof(MeshRenderer), typeof(MeshCollider))]
 public class RoadMesh : MonoBehaviour
@@ -7,7 +14,13 @@ public class RoadMesh : MonoBehaviour
     public BezierCurve curve;
     public int resolution = 50;
     public float roadWidth = 35f;
-    public float wallHeight = 5f;
+    public float wallHeight = 15f;
+
+    [Header("Road Type")]
+    public RoadType roadType = RoadType.Normal;
+    public Material normalMaterial;
+    public Material dirtMaterial;
+    public Material wetMaterial;
 
     private Mesh mesh;
 
@@ -169,6 +182,21 @@ public class RoadMesh : MonoBehaviour
         mesh.RecalculateBounds();
 
         GetComponent<MeshFilter>().sharedMesh = mesh;
+
+        // apply material based on road type
+        MeshRenderer meshRenderer = GetComponent<MeshRenderer>();
+        if (meshRenderer != null)
+        {
+            Material roadMaterial = roadType switch
+            {
+                RoadType.Dirt => dirtMaterial,
+                RoadType.Wet => wetMaterial,
+                _ => normalMaterial
+            };
+
+            if (roadMaterial != null)
+                meshRenderer.sharedMaterial = roadMaterial;
+        }
 
         if (TryGetComponent<MeshCollider>(out var mc))
         {
