@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -12,6 +13,13 @@ public class Racetrack : MonoBehaviour
     private int lightCount = 0;
     private readonly List<CheckPointCheck> players = new();
     private List<BezierCurve> curves = new();
+    private float raceStartTime = -1f;
+    private int finishedPlayers = 0;
+    private bool isSinglePlayer = true;
+
+    private string playerTimeDisplay = "";
+
+    private ScoreboardUIManager scoreboard;
 
     private class CheckPointCheck
     {
@@ -22,6 +30,7 @@ public class Racetrack : MonoBehaviour
         public GameObject checkpoint;
         //public bool isDuringReset;
         //public float resetLockTimer;
+        public float finishTime = -1f;
 
         public CheckPointCheck(int playerID, GameObject player, GameObject checkpoint)
         {
@@ -37,6 +46,8 @@ public class Racetrack : MonoBehaviour
 
     private void Start()
     {
+        scoreboard = FindFirstObjectByType<ScoreboardUIManager>();
+
         players.Add(new CheckPointCheck(0, GameObject.Find("Player 0"), GameObject.Find("RaceTrack/Start Straight 0/Checkpoint")));
         players.Add(new CheckPointCheck(0, GameObject.Find("Bot 0"), GameObject.Find("RaceTrack/Start Straight 0/Checkpoint")));
         players.Add(new CheckPointCheck(0, GameObject.Find("Bot 1"), GameObject.Find("RaceTrack/Start Straight 0/Checkpoint")));
@@ -45,7 +56,11 @@ public class Racetrack : MonoBehaviour
         players.Add(new CheckPointCheck(0, GameObject.Find("Bot 4"), GameObject.Find("RaceTrack/Start Straight 0/Checkpoint")));
         players.Add(new CheckPointCheck(0, GameObject.Find("Bot 5"), GameObject.Find("RaceTrack/Start Straight 0/Checkpoint")));
         players.Add(new CheckPointCheck(0, GameObject.Find("Bot 6"), GameObject.Find("RaceTrack/Start Straight 0/Checkpoint")));
-        if (SceneManager.GetActiveScene().name == "MultiPlayer") players.Add(new CheckPointCheck(1, GameObject.Find("Player 1"), GameObject.Find("Track/Start Straight 0/Checkpoint")));
+        if (SceneManager.GetActiveScene().name == "MultiPlayer")
+        {
+            players.Add(new CheckPointCheck(1, GameObject.Find("Player 1"), GameObject.Find("Track/Start Straight 0/Checkpoint")));
+            isSinglePlayer = false;
+        }
     }
 
     public BezierCurve GetCurve(int index) { return curves[index]; }
@@ -71,7 +86,7 @@ public class Racetrack : MonoBehaviour
 
                 startTimer = 1.5f;
 
-                if (lightCount == 5) startTimer += Random.Range(-.25f, .5f);
+                if (lightCount == 5) startTimer += UnityEngine.Random.Range(-.25f, .5f);
             }
         }
 
@@ -137,7 +152,15 @@ public class Racetrack : MonoBehaviour
 
     private void TurnOnLight()
     {
-        if (lightCount == 5) { startLights.SetActive(false); lightsOutAndAwayWeGOOOOO = true; }
+        if (lightCount == 5)
+        {
+            startLights.SetActive(false);
+            lightsOutAndAwayWeGOOOOO = true;
+            finishedPlayers = 0;
+
+            if (raceStartTime < 0f)
+                raceStartTime = Time.time;
+        }
         else
         {
             GameObject light = startLights.transform.Find($"l{lightCount + 1}/light").gameObject;
@@ -174,12 +197,28 @@ public class Racetrack : MonoBehaviour
             players[playerID].playerTimer = 5f;
             players[playerID].checkpoint = checkpoint;
 
-            if (sectionID == 91) SceneManager.LoadScene("Assets/Scenes/StartScene.unity");
+            if (sectionID >= 85)
+            {
+                players[playerID].finishTime = Time.time - raceStartTime;
+                ++finishedPlayers;
+                playerTimeDisplay += $"{finishedPlayers}. {playerID} : {FormatTime(players[playerID].finishTime)}\n";
+
+                if ((isSinglePlayer && finishedPlayers == 1) || (!isSinglePlayer && finishedPlayers == 2))
+                {
+                    scoreboard.Show(playerTimeDisplay);
+                }
+            }
 
             if (players.Count > 1) UpdateHeadLights();
 
             //UpdateProgressBar();
         }
+    }
+
+    private static string FormatTime(float seconds)
+    {
+        var ts = TimeSpan.FromSeconds(seconds);
+        return $"{(int)ts.TotalMinutes:00}:{ts.Seconds:00}.{ts.Milliseconds:000}";
     }
 
     private void UpdateHeadLights()
