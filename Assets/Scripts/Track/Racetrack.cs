@@ -215,8 +215,7 @@ public class Racetrack : MonoBehaviour
             players[playerID].playerTimer = 5f;
             players[playerID].checkpoint = checkpoint;
 
-            //if (sectionID >= curves.Count - 5)
-            if (sectionID >= 5)
+            if (sectionID >= curves.Count - 5)
             {
                 if (!players[playerID].bot && !players[playerID].finished)
                 {
