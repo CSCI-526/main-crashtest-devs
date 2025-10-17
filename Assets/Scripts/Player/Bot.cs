@@ -15,6 +15,7 @@ public class Bot : MonoBehaviour
     public float maxSpeed = 98f;
     public float brakeDrag = 1f;
     public float normalDrag = 0.1f;
+    public float downforce = 100f;
 
     [Header("Grip / Handling")]
     public float normalGrip = 0.8f;
@@ -23,6 +24,17 @@ public class Bot : MonoBehaviour
     public float minDriftSpeed = 30f;
     public float driftSteerBoost = 1.3f;
 
+    [Header("Road Type Multipliers")]
+    public float wetAccelMultiplier = 1.5f;      // accelerates faster
+    public float wetSteerMultiplier = 1.5f;       // turns easier
+    public float wetLateralGrip = 0.4f;          // slides more
+
+    public float dirtAccelMultiplier = 0.7f;
+    public float dirtSteerMultiplier = 1.0f;
+    public float dirtLateralGrip = 0.8f;
+    public float dirtDrag = 0.12f;
+
+
     [Header("Track Following")]
     public float targetSwitchDistance = 10f;
     public float turnSlowdownAngle = 30f;
@@ -30,12 +42,15 @@ public class Bot : MonoBehaviour
     private Rigidbody rb;
     private readonly List<Vector3> targets = new();
     private int currentTargetIndex = 0;
+    private RoadType currentRoadType = RoadType.Normal;
 
     void Start()
     {
         rb = GetComponent<Rigidbody>();
+        rb.mass = 100f;
         rb.centerOfMass = new Vector3(0f, -0.5f, 0f);
         rb.linearDamping = normalDrag;
+        rb.angularDamping = 2f;
 
         UpdateTargetPoints();
     }
@@ -43,7 +58,27 @@ public class Bot : MonoBehaviour
     void FixedUpdate()
     {
         if (!racetrack.lightsOutAndAwayWeGOOOOO) return;
-        if (!Physics.Raycast(transform.position, Vector3.down, groundCheckDistance, roadLayer)) return;
+
+        RaycastHit hit;
+        bool isGrounded = Physics.Raycast(transform.position, Vector3.down, out hit, groundCheckDistance, roadLayer);
+
+        // Detect road type when grounded
+        if (isGrounded)
+        {
+            RoadMesh roadMesh = hit.collider.GetComponent<RoadMesh>();
+            if (roadMesh != null)
+            {
+                currentRoadType = roadMesh.roadType;
+            }
+        }
+
+        // Apply downforce only when in the air
+        if (!isGrounded)
+        {
+            rb.AddForce(Vector3.down * downforce * rb.linearVelocity.magnitude, ForceMode.Force);
+            return;
+        }
+
         if (targets.Count == 0) UpdateTargetPoints();
         if (targets.Count == 0 || currentTargetIndex >= targets.Count) return;
 
@@ -69,6 +104,24 @@ public class Bot : MonoBehaviour
         float angle = Vector3.SignedAngle(flatForward, toTarget, Vector3.up);
         float steer = Mathf.Clamp(angle / 45f, -1f, 1f);
 
+        // Apply road type effects
+        float accelMultiplier = 1.0f;
+        float steerRoadMultiplier = 1.0f;
+        float lateralGripMultiplier = 1.0f;
+        float roadDragMultiplier = normalDrag;
+
+        switch (currentRoadType)
+        {
+            case RoadType.Wet:
+                accelMultiplier = wetAccelMultiplier;      // faster acceleration
+                steerRoadMultiplier = wetSteerMultiplier;  // more responsive steering
+                lateralGripMultiplier = wetLateralGrip;    // slides more
+                break;
+            case RoadType.Dirt:
+                accelMultiplier = dirtAccelMultiplier;     // makes you slower
+                break;
+        }
+
         // --- ACCELERATION / BRAKING LOGIC ---
         float accel = 0f;
         bool braking = false;
@@ -77,18 +130,24 @@ public class Bot : MonoBehaviour
         if (Mathf.Abs(angle) > turnSlowdownAngle && forwardVel > 40f) braking = true;
         else if (forwardVel < maxSpeed) accel = 1f;
 
-        // Apply forward or braking force
+        // apply forward or braking force with road-specific acceleration multiplier
         if (accel > 0f && forwardVel < maxSpeed)
-            rb.AddForce(forward * accel * motorPower * Time.fixedDeltaTime, ForceMode.Acceleration);
+        {
+            rb.AddForce(forward * accel * motorPower * accelMultiplier * Time.fixedDeltaTime, ForceMode.Acceleration);
+        }
 
-        rb.AddRelativeTorque(Vector3.up * steer * steerTorque * 9.5f * Time.fixedDeltaTime, ForceMode.Acceleration);
+        // Steering with road-specific multiplier
+        rb.AddRelativeTorque(Vector3.up * steer * steerTorque * 9.5f * steerRoadMultiplier * Time.fixedDeltaTime, ForceMode.Acceleration);
 
-        // Grip/friction
+        // gripping / drifting
         Vector3 right = transform.right;
         float lateralVel = Vector3.Dot(rb.linearVelocity, right);
-        Vector3 lateralImpulse = -right * lateralVel * normalGrip;
+        Vector3 lateralImpulse = -right * lateralVel * normalGrip * lateralGripMultiplier;
         rb.AddForce(lateralImpulse, ForceMode.VelocityChange);
-        rb.linearDamping = braking ? brakeDrag : normalDrag;
+
+        // apply drag
+        float activeDrag = braking ? brakeDrag : roadDragMultiplier;
+        rb.linearDamping = activeDrag;
 
         Debug.DrawLine(transform.position, targetPos, Color.green);
     }

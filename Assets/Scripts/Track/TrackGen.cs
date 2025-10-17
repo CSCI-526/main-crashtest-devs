@@ -174,6 +174,22 @@ public class TrackGen : MonoBehaviour
         Quaternion rotation = Quaternion.LookRotation(tangent, lastCurve.transform.up);
         newSegment.transform.rotation = rotation;
 
+        // randomly assign road type (40% special, 60% normal)
+        RoadMesh roadMesh = newSegment.GetComponentInChildren<RoadMesh>();
+        if (roadMesh != null)
+        {
+            float randomValue = Random.value;
+            if (randomValue < 0.40f) // 40% chance
+            {
+                roadMesh.roadType = Random.value < 0.5f ? RoadType.Dirt : RoadType.Wet;
+            }
+            else
+            {
+                roadMesh.roadType = RoadType.Normal;
+            }
+            roadMesh.GenerateRoad();
+        }
+
         lastCurve = newCurve;
     }
 

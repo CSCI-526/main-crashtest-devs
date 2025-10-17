@@ -240,6 +240,22 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.x
       value: 11
       objectReference: {fileID: 0}
+    - target: {fileID: 3871182737056256420, guid: 72c35f8aefcf54d14a77eccbc7597d38, type: 3}
+      propertyPath: wallHeight
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 3871182737056256420, guid: 72c35f8aefcf54d14a77eccbc7597d38, type: 3}
+      propertyPath: wetMaterial
+      value: 
+      objectReference: {fileID: 2100000, guid: 0a02fa8360fbcea4eacae6a690795bf7, type: 2}
+    - target: {fileID: 3871182737056256420, guid: 72c35f8aefcf54d14a77eccbc7597d38, type: 3}
+      propertyPath: dirtMaterial
+      value: 
+      objectReference: {fileID: 2100000, guid: 48d17ee1ab8de2f44ad0b4ffc03caaf2, type: 2}
+    - target: {fileID: 3871182737056256420, guid: 72c35f8aefcf54d14a77eccbc7597d38, type: 3}
+      propertyPath: normalMaterial
+      value: 
+      objectReference: {fileID: 2100000, guid: 325666e814b4d074ca56ff2d9e97fbbe, type: 2}
     - target: {fileID: 4145611695739821798, guid: 72c35f8aefcf54d14a77eccbc7597d38, type: 3}
       propertyPath: m_LocalRotation.w
       value: 0.99539626
