@@ -89,6 +89,8 @@ public class Bot : MonoBehaviour
         Vector3 lateralImpulse = -right * lateralVel * normalGrip;
         rb.AddForce(lateralImpulse, ForceMode.VelocityChange);
         rb.linearDamping = braking ? brakeDrag : normalDrag;
+
+        Debug.DrawLine(transform.position, targetPos, Color.green);
     }
 
     void UpdateTargetPoints()
@@ -102,5 +104,10 @@ public class Bot : MonoBehaviour
             targets.Add(mid);
             targets.Add(end);
         }
+    }
+
+    public void ChangeTarget(int newTarget)
+    {
+        currentTargetIndex = newTarget;
     }
 }
