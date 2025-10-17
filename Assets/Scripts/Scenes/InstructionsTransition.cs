@@ -12,7 +12,8 @@ public class TransitionScript : MonoBehaviour
     private Quaternion startRot;
     private float elapsed;
     private bool transitioning;
-
+    
+    public static bool gameMode;
     void Update()
     {
         if (transitioning)
@@ -29,7 +30,16 @@ public class TransitionScript : MonoBehaviour
             }
         }
     }
-
+    public void StartTutorialTransitionMulti()
+    {
+        gameMode = false;
+        StartTutorialTransition();
+    }
+      public void StartTutorialTransitionSingle()
+    {
+        gameMode = true;
+        StartTutorialTransition();
+    }
     public void StartTutorialTransition()
     {
         if (menuUI != null)

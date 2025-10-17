@@ -13,7 +13,14 @@ public class InstructionsUIManager : MonoBehaviour
 
     public void OnContinueButton()
     {
+        if (TransitionScript.gameMode)
+    {
         SceneManager.LoadScene("Assets/Scenes/SinglePlayer.unity");
+    }
+    else
+    {
+        SceneManager.LoadScene("Assets/Scenes/MultiPlayer.unity");
+    }
     }
         public void OnTutorialButton()
     {
