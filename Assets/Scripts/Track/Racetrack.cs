@@ -233,7 +233,7 @@ public class Racetrack : MonoBehaviour
                 }
             }
 
-            //if (players.Count > 1) UpdateHeadLights();
+            if (players.Count > 1) UpdateHeadLights();
 
             UpdateProgressBar(playerID);
         }
@@ -247,19 +247,13 @@ public class Racetrack : MonoBehaviour
 
     private void UpdateHeadLights()
     {
-        int diff = players[0].currentSection - players[1].currentSection;
+        int leader = -1;
+        foreach (CheckPointCheck player in players) if (player.currentSection > leader) leader = player.currentSection;
 
-        if (diff > 5 || diff * -1 > 5) return;
-
-        if (diff == 0) for (int i = 0; i < 2; i++) SetPlayerLights(players[i].player, 100, 50);
-        else
+        for (int i = 0; i < players.Count; i++)
         {
-            int leaderIndex = diff > 0 ? 0 : 1;
-            int followerIndex = diff > 0 ? 1 : 0;
-            int absDiff = Mathf.Abs(diff);
-
-            SetPlayerLights(players[leaderIndex].player, 100 / absDiff, 50 / absDiff);
-            SetPlayerLights(players[followerIndex].player, 100 * absDiff, 50 * absDiff);
+            int playerDiff = leader - players[i].currentSection;
+            SetPlayerLights(players[i].player, 100 * (1 + 0.1f * playerDiff), 50 * (1 + 0.1f * playerDiff));
         }
     }
 
