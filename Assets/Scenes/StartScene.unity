@@ -1861,6 +1861,16 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: -1.78
       objectReference: {fileID: 0}
+    - target: {fileID: 810623131839300638, guid: 38127dd5da51e46288b76b7f9e0cd2e3, type: 3}
+      propertyPath: m_text
+      value: 'Midnight Mayhem
+
+
+        Race in the dark! Use arrow keys or WASD
+        to drive. Your headlights are your only vision.
+
+'
+      objectReference: {fileID: 0}
     - target: {fileID: 2227419552597882615, guid: 38127dd5da51e46288b76b7f9e0cd2e3, type: 3}
       propertyPath: m_Camera
       value: 
