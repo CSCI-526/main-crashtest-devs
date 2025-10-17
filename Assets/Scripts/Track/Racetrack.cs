@@ -31,6 +31,7 @@ public class Racetrack : MonoBehaviour
         //public bool isDuringReset;
         //public float resetLockTimer;
         public float finishTime = -1f;
+        public bool finished = false;
 
         public CheckPointCheck(int playerID, GameObject player, GameObject checkpoint)
         {
@@ -197,11 +198,16 @@ public class Racetrack : MonoBehaviour
             players[playerID].playerTimer = 5f;
             players[playerID].checkpoint = checkpoint;
 
-            if (sectionID >= 85)
+            if (sectionID >= 89)
             {
-                players[playerID].finishTime = Time.time - raceStartTime;
-                ++finishedPlayers;
-                playerTimeDisplay += $"{finishedPlayers}. {playerID} : {FormatTime(players[playerID].finishTime)}\n";
+                if(!players[playerID].finished)
+                {
+                    Debug.Log("Player finished");
+                    players[playerID].finished = true;
+                    ++finishedPlayers;
+                    players[playerID].finishTime = Time.time - raceStartTime;
+                    playerTimeDisplay += $"{finishedPlayers}. Player {playerID} : {FormatTime(players[playerID].finishTime)}\n";
+                }
 
                 if ((isSinglePlayer && finishedPlayers == 1) || (!isSinglePlayer && finishedPlayers == 2))
                 {

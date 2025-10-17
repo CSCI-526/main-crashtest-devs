@@ -5,13 +5,6 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public struct RaceResult
-{
-    public string playerName;
-    public float timeSeconds; // use -1 for DNF
-    public RaceResult(string name, float t) { playerName = name; timeSeconds = t; }
-}
-
 public class ScoreboardUIManager : MonoBehaviour
 {
     public Canvas scoreboardCanvas;    // ScoreboardCanvas
@@ -39,10 +32,21 @@ public class ScoreboardUIManager : MonoBehaviour
     public void HideAndGoTo(string scenePath)
     {
         // Unpause before leaving scene
-        Time.timeScale = 1f;
         SceneManager.LoadScene(scenePath);
     }
 
-    public void OnPlayAgainButton() => HideAndGoTo("Assets/Scenes/SinglePlayer.unity");
+    public void OnPlayAgainButton()
+    {
+        if (SceneManager.GetActiveScene().name == "MultiPlayer")
+        {
+            //Debug.Log("play multiplayer again");
+            HideAndGoTo("Assets/Scenes/MultiPlayer.unity");
+        }
+        else
+        {
+            //Debug.Log("play single again");
+            HideAndGoTo("Assets/Scenes/SinglePlayer.unity");
+        }
+    }
     public void OnMainMenuButton() => HideAndGoTo("Assets/Scenes/StartScene.unity");
 }
