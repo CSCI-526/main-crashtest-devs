@@ -51,17 +51,15 @@ public class SimpleCarController : MonoBehaviour
         rb.angularDamping = 2f;
     }
 
-    //private float previousSpeed = 0f;
+    private float previousSpeed = 0f;
 
     void FixedUpdate()
     {
-        /*
-        if (previousSpeed - rb.linearVelocity.magnitude * 2.237f >= 25f) Debug.Log("Crash 25");
-        if (previousSpeed - rb.linearVelocity.magnitude * 2.237f >= 50f) Debug.Log("Crash 50");
-        if (previousSpeed - rb.linearVelocity.magnitude * 2.237f >= 100f) Debug.Log("Crash 100");
-        previousSpeed = rb.linearVelocity.magnitude * 2.237f;
+        //if (previousSpeed - rb.linearVelocity.magnitude * 2.237f >= 100f) GetComponent<CrashEffect>().TriggerCrash(transform.position);
 
-*/
+        //previousSpeed = rb.linearVelocity.magnitude * 2.237f;
+
+
 
         Vector3 forward = transform.forward;
         float forwardVel = Vector3.Dot(rb.linearVelocity, forward);
@@ -71,21 +69,21 @@ public class SimpleCarController : MonoBehaviour
         if (!racetrack.lightsOutAndAwayWeGOOOOO) return;
 
         bool isGrounded = Physics.Raycast(transform.position, Vector3.down, out RaycastHit hit, groundCheckDistance, roadLayer);
+        bool isGrounded2 = Physics.Raycast(transform.position + new Vector3(0.1f, 0.1f), Vector3.down, out RaycastHit hit2, groundCheckDistance, roadLayer);
 
         // Detect road type when grounded
         if (isGrounded)
         {
             RoadMesh roadMesh = hit.collider.GetComponent<RoadMesh>();
+            if (isGrounded2) roadMesh = hit2.collider.GetComponent<RoadMesh>();
             if (roadMesh != null)
             {
                 currentRoadType = roadMesh.roadType;
-                // Debug: Show current road type
-                //Debug.Log($"Current Road Type: {currentRoadType}");
             }
         }
 
         // Apply downforce only when in the air
-        if (!isGrounded)
+        if (!isGrounded && !isGrounded2)
         {
             rb.AddForce(Vector3.down * downforce * rb.linearVelocity.magnitude, ForceMode.Force);
             return;
