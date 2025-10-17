@@ -39,8 +39,15 @@ public class Racetrack : MonoBehaviour
 
     private void Start()
     {
+        int start = 1;
         players.Add(new CheckPointCheck(0, GameObject.Find("Player 0"), GameObject.Find("RaceTrack/Start Straight 0/Checkpoint"), false));
-        for (int i = 1; ; i++)
+        if (SceneManager.GetActiveScene().name == "MultiPlayer")
+        {
+            players.Add(new CheckPointCheck(1, GameObject.Find("Player 1"), GameObject.Find("RaceTrack/Start Straight 0/Checkpoint"), false));
+            start = 2;
+        }
+        
+        for (int i = start; ; i++)
         {
             GameObject bot = GameObject.Find($"Bot {i}");
             if (bot == null) break;
@@ -48,13 +55,12 @@ public class Racetrack : MonoBehaviour
             GameObject checkpoint = GameObject.Find("RaceTrack/Start Straight 0/Checkpoint");
             players.Add(new CheckPointCheck(0, bot, checkpoint));
 
-            GameObject newMarker = Instantiate(progressBar.transform.GetChild(1).gameObject, progressBar.transform);
+            GameObject newMarker = Instantiate(progressBar.transform.GetChild(start).gameObject, progressBar.transform);
             newMarker.SetActive(true);
             newMarker.name = $"bm{i}";
         }
         progressBar.transform.GetChild(0).SetAsLastSibling();
-        
-        if (SceneManager.GetActiveScene().name == "MultiPlayer") players.Add(new CheckPointCheck(1, GameObject.Find("Player 1"), GameObject.Find("Track/Start Straight 0/Checkpoint")));
+        if (start == 2) progressBar.transform.GetChild(0).SetAsLastSibling();
     }
 
     public BezierCurve GetCurve(int index) { return curves[index]; }
