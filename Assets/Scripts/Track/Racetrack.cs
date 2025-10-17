@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -12,6 +13,11 @@ public class Racetrack : MonoBehaviour
     private int lightCount = 0;
     private readonly List<CheckPointCheck> players = new();
     private List<BezierCurve> curves = new();
+    private float raceStartTime = -1f;
+    private int finishedPlayers = 0;
+    private bool isSinglePlayer = true;
+    private string playerTimeDisplay = "";
+    private ScoreboardUIManager scoreboard;
 
     private class CheckPointCheck
     {
@@ -21,6 +27,8 @@ public class Racetrack : MonoBehaviour
         public int currentSection;
         public GameObject checkpoint;
         public bool bot;
+        public float finishTime = -1f;
+        public bool finished = false;
         //public bool isDuringReset;
         //public float resetLockTimer;
 
@@ -39,14 +47,17 @@ public class Racetrack : MonoBehaviour
 
     private void Start()
     {
+        scoreboard = FindFirstObjectByType<ScoreboardUIManager>();
         int start = 1;
+
         players.Add(new CheckPointCheck(0, GameObject.Find("Player 0"), GameObject.Find("RaceTrack/Start Straight 0/Checkpoint"), false));
         if (SceneManager.GetActiveScene().name == "MultiPlayer")
         {
             players.Add(new CheckPointCheck(1, GameObject.Find("Player 1"), GameObject.Find("RaceTrack/Start Straight 0/Checkpoint"), false));
             start = 2;
+            isSinglePlayer = false;
         }
-        
+
         for (int i = start; ; i++)
         {
             GameObject bot = GameObject.Find($"Bot {i}");
@@ -86,7 +97,7 @@ public class Racetrack : MonoBehaviour
 
                 startTimer = 1.5f;
 
-                if (lightCount == 5) startTimer += Random.Range(-.25f, .5f);
+                if (lightCount == 5) startTimer += UnityEngine.Random.Range(-.25f, .5f);
             }
         }
 
@@ -159,7 +170,15 @@ public class Racetrack : MonoBehaviour
 
     private void TurnOnLight()
     {
-        if (lightCount == 5) { startLights.SetActive(false); lightsOutAndAwayWeGOOOOO = true; }
+        if (lightCount == 5)
+        {
+            startLights.SetActive(false);
+            lightsOutAndAwayWeGOOOOO = true;
+            finishedPlayers = 0;
+
+            if (raceStartTime < 0f)
+                raceStartTime = Time.time;
+        }
         else
         {
             GameObject light = startLights.transform.Find($"l{lightCount + 1}/light").gameObject;
@@ -196,12 +215,33 @@ public class Racetrack : MonoBehaviour
             players[playerID].playerTimer = 5f;
             players[playerID].checkpoint = checkpoint;
 
-            if (sectionID == curves.Count) SceneManager.LoadScene("Assets/Scenes/StartScene.unity");
+            if (sectionID >= curves.Count)
+            {
+                if (!players[playerID].finished)
+                {
+                    Debug.Log("Player finished");
+                    players[playerID].finished = true;
+                    ++finishedPlayers;
+                    players[playerID].finishTime = Time.time - raceStartTime;
+                    playerTimeDisplay += $"{finishedPlayers}. Player {playerID} : {FormatTime(players[playerID].finishTime)}\n";
+                }
+
+                if ((isSinglePlayer && finishedPlayers == 1) || (!isSinglePlayer && finishedPlayers == 2))
+                {
+                    scoreboard.Show(playerTimeDisplay);
+                }
+            }
 
             //if (players.Count > 1) UpdateHeadLights();
 
             UpdateProgressBar(playerID);
         }
+    }
+
+    private static string FormatTime(float seconds)
+    {
+        var ts = TimeSpan.FromSeconds(seconds);
+        return $"{(int)ts.TotalMinutes:00}:{ts.Seconds:00}.{ts.Milliseconds:000}";
     }
 
     private void UpdateHeadLights()
@@ -237,7 +277,7 @@ public class Racetrack : MonoBehaviour
         GameObject marker;
         if (players[playerID].bot) marker = progressBar.transform.Find($"bm{playerID}").gameObject;
         else marker = progressBar.transform.Find($"pm{playerID}").gameObject;
-        
+
         marker.GetComponent<RectTransform>().pivot = new Vector2(players[playerID].currentSection / (curves.Count * 1.0f), 0);
         marker.GetComponent<RectTransform>().anchoredPosition = Vector3.zero;
     }
