@@ -215,9 +215,10 @@ public class Racetrack : MonoBehaviour
             players[playerID].playerTimer = 5f;
             players[playerID].checkpoint = checkpoint;
 
-            if (sectionID >= curves.Count)
+            //if (sectionID >= curves.Count - 5)
+            if (sectionID >= 5)
             {
-                if (!players[playerID].finished)
+                if (!players[playerID].bot && !players[playerID].finished)
                 {
                     Debug.Log("Player finished");
                     players[playerID].finished = true;
@@ -226,6 +227,7 @@ public class Racetrack : MonoBehaviour
                     playerTimeDisplay += $"{finishedPlayers}. Player {playerID} : {FormatTime(players[playerID].finishTime)}\n";
                 }
 
+                Debug.Log($"{finishedPlayers} Player finished");
                 if ((isSinglePlayer && finishedPlayers == 1) || (!isSinglePlayer && finishedPlayers == 2))
                 {
                     scoreboard.Show(playerTimeDisplay);
