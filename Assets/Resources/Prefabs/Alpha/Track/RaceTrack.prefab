@@ -74,6 +74,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   startLights: {fileID: 313706280489923305}
   progressBar: {fileID: 0}
+  lightsOutAndAwayWeGOOOOO: 0
 --- !u!1001 &8801610540983083601
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -104,7 +105,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3889394961825843012, guid: ea1a978a76780423bbfaed62e03b2dc7, type: 3}
       propertyPath: wallHeight
-      value: 1
+      value: 2.5
       objectReference: {fileID: 0}
     - target: {fileID: 5065953715691064328, guid: ea1a978a76780423bbfaed62e03b2dc7, type: 3}
       propertyPath: m_Layer
