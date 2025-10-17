@@ -25,14 +25,15 @@ public class Bot : MonoBehaviour
     public float driftSteerBoost = 1.3f;
 
     [Header("Road Type Multipliers")]
-    public float wetAccelMultiplier = 1.5f;      // accelerates faster
-    public float wetSteerMultiplier = 1.5f;       // turns easier
-    public float wetLateralGrip = 0.4f;          // slides more
+     public float wetAccelMultiplier = 0.6f;
+    public float wetSteerMultiplier = 0.95f;
+    public float wetLateralGrip = 0.15f;
+    public float wetDrag = 0f;
 
-    public float dirtAccelMultiplier = 0.7f;
-    public float dirtSteerMultiplier = 1.0f;
-    public float dirtLateralGrip = 0.8f;
-    public float dirtDrag = 0.12f;
+    public float dirtAccelMultiplier = 0.8f;
+    public float dirtSteerMultiplier = 0.95f;
+    public float dirtLateralGrip = 0.6f;
+    public float dirtDrag = 0.18f;
 
 
     [Header("Track Following")]
@@ -59,8 +60,7 @@ public class Bot : MonoBehaviour
     {
         if (!racetrack.lightsOutAndAwayWeGOOOOO) return;
 
-        RaycastHit hit;
-        bool isGrounded = Physics.Raycast(transform.position, Vector3.down, out hit, groundCheckDistance, roadLayer);
+        bool isGrounded = Physics.Raycast(transform.position, Vector3.down, out RaycastHit hit, groundCheckDistance, roadLayer);
 
         // Detect road type when grounded
         if (isGrounded)
@@ -113,12 +113,16 @@ public class Bot : MonoBehaviour
         switch (currentRoadType)
         {
             case RoadType.Wet:
-                accelMultiplier = wetAccelMultiplier;      // faster acceleration
-                steerRoadMultiplier = wetSteerMultiplier;  // more responsive steering
-                lateralGripMultiplier = wetLateralGrip;    // slides more
+                accelMultiplier = wetAccelMultiplier;
+                steerRoadMultiplier = wetSteerMultiplier;
+                lateralGripMultiplier = wetLateralGrip;
+                roadDragMultiplier = wetDrag;
                 break;
             case RoadType.Dirt:
-                accelMultiplier = dirtAccelMultiplier;     // makes you slower
+                accelMultiplier = dirtAccelMultiplier;
+                steerRoadMultiplier = dirtSteerMultiplier;
+                lateralGripMultiplier = dirtLateralGrip;
+                roadDragMultiplier = dirtDrag;
                 break;
         }
 
@@ -149,7 +153,7 @@ public class Bot : MonoBehaviour
         float activeDrag = braking ? brakeDrag : roadDragMultiplier;
         rb.linearDamping = activeDrag;
 
-        Debug.DrawLine(transform.position, targetPos, Color.green);
+        //Debug.DrawLine(transform.position, targetPos, Color.green);
     }
 
     void UpdateTargetPoints()

@@ -31,6 +31,8 @@ public class TrackGen : MonoBehaviour
     private void MakeTrack()
     {
         bool success = false;
+        int specialCount = 0;
+        RoadType roadType = RoadType.Normal;
 
         while (!success && numberOfRedos < 100)
         {
@@ -45,7 +47,25 @@ public class TrackGen : MonoBehaviour
             lastCurve = trackObject.transform.GetChild(0).GetComponent<BezierCurve>();
             raceTrack.Add(trackPrefabs[^1]);
             foreach (GameObject prefab in raceTrack)
-                SpawnNextSegment(prefab);
+            {
+                if (specialCount == 0)
+                {
+                    float randomValue = Random.value;
+                    if (randomValue <= 0.05)
+                    {
+                        roadType = RoadType.Dirt;
+                        specialCount = Random.Range(4, 8);
+                    }
+                    else if (randomValue >= 0.95)
+                    {
+                        roadType = RoadType.Wet;
+                        specialCount = Random.Range(2, 6);
+                    }
+                    else roadType = RoadType.Normal;
+                }
+                else specialCount--;
+                SpawnNextSegment(prefab, roadType);
+            }
 
             if (CheckTrack())
             {
@@ -156,7 +176,7 @@ public class TrackGen : MonoBehaviour
         }
     }
 
-    private void SpawnNextSegment(GameObject prefab)
+    private void SpawnNextSegment(GameObject prefab, RoadType roadType)
     {
         GameObject newSegment = Instantiate(prefab, Vector3.zero, Quaternion.identity, transform);
         newSegment.name += $" {segmentCount}";
@@ -176,19 +196,7 @@ public class TrackGen : MonoBehaviour
 
         // randomly assign road type (40% special, 60% normal)
         RoadMesh roadMesh = newSegment.GetComponentInChildren<RoadMesh>();
-        if (roadMesh != null)
-        {
-            float randomValue = Random.value;
-            if (randomValue < 0.40f) // 40% chance
-            {
-                roadMesh.roadType = Random.value < 0.5f ? RoadType.Dirt : RoadType.Wet;
-            }
-            else
-            {
-                roadMesh.roadType = RoadType.Normal;
-            }
-            roadMesh.GenerateRoad();
-        }
+        roadMesh.roadType = roadType;
 
         lastCurve = newCurve;
     }

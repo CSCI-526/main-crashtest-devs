@@ -170,7 +170,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3871182737056256420, guid: 72c35f8aefcf54d14a77eccbc7597d38, type: 3}
       propertyPath: wallHeight
-      value: 5
+      value: 2.5
       objectReference: {fileID: 0}
     - target: {fileID: 3871182737056256420, guid: 72c35f8aefcf54d14a77eccbc7597d38, type: 3}
       propertyPath: wetMaterial

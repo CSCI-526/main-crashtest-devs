@@ -29,14 +29,15 @@ public class SimpleCarController : MonoBehaviour
     public float minDriftSpeed = 30f;
 
     [Header("Road Type Multipliers")]
-    public float wetAccelMultiplier = 1.5f;      // accelerates faster
-    public float wetSteerMultiplier = 1.5f;      // turns easier
-    public float wetLateralGrip = 0.4f;          // slides more
+    public float wetAccelMultiplier = 0.6f;
+    public float wetSteerMultiplier = 0.95f;
+    public float wetLateralGrip = 0.15f;
+    public float wetDrag = 0f;
 
-    public float dirtAccelMultiplier = 0.7f;
-    public float dirtSteerMultiplier = 1.0f;
-    public float dirtLateralGrip = 0.8f;
-    public float dirtDrag = 0.12f;
+    public float dirtAccelMultiplier = 0.8f;
+    public float dirtSteerMultiplier = 0.95f;
+    public float dirtLateralGrip = 0.6f;
+    public float dirtDrag = 0.18f;
 
     private Rigidbody rb;
     private RoadType currentRoadType = RoadType.Normal;
@@ -50,8 +51,18 @@ public class SimpleCarController : MonoBehaviour
         rb.angularDamping = 2f;
     }
 
+    //private float previousSpeed = 0f;
+
     void FixedUpdate()
     {
+        /*
+        if (previousSpeed - rb.linearVelocity.magnitude * 2.237f >= 25f) Debug.Log("Crash 25");
+        if (previousSpeed - rb.linearVelocity.magnitude * 2.237f >= 50f) Debug.Log("Crash 50");
+        if (previousSpeed - rb.linearVelocity.magnitude * 2.237f >= 100f) Debug.Log("Crash 100");
+        previousSpeed = rb.linearVelocity.magnitude * 2.237f;
+
+*/
+
         Vector3 forward = transform.forward;
         float forwardVel = Vector3.Dot(rb.linearVelocity, forward);
 
@@ -59,8 +70,7 @@ public class SimpleCarController : MonoBehaviour
 
         if (!racetrack.lightsOutAndAwayWeGOOOOO) return;
 
-        RaycastHit hit;
-        bool isGrounded = Physics.Raycast(transform.position, Vector3.down, out hit, groundCheckDistance, roadLayer);
+        bool isGrounded = Physics.Raycast(transform.position, Vector3.down, out RaycastHit hit, groundCheckDistance, roadLayer);
 
         // Detect road type when grounded
         if (isGrounded)
@@ -70,7 +80,7 @@ public class SimpleCarController : MonoBehaviour
             {
                 currentRoadType = roadMesh.roadType;
                 // Debug: Show current road type
-                Debug.Log($"Current Road Type: {currentRoadType}");
+                //Debug.Log($"Current Road Type: {currentRoadType}");
             }
         }
 
@@ -124,12 +134,16 @@ public class SimpleCarController : MonoBehaviour
         switch (currentRoadType)
         {
             case RoadType.Wet:
-                accelMultiplier = wetAccelMultiplier;      // faster acceleration
-                steerRoadMultiplier = wetSteerMultiplier;  // more responsive steering
-                lateralGripMultiplier = wetLateralGrip;    // slides more
+                accelMultiplier = wetAccelMultiplier;
+                steerRoadMultiplier = wetSteerMultiplier;
+                lateralGripMultiplier = wetLateralGrip;
+                roadDragMultiplier = wetDrag;
                 break;
             case RoadType.Dirt:
-                accelMultiplier = dirtAccelMultiplier;     // makes you slower
+                accelMultiplier = dirtAccelMultiplier;
+                steerRoadMultiplier = dirtSteerMultiplier;
+                lateralGripMultiplier = dirtLateralGrip;
+                roadDragMultiplier = dirtDrag;
                 break;
         }
 

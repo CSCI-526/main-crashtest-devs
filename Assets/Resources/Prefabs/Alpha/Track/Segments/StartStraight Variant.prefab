@@ -456,6 +456,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 3871182737056256420, guid: 72c35f8aefcf54d14a77eccbc7597d38, type: 3}
+      propertyPath: wallHeight
+      value: 2.5
+      objectReference: {fileID: 0}
     - target: {fileID: 5581423515023380151, guid: 72c35f8aefcf54d14a77eccbc7597d38, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
