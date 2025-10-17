@@ -20,16 +20,18 @@ public class Racetrack : MonoBehaviour
         public float playerTimer;
         public int currentSection;
         public GameObject checkpoint;
+        public bool bot;
         //public bool isDuringReset;
         //public float resetLockTimer;
 
-        public CheckPointCheck(int playerID, GameObject player, GameObject checkpoint)
+        public CheckPointCheck(int playerID, GameObject player, GameObject checkpoint, bool bot = true)
         {
             this.playerTimer = 15f;
             this.currentSection = 0;
             this.player = player;
             this.playerID = playerID;
             this.checkpoint = checkpoint;
+            this.bot = bot;
             //this.isDuringReset = false;
             //this.resetLockTimer = 0f;
         }
@@ -37,14 +39,21 @@ public class Racetrack : MonoBehaviour
 
     private void Start()
     {
-        players.Add(new CheckPointCheck(0, GameObject.Find("Player 0"), GameObject.Find("RaceTrack/Start Straight 0/Checkpoint")));
-        players.Add(new CheckPointCheck(0, GameObject.Find("Bot 0"), GameObject.Find("RaceTrack/Start Straight 0/Checkpoint")));
-        players.Add(new CheckPointCheck(0, GameObject.Find("Bot 1"), GameObject.Find("RaceTrack/Start Straight 0/Checkpoint")));
-        players.Add(new CheckPointCheck(0, GameObject.Find("Bot 2"), GameObject.Find("RaceTrack/Start Straight 0/Checkpoint")));
-        players.Add(new CheckPointCheck(0, GameObject.Find("Bot 3"), GameObject.Find("RaceTrack/Start Straight 0/Checkpoint")));
-        players.Add(new CheckPointCheck(0, GameObject.Find("Bot 4"), GameObject.Find("RaceTrack/Start Straight 0/Checkpoint")));
-        players.Add(new CheckPointCheck(0, GameObject.Find("Bot 5"), GameObject.Find("RaceTrack/Start Straight 0/Checkpoint")));
-        players.Add(new CheckPointCheck(0, GameObject.Find("Bot 6"), GameObject.Find("RaceTrack/Start Straight 0/Checkpoint")));
+        players.Add(new CheckPointCheck(0, GameObject.Find("Player 0"), GameObject.Find("RaceTrack/Start Straight 0/Checkpoint"), false));
+        for (int i = 1; ; i++)
+        {
+            GameObject bot = GameObject.Find($"Bot {i}");
+            if (bot == null) break;
+
+            GameObject checkpoint = GameObject.Find("RaceTrack/Start Straight 0/Checkpoint");
+            players.Add(new CheckPointCheck(0, bot, checkpoint));
+
+            GameObject newMarker = Instantiate(progressBar.transform.GetChild(1).gameObject, progressBar.transform);
+            newMarker.SetActive(true);
+            newMarker.name = $"bm{i}";
+        }
+        progressBar.transform.GetChild(0).SetAsLastSibling();
+        
         if (SceneManager.GetActiveScene().name == "MultiPlayer") players.Add(new CheckPointCheck(1, GameObject.Find("Player 1"), GameObject.Find("Track/Start Straight 0/Checkpoint")));
     }
 
@@ -129,6 +138,13 @@ public class Racetrack : MonoBehaviour
                 rb.linearVelocity = Vector3.zero;
                 rb.angularVelocity = Vector3.zero;
 
+                if (players[i].bot)
+                {
+                    Bot botScript = players[i].player.GetComponent<Bot>();
+                    string[] parts = players[i].checkpoint.transform.parent.name.Split();
+                    botScript.ChangeTarget(int.Parse(parts[2]) * 2);
+                }
+
                 //players[i].isDuringReset = true;
                 //players[i].resetLockTimer = resetFreezeDuration;
             }
@@ -174,11 +190,11 @@ public class Racetrack : MonoBehaviour
             players[playerID].playerTimer = 5f;
             players[playerID].checkpoint = checkpoint;
 
-            if (sectionID == 91) SceneManager.LoadScene("Assets/Scenes/StartScene.unity");
+            if (sectionID == curves.Count) SceneManager.LoadScene("Assets/Scenes/StartScene.unity");
 
-            if (players.Count > 1) UpdateHeadLights();
+            //if (players.Count > 1) UpdateHeadLights();
 
-            //UpdateProgressBar();
+            UpdateProgressBar(playerID);
         }
     }
 
@@ -210,15 +226,14 @@ public class Racetrack : MonoBehaviour
         }
     }
 
-    private void UpdateProgressBar()
+    private void UpdateProgressBar(int playerID)
     {
-        for (int i = 0; i < players.Count; i++)
-        {
-            GameObject marker = progressBar.transform.Find($"p{i}m").gameObject;
-
-            marker.GetComponent<RectTransform>().pivot = new Vector2(players[i].currentSection / 91f, 0);
-            marker.GetComponent<RectTransform>().anchoredPosition = Vector3.zero;
-        }
+        GameObject marker;
+        if (players[playerID].bot) marker = progressBar.transform.Find($"bm{playerID}").gameObject;
+        else marker = progressBar.transform.Find($"pm{playerID}").gameObject;
+        
+        marker.GetComponent<RectTransform>().pivot = new Vector2(players[playerID].currentSection / (curves.Count * 1.0f), 0);
+        marker.GetComponent<RectTransform>().anchoredPosition = Vector3.zero;
     }
 
     // Public method to check if a player is during reset
