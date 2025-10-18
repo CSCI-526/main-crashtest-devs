@@ -155,11 +155,27 @@ public class Racetrack : MonoBehaviour
                 rb.linearVelocity = Vector3.zero;
                 rb.angularVelocity = Vector3.zero;
 
+                bool hasCrashed;
+
                 if (players[i].bot)
                 {
                     Bot botScript = players[i].player.GetComponent<Bot>();
                     string[] parts = players[i].checkpoint.transform.parent.name.Split();
                     botScript.ChangeTarget(int.Parse(parts[2]) * 2);
+                    hasCrashed = botScript.hasCrashed;
+                    botScript.hasCrashed = false;
+                }
+                else
+                {
+                    SimpleCarController playerScript = players[i].player.GetComponent<SimpleCarController>();
+                    hasCrashed = playerScript.hasCrashed;
+                    playerScript.hasCrashed = false;
+                }
+
+                if (hasCrashed)
+                {
+                    players[i].player.GetComponent<MeshRenderer>().enabled = true;
+                    for (int j = 0; j < 3; j++) players[i].player.transform.GetChild(j).gameObject.SetActive(true);
                 }
 
                 //players[i].isDuringReset = true;
@@ -199,6 +215,7 @@ public class Racetrack : MonoBehaviour
     private void HandlePlaneTrigger(Transform section, string obj)
     {
         string[] parts1 = obj.Split();
+        if (parts1.Length < 2) return;
         int playerID = int.Parse(parts1[1]);
 
         string[] parts2 = section.name.Split();

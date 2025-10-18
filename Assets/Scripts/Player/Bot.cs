@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
+using UnityEngine.Rendering;
 
 [RequireComponent(typeof(Rigidbody))]
 public class Bot : MonoBehaviour
@@ -8,6 +9,7 @@ public class Bot : MonoBehaviour
     public LayerMask roadLayer;
     public GameObject startLights;
     public float groundCheckDistance = 0.75f;
+    public bool hasCrashed = false;
 
     [Header("Car Physics")]
     public float motorPower = 2000f;
@@ -25,7 +27,7 @@ public class Bot : MonoBehaviour
     public float driftSteerBoost = 1.3f;
 
     [Header("Road Type Multipliers")]
-     public float wetAccelMultiplier = 0.6f;
+    public float wetAccelMultiplier = 0.6f;
     public float wetSteerMultiplier = 0.95f;
     public float wetLateralGrip = 0.15f;
     public float wetDrag = 0f;
@@ -44,6 +46,8 @@ public class Bot : MonoBehaviour
     private readonly List<Vector3> targets = new();
     private int currentTargetIndex = 0;
     private RoadType currentRoadType = RoadType.Normal;
+    private float previousSpeed = 0f;
+    private float t = 0f;
 
     void Start()
     {
@@ -58,7 +62,24 @@ public class Bot : MonoBehaviour
 
     void FixedUpdate()
     {
-        if (!racetrack.lightsOutAndAwayWeGOOOOO) return;
+        if (previousSpeed - rb.linearVelocity.magnitude * 2.237f >= 50f) { GetComponent<CrashEffect>().TriggerCrash(); hasCrashed = true; }
+        previousSpeed = rb.linearVelocity.magnitude * 2.237f;
+
+         if (hasCrashed)
+        {
+            GameObject flashLight = transform.Find("crashLight").gameObject;
+        
+            if (t == 0) flashLight.GetComponent<LensFlareComponentSRP>().enabled = true;
+            if (t < 1f)
+            {
+                t += Time.deltaTime;
+                flashLight.GetComponent<Light>().intensity = 200 * (1 - t);
+            } else if (t > .5f) flashLight.GetComponent<LensFlareComponentSRP>().enabled = false;
+            else flashLight.GetComponent<Light>().intensity = 0;
+        }
+
+        if (!racetrack.lightsOutAndAwayWeGOOOOO || hasCrashed) return;
+        else t = 0;
 
         bool isGrounded = Physics.Raycast(transform.position, Vector3.down, out RaycastHit hit, groundCheckDistance, roadLayer);
 

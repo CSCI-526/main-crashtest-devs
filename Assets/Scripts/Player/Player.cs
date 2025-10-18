@@ -2,6 +2,7 @@
 using System.Data.Common;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 [RequireComponent(typeof(Rigidbody))]
 public class SimpleCarController : MonoBehaviour
@@ -12,6 +13,7 @@ public class SimpleCarController : MonoBehaviour
     public GameObject speed;
     [SerializeField] private float groundCheckDistance = 0.75f;
     [SerializeField] private LayerMask roadLayer;
+    public bool hasCrashed = false;
 
     [Header("Car Physics")]
     public float motorPower = 2000f;
@@ -41,6 +43,8 @@ public class SimpleCarController : MonoBehaviour
 
     private Rigidbody rb;
     private RoadType currentRoadType = RoadType.Normal;
+    private float previousSpeed = 0f;
+    private float t = 0f;
 
     void Start()
     {
@@ -51,22 +55,31 @@ public class SimpleCarController : MonoBehaviour
         rb.angularDamping = 2f;
     }
 
-    private float previousSpeed = 0f;
-
     void FixedUpdate()
     {
-        //if (previousSpeed - rb.linearVelocity.magnitude * 2.237f >= 100f) GetComponent<CrashEffect>().TriggerCrash(transform.position);
+        if (previousSpeed - rb.linearVelocity.magnitude * 2.237f >= 75f) { GetComponent<CrashEffect>().TriggerCrash(); hasCrashed = true; }
+        previousSpeed = rb.linearVelocity.magnitude * 2.237f;
 
-        //previousSpeed = rb.linearVelocity.magnitude * 2.237f;
-
-
+        if (hasCrashed)
+        {
+            GameObject flashLight = transform.Find("crashLight").gameObject;
+        
+            if (t == 0) flashLight.GetComponent<LensFlareComponentSRP>().enabled = true;
+            if (t < 1f)
+            {
+                t += Time.deltaTime;
+                flashLight.GetComponent<Light>().intensity = 200 * (1 - t);
+            } else if (t > .5f) flashLight.GetComponent<LensFlareComponentSRP>().enabled = false;
+            else flashLight.GetComponent<Light>().intensity = 0;
+        }
 
         Vector3 forward = transform.forward;
         float forwardVel = Vector3.Dot(rb.linearVelocity, forward);
 
         speed.GetComponent<TMP_Text>().text = $"{Mathf.Abs(Mathf.RoundToInt(rb.linearVelocity.magnitude * 2.237f))}";
 
-        if (!racetrack.lightsOutAndAwayWeGOOOOO) return;
+        if (!racetrack.lightsOutAndAwayWeGOOOOO || hasCrashed) return;
+        else t = 0;
 
         bool isGrounded = Physics.Raycast(transform.position, Vector3.down, out RaycastHit hit, groundCheckDistance, roadLayer);
         bool isGrounded2 = Physics.Raycast(transform.position + new Vector3(0.1f, 0.1f), Vector3.down, out RaycastHit hit2, groundCheckDistance, roadLayer);

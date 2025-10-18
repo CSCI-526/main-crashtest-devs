@@ -984,14 +984,6 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7001591597847967556, guid: 7b7ec5950dad64e30a4b6f416fb610ac, type: 3}
-      propertyPath: wetDrag
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7001591597847967556, guid: 7b7ec5950dad64e30a4b6f416fb610ac, type: 3}
-      propertyPath: downforce
-      value: 50
-      objectReference: {fileID: 0}
-    - target: {fileID: 7001591597847967556, guid: 7b7ec5950dad64e30a4b6f416fb610ac, type: 3}
       propertyPath: racetrack
       value: 
       objectReference: {fileID: 1432448806438218318}
@@ -999,22 +991,6 @@ PrefabInstance:
       propertyPath: startLights
       value: 
       objectReference: {fileID: 1629565912}
-    - target: {fileID: 7001591597847967556, guid: 7b7ec5950dad64e30a4b6f416fb610ac, type: 3}
-      propertyPath: wetLateralGrip
-      value: 0.15
-      objectReference: {fileID: 0}
-    - target: {fileID: 7001591597847967556, guid: 7b7ec5950dad64e30a4b6f416fb610ac, type: 3}
-      propertyPath: wetSteerMultiplier
-      value: 0.95
-      objectReference: {fileID: 0}
-    - target: {fileID: 7001591597847967556, guid: 7b7ec5950dad64e30a4b6f416fb610ac, type: 3}
-      propertyPath: dirtSteerMultiplier
-      value: 0.95
-      objectReference: {fileID: 0}
-    - target: {fileID: 7191451815783346935, guid: 7b7ec5950dad64e30a4b6f416fb610ac, type: 3}
-      propertyPath: m_Mass
-      value: 100
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -1168,10 +1144,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: Bot 6
       objectReference: {fileID: 0}
-    - target: {fileID: 4374223010599885457, guid: 7b7ec5950dad64e30a4b6f416fb610ac, type: 3}
-      propertyPath: m_IsActive
-      value: 1
-      objectReference: {fileID: 0}
     - target: {fileID: 4694190145889668817, guid: 7b7ec5950dad64e30a4b6f416fb610ac, type: 3}
       propertyPath: m_Pivot.x
       value: 0.5
@@ -1253,14 +1225,6 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7001591597847967556, guid: 7b7ec5950dad64e30a4b6f416fb610ac, type: 3}
-      propertyPath: wetDrag
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7001591597847967556, guid: 7b7ec5950dad64e30a4b6f416fb610ac, type: 3}
-      propertyPath: downforce
-      value: 50
-      objectReference: {fileID: 0}
-    - target: {fileID: 7001591597847967556, guid: 7b7ec5950dad64e30a4b6f416fb610ac, type: 3}
       propertyPath: racetrack
       value: 
       objectReference: {fileID: 1432448806438218318}
@@ -1268,22 +1232,6 @@ PrefabInstance:
       propertyPath: startLights
       value: 
       objectReference: {fileID: 1629565912}
-    - target: {fileID: 7001591597847967556, guid: 7b7ec5950dad64e30a4b6f416fb610ac, type: 3}
-      propertyPath: wetLateralGrip
-      value: 0.15
-      objectReference: {fileID: 0}
-    - target: {fileID: 7001591597847967556, guid: 7b7ec5950dad64e30a4b6f416fb610ac, type: 3}
-      propertyPath: wetSteerMultiplier
-      value: 0.95
-      objectReference: {fileID: 0}
-    - target: {fileID: 7001591597847967556, guid: 7b7ec5950dad64e30a4b6f416fb610ac, type: 3}
-      propertyPath: dirtSteerMultiplier
-      value: 0.95
-      objectReference: {fileID: 0}
-    - target: {fileID: 7191451815783346935, guid: 7b7ec5950dad64e30a4b6f416fb610ac, type: 3}
-      propertyPath: m_Mass
-      value: 100
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -1442,17 +1390,9 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 3057151748987196811, guid: 7b7ec5950dad64e30a4b6f416fb610ac, type: 3}
-      propertyPath: m_IsActive
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 4374223010599885457, guid: 7b7ec5950dad64e30a4b6f416fb610ac, type: 3}
       propertyPath: m_Name
       value: Bot 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 4374223010599885457, guid: 7b7ec5950dad64e30a4b6f416fb610ac, type: 3}
-      propertyPath: m_IsActive
-      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4694190145889668817, guid: 7b7ec5950dad64e30a4b6f416fb610ac, type: 3}
       propertyPath: m_Pivot.x
@@ -1535,14 +1475,6 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7001591597847967556, guid: 7b7ec5950dad64e30a4b6f416fb610ac, type: 3}
-      propertyPath: wetDrag
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7001591597847967556, guid: 7b7ec5950dad64e30a4b6f416fb610ac, type: 3}
-      propertyPath: downforce
-      value: 50
-      objectReference: {fileID: 0}
-    - target: {fileID: 7001591597847967556, guid: 7b7ec5950dad64e30a4b6f416fb610ac, type: 3}
       propertyPath: racetrack
       value: 
       objectReference: {fileID: 1432448806438218318}
@@ -1550,22 +1482,6 @@ PrefabInstance:
       propertyPath: startLights
       value: 
       objectReference: {fileID: 1629565912}
-    - target: {fileID: 7001591597847967556, guid: 7b7ec5950dad64e30a4b6f416fb610ac, type: 3}
-      propertyPath: wetLateralGrip
-      value: 0.15
-      objectReference: {fileID: 0}
-    - target: {fileID: 7001591597847967556, guid: 7b7ec5950dad64e30a4b6f416fb610ac, type: 3}
-      propertyPath: wetSteerMultiplier
-      value: 0.95
-      objectReference: {fileID: 0}
-    - target: {fileID: 7001591597847967556, guid: 7b7ec5950dad64e30a4b6f416fb610ac, type: 3}
-      propertyPath: dirtSteerMultiplier
-      value: 0.95
-      objectReference: {fileID: 0}
-    - target: {fileID: 7191451815783346935, guid: 7b7ec5950dad64e30a4b6f416fb610ac, type: 3}
-      propertyPath: m_Mass
-      value: 100
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -1661,7 +1577,7 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 913064430}
   m_CullTransparentMesh: 1
---- !u!43 &1289528241
+--- !u!43 &1413282442
 Mesh:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -2186,10 +2102,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: Bot 4
       objectReference: {fileID: 0}
-    - target: {fileID: 4374223010599885457, guid: 7b7ec5950dad64e30a4b6f416fb610ac, type: 3}
-      propertyPath: m_IsActive
-      value: 1
-      objectReference: {fileID: 0}
     - target: {fileID: 4694190145889668817, guid: 7b7ec5950dad64e30a4b6f416fb610ac, type: 3}
       propertyPath: m_Pivot.x
       value: 0.5
@@ -2271,14 +2183,6 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7001591597847967556, guid: 7b7ec5950dad64e30a4b6f416fb610ac, type: 3}
-      propertyPath: wetDrag
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7001591597847967556, guid: 7b7ec5950dad64e30a4b6f416fb610ac, type: 3}
-      propertyPath: downforce
-      value: 50
-      objectReference: {fileID: 0}
-    - target: {fileID: 7001591597847967556, guid: 7b7ec5950dad64e30a4b6f416fb610ac, type: 3}
       propertyPath: racetrack
       value: 
       objectReference: {fileID: 1432448806438218318}
@@ -2286,22 +2190,6 @@ PrefabInstance:
       propertyPath: startLights
       value: 
       objectReference: {fileID: 1629565912}
-    - target: {fileID: 7001591597847967556, guid: 7b7ec5950dad64e30a4b6f416fb610ac, type: 3}
-      propertyPath: wetLateralGrip
-      value: 0.15
-      objectReference: {fileID: 0}
-    - target: {fileID: 7001591597847967556, guid: 7b7ec5950dad64e30a4b6f416fb610ac, type: 3}
-      propertyPath: wetSteerMultiplier
-      value: 0.95
-      objectReference: {fileID: 0}
-    - target: {fileID: 7001591597847967556, guid: 7b7ec5950dad64e30a4b6f416fb610ac, type: 3}
-      propertyPath: dirtSteerMultiplier
-      value: 0.95
-      objectReference: {fileID: 0}
-    - target: {fileID: 7191451815783346935, guid: 7b7ec5950dad64e30a4b6f416fb610ac, type: 3}
-      propertyPath: m_Mass
-      value: 100
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -2318,10 +2206,6 @@ PrefabInstance:
     - target: {fileID: 4374223010599885457, guid: 7b7ec5950dad64e30a4b6f416fb610ac, type: 3}
       propertyPath: m_Name
       value: Bot 5
-      objectReference: {fileID: 0}
-    - target: {fileID: 4374223010599885457, guid: 7b7ec5950dad64e30a4b6f416fb610ac, type: 3}
-      propertyPath: m_IsActive
-      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4694190145889668817, guid: 7b7ec5950dad64e30a4b6f416fb610ac, type: 3}
       propertyPath: m_Pivot.x
@@ -2404,14 +2288,6 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7001591597847967556, guid: 7b7ec5950dad64e30a4b6f416fb610ac, type: 3}
-      propertyPath: wetDrag
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7001591597847967556, guid: 7b7ec5950dad64e30a4b6f416fb610ac, type: 3}
-      propertyPath: downforce
-      value: 50
-      objectReference: {fileID: 0}
-    - target: {fileID: 7001591597847967556, guid: 7b7ec5950dad64e30a4b6f416fb610ac, type: 3}
       propertyPath: racetrack
       value: 
       objectReference: {fileID: 1432448806438218318}
@@ -2419,22 +2295,6 @@ PrefabInstance:
       propertyPath: startLights
       value: 
       objectReference: {fileID: 1629565912}
-    - target: {fileID: 7001591597847967556, guid: 7b7ec5950dad64e30a4b6f416fb610ac, type: 3}
-      propertyPath: wetLateralGrip
-      value: 0.15
-      objectReference: {fileID: 0}
-    - target: {fileID: 7001591597847967556, guid: 7b7ec5950dad64e30a4b6f416fb610ac, type: 3}
-      propertyPath: wetSteerMultiplier
-      value: 0.95
-      objectReference: {fileID: 0}
-    - target: {fileID: 7001591597847967556, guid: 7b7ec5950dad64e30a4b6f416fb610ac, type: 3}
-      propertyPath: dirtSteerMultiplier
-      value: 0.95
-      objectReference: {fileID: 0}
-    - target: {fileID: 7191451815783346935, guid: 7b7ec5950dad64e30a4b6f416fb610ac, type: 3}
-      propertyPath: m_Mass
-      value: 100
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -2448,17 +2308,9 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 3057151748987196811, guid: 7b7ec5950dad64e30a4b6f416fb610ac, type: 3}
-      propertyPath: m_IsActive
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 4374223010599885457, guid: 7b7ec5950dad64e30a4b6f416fb610ac, type: 3}
       propertyPath: m_Name
       value: Bot 7
-      objectReference: {fileID: 0}
-    - target: {fileID: 4374223010599885457, guid: 7b7ec5950dad64e30a4b6f416fb610ac, type: 3}
-      propertyPath: m_IsActive
-      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4694190145889668817, guid: 7b7ec5950dad64e30a4b6f416fb610ac, type: 3}
       propertyPath: m_Pivot.x
@@ -2541,14 +2393,6 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7001591597847967556, guid: 7b7ec5950dad64e30a4b6f416fb610ac, type: 3}
-      propertyPath: wetDrag
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7001591597847967556, guid: 7b7ec5950dad64e30a4b6f416fb610ac, type: 3}
-      propertyPath: downforce
-      value: 50
-      objectReference: {fileID: 0}
-    - target: {fileID: 7001591597847967556, guid: 7b7ec5950dad64e30a4b6f416fb610ac, type: 3}
       propertyPath: racetrack
       value: 
       objectReference: {fileID: 1432448806438218318}
@@ -2556,22 +2400,6 @@ PrefabInstance:
       propertyPath: startLights
       value: 
       objectReference: {fileID: 1629565912}
-    - target: {fileID: 7001591597847967556, guid: 7b7ec5950dad64e30a4b6f416fb610ac, type: 3}
-      propertyPath: wetLateralGrip
-      value: 0.15
-      objectReference: {fileID: 0}
-    - target: {fileID: 7001591597847967556, guid: 7b7ec5950dad64e30a4b6f416fb610ac, type: 3}
-      propertyPath: wetSteerMultiplier
-      value: 0.95
-      objectReference: {fileID: 0}
-    - target: {fileID: 7001591597847967556, guid: 7b7ec5950dad64e30a4b6f416fb610ac, type: 3}
-      propertyPath: dirtSteerMultiplier
-      value: 0.95
-      objectReference: {fileID: 0}
-    - target: {fileID: 7191451815783346935, guid: 7b7ec5950dad64e30a4b6f416fb610ac, type: 3}
-      propertyPath: m_Mass
-      value: 100
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -2799,10 +2627,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: Bot 3
       objectReference: {fileID: 0}
-    - target: {fileID: 4374223010599885457, guid: 7b7ec5950dad64e30a4b6f416fb610ac, type: 3}
-      propertyPath: m_IsActive
-      value: 1
-      objectReference: {fileID: 0}
     - target: {fileID: 4694190145889668817, guid: 7b7ec5950dad64e30a4b6f416fb610ac, type: 3}
       propertyPath: m_Pivot.x
       value: 0.5
@@ -2884,14 +2708,6 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7001591597847967556, guid: 7b7ec5950dad64e30a4b6f416fb610ac, type: 3}
-      propertyPath: wetDrag
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7001591597847967556, guid: 7b7ec5950dad64e30a4b6f416fb610ac, type: 3}
-      propertyPath: downforce
-      value: 50
-      objectReference: {fileID: 0}
-    - target: {fileID: 7001591597847967556, guid: 7b7ec5950dad64e30a4b6f416fb610ac, type: 3}
       propertyPath: racetrack
       value: 
       objectReference: {fileID: 1432448806438218318}
@@ -2899,22 +2715,6 @@ PrefabInstance:
       propertyPath: startLights
       value: 
       objectReference: {fileID: 1629565912}
-    - target: {fileID: 7001591597847967556, guid: 7b7ec5950dad64e30a4b6f416fb610ac, type: 3}
-      propertyPath: wetLateralGrip
-      value: 0.15
-      objectReference: {fileID: 0}
-    - target: {fileID: 7001591597847967556, guid: 7b7ec5950dad64e30a4b6f416fb610ac, type: 3}
-      propertyPath: wetSteerMultiplier
-      value: 0.95
-      objectReference: {fileID: 0}
-    - target: {fileID: 7001591597847967556, guid: 7b7ec5950dad64e30a4b6f416fb610ac, type: 3}
-      propertyPath: dirtSteerMultiplier
-      value: 0.95
-      objectReference: {fileID: 0}
-    - target: {fileID: 7191451815783346935, guid: 7b7ec5950dad64e30a4b6f416fb610ac, type: 3}
-      propertyPath: m_Mass
-      value: 100
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -2979,11 +2779,11 @@ PrefabInstance:
     - target: {fileID: 5499709892284377471, guid: 8841c4a9502bb4ed9abafef34193ed1a, type: 3}
       propertyPath: m_Mesh
       value: 
-      objectReference: {fileID: 1289528241}
+      objectReference: {fileID: 1413282442}
     - target: {fileID: 8311703228662641647, guid: 8841c4a9502bb4ed9abafef34193ed1a, type: 3}
       propertyPath: m_Mesh
       value: 
-      objectReference: {fileID: 1289528241}
+      objectReference: {fileID: 1413282442}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

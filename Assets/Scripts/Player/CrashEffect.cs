@@ -1,45 +1,36 @@
 using UnityEngine;
+using System.Collections;
 
 public class CrashEffect : MonoBehaviour
 {
     [Header("Explosion Settings")]
-    public float explosionForce = 500f;      // how hard to throw the cubes
-    public float explosionRadius = 5f;       // how far the cubes can fly
-    public float upwardModifier = 1f;        // adds upward lift to the explosion
-    public float randomTorque = 300f;        // how much each cube spins
-    public float lifetime = 5f;              // how long cubes stay active before disappearing
+    public float explosionForce = 100;      // how hard to throw the cubes
+    public float explosionRadius = 20f;       // how far the cubes can fly
+    public float upwardModifier = 5f;        // adds upward lift to the explosion
+    public float randomTorque = 20;        // how much each cube spins
+    public float lifetime = 3f;              // how long cubes stay active before disappearing
 
-    private bool hasExploded = false;
-
-    public void TriggerCrash(Vector3 explosionPoint)
+    public void TriggerCrash()
     {
-        Debug.Log("Crash");
-        if (hasExploded) return;
-        hasExploded = true;
-
         // Hide the main model (the car)
-        var carRenderers = GetComponentsInChildren<MeshRenderer>();
-        foreach (var r in carRenderers)
-            r.enabled = false;
+        GetComponent<MeshRenderer>().enabled = false;
 
         // Enable the “fragment” object (the hidden cube group)
         Transform fragments = transform.Find("CrashFragments");
-        if (fragments == null)
-        {
-            Debug.LogWarning("No 'CrashFragments' child found!");
-            return;
-        }
+        GameObject fragmentClone = Instantiate(fragments.gameObject, fragments.position, fragments.rotation);
+        fragmentClone.SetActive(true);
 
-        fragments.gameObject.SetActive(true);
+        Transform speed = transform.Find("speed");
+        if (speed != null) speed.gameObject.SetActive(false);
+
+        transform.Find("light 0").gameObject.SetActive(false);
+        transform.Find("light 1").gameObject.SetActive(false);
 
         // Apply random physics to each cube
-        foreach (Transform child in fragments)
+        foreach (Transform child in fragmentClone.transform)
         {
             if (!child.TryGetComponent<Rigidbody>(out Rigidbody rb))
-                rb = child.gameObject.AddComponent<Rigidbody>();
-
-            rb.isKinematic = false;
-            rb.useGravity = true;
+                rb = child.gameObject.GetComponent<Rigidbody>();
 
             // Random direction & spin
             Vector3 randomDir = Random.onUnitSphere;
@@ -49,8 +40,6 @@ public class CrashEffect : MonoBehaviour
             // Auto-destroy fragment after lifetime
             Destroy(child.gameObject, lifetime + Random.Range(0f, 1f));
         }
-
-        // Optionally destroy the main object later
-        Destroy(gameObject, lifetime + 1f);
+        Destroy(fragmentClone, lifetime + 1);
     }
 }
