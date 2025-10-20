@@ -15,6 +15,7 @@ public class Racetrack : MonoBehaviour
     private List<BezierCurve> curves = new();
     private float raceStartTime = -1f;
     private int finishedPlayers = 0;
+    private int realFinishedPlayers = 0;
     private bool isSinglePlayer = true;
     private string playerTimeDisplay = "";
     private ScoreboardUIManager scoreboard;
@@ -232,19 +233,32 @@ public class Racetrack : MonoBehaviour
             players[playerID].playerTimer = 5f;
             players[playerID].checkpoint = checkpoint;
 
-            if (sectionID >= curves.Count - 1)
+            //if (sectionID >= curves.Count - 1)
+            if (sectionID >= 10)
             {
-                if (!players[playerID].bot && !players[playerID].finished)
+                if(!players[playerID].finished)
                 {
-                    Debug.Log("Player finished");
-                    players[playerID].finished = true;
                     ++finishedPlayers;
+                    players[playerID].finished = true;
                     players[playerID].finishTime = Time.time - raceStartTime;
-                    playerTimeDisplay += $"{finishedPlayers}. Player {playerID} : {FormatTime(players[playerID].finishTime)}\n";
+
+                    if (!players[playerID].bot)
+                    {
+                        playerTimeDisplay += $"{finishedPlayers}. Player {playerID} : {FormatTime(players[playerID].finishTime)}\n";
+                        Debug.Log("Player finished");
+                        ++realFinishedPlayers;
+                        
+                        scoreboard.ShowPlayerFinishScreen(players[playerID].playerID);
+                    }
+                    else
+                    {
+                        playerTimeDisplay += $"{finishedPlayers}. Bot {playerID} : {FormatTime(players[playerID].finishTime)}\n";
+                    }
                 }
 
-                Debug.Log($"{finishedPlayers} Player finished");
-                if ((isSinglePlayer && finishedPlayers == 1) || (!isSinglePlayer && finishedPlayers == 2))
+
+                //Debug.Log($"{finishedPlayers} Player finished");
+                if ((isSinglePlayer && realFinishedPlayers == 1) || (!isSinglePlayer && realFinishedPlayers == 2))
                 {
                     scoreboard.Show(playerTimeDisplay);
                 }

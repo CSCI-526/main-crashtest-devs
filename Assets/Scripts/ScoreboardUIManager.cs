@@ -12,6 +12,9 @@ public class ScoreboardUIManager : MonoBehaviour
     public GameObject playAgainButton; // Buttons/PlayAgainButton
     public GameObject mainMenuButton;  // Buttons/MainMenuButton
 
+    public Canvas P1FinishScreen;
+    public Canvas P2FinishScreen;
+
     private bool shown;
 
     void Awake()
@@ -33,6 +36,15 @@ public class ScoreboardUIManager : MonoBehaviour
     {
         // Unpause before leaving scene
         SceneManager.LoadScene(scenePath);
+    }
+
+    public void ShowPlayerFinishScreen(int playerID)
+    {
+        Debug.Log($"Show scoreboard");
+        if (playerID == 0)
+            P1FinishScreen.gameObject.SetActive(true);
+        else
+            P2FinishScreen.gameObject.SetActive(true);
     }
 
     public void OnPlayAgainButton()
