@@ -41,9 +41,9 @@ public class ScoreboardUIManager : MonoBehaviour
     public void ShowPlayerFinishScreen(int playerID)
     {
         Debug.Log($"Show scoreboard");
-        if (playerID == 0)
+        if (P1FinishScreen != null && playerID == 0)
             P1FinishScreen.gameObject.SetActive(true);
-        else
+        else if (P2FinishScreen != null)
             P2FinishScreen.gameObject.SetActive(true);
     }
 
