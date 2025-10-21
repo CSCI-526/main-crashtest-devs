@@ -116,71 +116,8 @@ public class Racetrack : MonoBehaviour
 
             if (players[i].playerTimer <= 0f)
             {
-                //Debug.Log($"Player {players[i].playerID} is out of time. Current Checkpoint {players[i].currentSection}"); // need to move the player to the reset spot
-                players[i].playerTimer = 5f;
+                RespawnPlayer(i);
 
-                RectTransform rt = players[i].player.GetComponent<RectTransform>();
-                Vector3 pos = players[i].checkpoint.transform.position;
-                pos.y -= 12.5f;
-                if (players.Count > 1)
-                {
-                    if (i == 0) pos.x -= 1;
-                    else pos.x += 1;
-                    rt.position = pos;
-                }
-                else rt.position = pos;
-
-                Quaternion baseRot = players[i].checkpoint.transform.parent.rotation;
-                Vector3 euler = baseRot.eulerAngles;
-                int roty = 0;
-                switch (players[i].checkpoint.transform.parent.name[..2])
-                {
-                    case "90":
-                        roty = 90;
-                        break;
-                    case "60":
-                        roty = 60;
-                        break;
-                    case "45":
-                        roty = 45;
-                        break;
-                    case "30":
-                        roty = 30;
-                        break;
-                }
-                if (players[i].checkpoint.transform.parent.name[2] == 'L') roty *= -1;
-                euler.y += roty;
-                rt.rotation = Quaternion.Euler(euler);
-
-                Rigidbody rb = players[i].player.GetComponent<Rigidbody>();
-                rb.linearVelocity = Vector3.zero;
-                rb.angularVelocity = Vector3.zero;
-
-                bool hasCrashed;
-
-                if (players[i].bot)
-                {
-                    Bot botScript = players[i].player.GetComponent<Bot>();
-                    string[] parts = players[i].checkpoint.transform.parent.name.Split();
-                    botScript.ChangeTarget(int.Parse(parts[2]) * 2);
-                    hasCrashed = botScript.hasCrashed;
-                    botScript.hasCrashed = false;
-                }
-                else
-                {
-                    SimpleCarController playerScript = players[i].player.GetComponent<SimpleCarController>();
-                    hasCrashed = playerScript.hasCrashed;
-                    playerScript.hasCrashed = false;
-                }
-
-                if (hasCrashed)
-                {
-                    players[i].player.GetComponent<MeshRenderer>().enabled = true;
-                    for (int j = 0; j < 3; j++) players[i].player.transform.GetChild(j).gameObject.SetActive(true);
-                }
-
-                //players[i].isDuringReset = true;
-                //players[i].resetLockTimer = resetFreezeDuration;
             }
         }
     }
@@ -235,7 +172,7 @@ public class Racetrack : MonoBehaviour
 
             if (sectionID >= curves.Count - 1)
             {
-                if(!players[playerID].finished)
+                if (!players[playerID].finished)
                 {
                     ++finishedPlayers;
                     players[playerID].finished = true;
@@ -246,7 +183,7 @@ public class Racetrack : MonoBehaviour
                         playerTimeDisplay += $"{finishedPlayers}. Player {playerID} : {FormatTime(players[playerID].finishTime)}\n";
                         Debug.Log("Player finished");
                         ++realFinishedPlayers;
-                        
+
                         scoreboard.ShowPlayerFinishScreen(players[playerID].playerID);
                     }
                     else
@@ -307,11 +244,61 @@ public class Racetrack : MonoBehaviour
         marker.GetComponent<RectTransform>().anchoredPosition = Vector3.zero;
     }
 
-    // Public method to check if a player is during reset
-    /*public bool IsPlayerDuringReset(int playerID)
+    private void RespawnPlayer(int playerID)
     {
-        if (playerID < 0 || playerID >= players.Count) return false;
-        return players[playerID].isDuringReset;
-    }*/
+        players[playerID].playerTimer = 5f;
+        RectTransform rt = players[playerID].player.GetComponent<RectTransform>();
+
+        // position
+        int respawnIndex = 0;
+        while (true)
+        {
+            if (!curves[players[playerID].currentSection].respawnSpots[respawnIndex])
+            {
+                curves[players[playerID].currentSection].respawnSpots[respawnIndex] = true;
+                curves[players[playerID].currentSection].respawnTimers[respawnIndex] = 2f;
+                break;
+            }
+            else respawnIndex += 1;
+
+            if (respawnIndex >= 12) { Debug.Log("you broke respawning"); break; }
+        }
+
+        Vector3 pos = curves[players[playerID].currentSection].GetOffsetPoint(1 - respawnIndex / 10f, respawnIndex % 2 == 0);
+        pos.y += 10f;
+        rt.position = pos;
+
+        // rotation
+        Vector3 direction = curves[players[playerID].currentSection].GetTangent(1-respawnIndex/10f).normalized;
+        rt.rotation = Quaternion.LookRotation(direction, Vector3.up);
+
+        // rest
+        Rigidbody rb = players[playerID].player.GetComponent<Rigidbody>();
+        rb.linearVelocity = Vector3.zero;
+        rb.angularVelocity = Vector3.zero;
+
+        bool hasCrashed;
+
+        if (players[playerID].bot)
+        {
+            Bot botScript = players[playerID].player.GetComponent<Bot>();
+            string[] parts = players[playerID].checkpoint.transform.parent.name.Split();
+            botScript.ChangeTarget(int.Parse(parts[2]) * 2);
+            hasCrashed = botScript.hasCrashed;
+            botScript.hasCrashed = false;
+        }
+        else
+        {
+            SimpleCarController playerScript = players[playerID].player.GetComponent<SimpleCarController>();
+            hasCrashed = playerScript.hasCrashed;
+            playerScript.hasCrashed = false;
+        }
+
+        if (hasCrashed)
+        {
+            players[playerID].player.GetComponent<MeshRenderer>().enabled = true;
+            for (int i = 0; i < 3; i++) players[playerID].player.transform.GetChild(i).gameObject.SetActive(true);
+        }
+    }
 }
 

@@ -189,6 +189,7 @@ public class TrackGen : MonoBehaviour
         Vector3 tangent = (lastP3 - lastP2).normalized;
 
         Vector3 offset = lastP3 - newCurve.p0.position;
+        offset.y -= 0.001f;
         newSegment.transform.position += offset;
 
         Quaternion rotation = Quaternion.LookRotation(tangent, lastCurve.transform.up);
