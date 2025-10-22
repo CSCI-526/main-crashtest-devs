@@ -188,4 +188,9 @@ public class Bot : MonoBehaviour
     {
         currentTargetIndex = newTarget;
     }
+
+    public void ChangeMotorPower(float newTarget)
+    {
+        motorPower = newTarget;
+    }
 }

@@ -25,7 +25,7 @@ public class Racetrack : MonoBehaviour
         public int playerID;
         public GameObject player;
         public float playerTimer;
-        public int currentSection;
+        public int currentSection = 0;
         public GameObject checkpoint;
         public bool bot;
         public float finishTime = -1f;
@@ -203,6 +203,22 @@ public class Racetrack : MonoBehaviour
             if (players.Count > 1) UpdateHeadLights();
 
             UpdateProgressBar(playerID);
+
+            if (isSinglePlayer) UpdateBots();
+        }
+    }
+
+    private void UpdateBots()
+    {
+        float enginePowerMultiplyer;
+        for (int i = 1; i < players.Count; i++)
+        {
+            int playerDiff = players[0].currentSection - players[i].currentSection;
+            
+            if (playerDiff < -20 || playerDiff > 20) continue;
+            enginePowerMultiplyer = 1 + playerDiff / 20f;
+
+            players[i].player.GetComponent<Bot>().ChangeMotorPower(2000*enginePowerMultiplyer);
         }
     }
 
