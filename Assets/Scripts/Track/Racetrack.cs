@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using Unity.Mathematics;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -9,7 +11,6 @@ public class Racetrack : MonoBehaviour
     public GameObject progressBar;
     public bool lightsOutAndAwayWeGOOOOO = false;
     private float startTimer = 1.5f;
-    //public float resetFreezeDuration = 1.5f;
     private int lightCount = 0;
     private readonly List<CheckPointCheck> players = new();
     private List<BezierCurve> curves = new();
@@ -30,8 +31,6 @@ public class Racetrack : MonoBehaviour
         public bool bot;
         public float finishTime = -1f;
         public bool finished = false;
-        //public bool isDuringReset;
-        //public float resetLockTimer;
 
         public CheckPointCheck(int playerID, GameObject player, GameObject checkpoint, bool bot = true)
         {
@@ -41,8 +40,6 @@ public class Racetrack : MonoBehaviour
             this.playerID = playerID;
             this.checkpoint = checkpoint;
             this.bot = bot;
-            //this.isDuringReset = false;
-            //this.resetLockTimer = 0f;
         }
     }
 
@@ -75,15 +72,6 @@ public class Racetrack : MonoBehaviour
         if (start == 2) progressBar.transform.GetChild(0).SetAsLastSibling();
     }
 
-    public BezierCurve GetCurve(int index) { return curves[index]; }
-
-    public int GetCurveCount() { return curves.Count; }
-
-    public void AddTrackCurves()
-    {
-        for (int i = 0; i < gameObject.transform.childCount; i++) curves.Add(gameObject.transform.GetChild(i).GetComponent<RoadMesh>().curve);
-    }
-
     void FixedUpdate()
     {
         if (lightCount < 6)
@@ -93,11 +81,8 @@ public class Racetrack : MonoBehaviour
             if (startTimer <= 0f)
             {
                 TurnOnLight();
-
                 lightCount++;
-
                 startTimer = 1.5f;
-
                 if (lightCount == 5) startTimer += UnityEngine.Random.Range(-.25f, .5f);
             }
         }
@@ -105,20 +90,7 @@ public class Racetrack : MonoBehaviour
         for (int i = 0; i < players.Count; i++)
         {
             players[i].playerTimer -= Time.deltaTime;
-
-            /*
-            if (players[i].isDuringReset)
-            {
-                players[i].resetLockTimer -= Time.deltaTime;
-                // Unlock when timer expires
-                if (players[i].resetLockTimer <= 0f) players[i].isDuringReset = false;
-            }*/
-
-            if (players[i].playerTimer <= 0f)
-            {
-                RespawnPlayer(i);
-
-            }
+            if (players[i].playerTimer <= 0f) RespawnPlayer(i);
         }
     }
 
@@ -153,7 +125,7 @@ public class Racetrack : MonoBehaviour
     private void HandlePlaneTrigger(Transform section, string obj)
     {
         string[] parts1 = obj.Split();
-        if (parts1.Length < 2) return;
+        if (parts1.Length < 2 || obj[0] == 'T' || obj[0] == 'C') return;
         int playerID = int.Parse(parts1[1]);
 
         string[] parts2 = section.name.Split();
@@ -204,7 +176,9 @@ public class Racetrack : MonoBehaviour
 
             UpdateProgressBar(playerID);
 
-            if (isSinglePlayer) UpdateBots();
+            if (isSinglePlayer) UpdateBots(); // how should I do this for multiplayer
+
+            DynamicObstacles(sectionID);
         }
     }
 
@@ -214,11 +188,11 @@ public class Racetrack : MonoBehaviour
         for (int i = 1; i < players.Count; i++)
         {
             int playerDiff = players[0].currentSection - players[i].currentSection;
-            
+
             if (playerDiff < -20 || playerDiff > 20) continue;
             enginePowerMultiplyer = 1 + playerDiff / 20f;
 
-            players[i].player.GetComponent<Bot>().ChangeMotorPower(2000*enginePowerMultiplyer);
+            players[i].player.GetComponent<Bot>().ChangeMotorPower(2000 * enginePowerMultiplyer);
         }
     }
 
@@ -285,7 +259,7 @@ public class Racetrack : MonoBehaviour
         rt.position = pos;
 
         // rotation
-        Vector3 direction = curves[players[playerID].currentSection].GetTangent(1-respawnIndex/10f).normalized;
+        Vector3 direction = curves[players[playerID].currentSection].GetTangent(1 - respawnIndex / 10f).normalized;
         rt.rotation = Quaternion.LookRotation(direction, Vector3.up);
 
         // rest
@@ -316,5 +290,37 @@ public class Racetrack : MonoBehaviour
             for (int i = 0; i < 2; i++) players[playerID].player.transform.GetChild(i).gameObject.SetActive(true);
         }
     }
+
+    public BezierCurve GetCurve(int index) { return curves[index]; }
+
+    public int GetCurveCount() { return curves.Count; }
+
+    public void AddTrackCurves()
+    {
+        for (int i = 0; i < gameObject.transform.childCount; i++) curves.Add(gameObject.transform.GetChild(i).GetComponent<RoadMesh>().curve);
+    }
+
+    public void DynamicObstacles(int sectionID)
+    {
+
+        Transform sectionTrees = transform.GetChild(sectionID + 3).Find("Obstacles/Trees");
+        if (sectionTrees == null || sectionTrees.childCount == 0) return;
+
+        Transform tree = sectionTrees.GetChild(UnityEngine.Random.Range(0, sectionTrees.childCount));
+        if (!tree.TryGetComponent<Rigidbody>(out var rb))
+        {
+            rb = tree.gameObject.AddComponent<Rigidbody>();
+            rb.mass = 250f;
+        }
+
+        Vector3 curveMid = curves[sectionID + 3].GetPoint(0.5f);
+        Vector3 dirToRoad = (curveMid - tree.position).normalized;
+
+        Quaternion tilt = Quaternion.FromToRotation(Vector3.up, Vector3.up + dirToRoad * 0.1f);
+
+        tree.rotation = tilt * tree.rotation;
+        tree.Rotate(Vector3.up, UnityEngine.Random.Range(-10f, 10f), Space.Self);
+    }
+
 }
 
