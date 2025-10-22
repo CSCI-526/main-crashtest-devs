@@ -22,6 +22,9 @@ public class RoadMesh : MonoBehaviour
     public Material dirtMaterial;
     public Material wetMaterial;
 
+    [Header("Segment Info")]
+    public string segmentName = "Unknown";
+
     private Mesh mesh;
 
     void Start()

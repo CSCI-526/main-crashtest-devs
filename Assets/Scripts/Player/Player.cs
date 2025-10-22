@@ -23,6 +23,9 @@ public class SimpleCarController : MonoBehaviour
     public float normalDrag = 0.1f;
     public float downforce = 100f;
 
+    [Header("Analytics")]
+    public SendToGoogle analytics;
+
     [Header("Grip / Handling")]
     public float normalGrip = 0.8f;
     public float driftGrip = 0.25f;
@@ -43,8 +46,10 @@ public class SimpleCarController : MonoBehaviour
 
     private Rigidbody rb;
     private RoadType currentRoadType = RoadType.Normal;
+    private RoadMesh currentRoadMesh;
     private float previousSpeed = 0f;
     private float t = 0f;
+    private bool analyticsAlreadySent = false;
 
     void Start()
     {
@@ -57,7 +62,29 @@ public class SimpleCarController : MonoBehaviour
 
     void FixedUpdate()
     {
-        if (previousSpeed - rb.linearVelocity.magnitude * 2.237f >= 75f) { GetComponent<CrashEffect>().TriggerCrash(); hasCrashed = true; }
+        // Reset analytics flag when player is no longer crashed (after respawn)
+        if (!hasCrashed)
+        {
+            analyticsAlreadySent = false;
+        }
+
+        if (previousSpeed - rb.linearVelocity.magnitude * 2.237f >= 75f)
+        {
+            GetComponent<CrashEffect>().TriggerCrash();
+            hasCrashed = true;
+
+            // Send crash analytics (only once per crash)
+            if (analytics != null && !analyticsAlreadySent && currentRoadMesh != null)
+            {
+                string segmentType = currentRoadMesh.segmentName;
+                string surfaceType = currentRoadMesh.roadType.ToString();
+                string eventType = "crash";
+                float playerSpeed = previousSpeed;
+
+                analytics.Send(segmentType, surfaceType, eventType, playerSpeed);
+                analyticsAlreadySent = true;
+            }
+        }
         previousSpeed = rb.linearVelocity.magnitude * 2.237f;
 
         if (hasCrashed)
@@ -89,7 +116,11 @@ public class SimpleCarController : MonoBehaviour
             rb.AddForce(downforce * rb.linearVelocity.magnitude * Vector3.down, ForceMode.Force);
             return;
         }
-        else currentRoadType = roadMesh.roadType;
+        else
+        {
+            currentRoadType = roadMesh.roadType;
+            currentRoadMesh = roadMesh; // Track current segment for analytics
+        }
 
         float accel = 0f;
         float steer = 0f;

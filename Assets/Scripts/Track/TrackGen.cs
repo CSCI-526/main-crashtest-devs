@@ -195,9 +195,13 @@ public class TrackGen : MonoBehaviour
         Quaternion rotation = Quaternion.LookRotation(tangent, lastCurve.transform.up);
         newSegment.transform.rotation = rotation;
 
-        // randomly assign road type (40% special, 60% normal)
+        // Set road type and segment name for analytics
         RoadMesh roadMesh = newSegment.GetComponentInChildren<RoadMesh>();
         roadMesh.roadType = roadType;
+
+        // Extract segment name from prefab (remove suffix if present)
+        string segmentName = prefab.name.Replace(" Variant", "").Replace("(Clone)", "").Trim();
+        roadMesh.segmentName = segmentName;
 
         lastCurve = newCurve;
     }
