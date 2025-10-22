@@ -63,13 +63,14 @@ public class SimpleCarController : MonoBehaviour
         if (hasCrashed)
         {
             GameObject flashLight = transform.Find("crashLight").gameObject;
-        
+
             if (t == 0) flashLight.GetComponent<LensFlareComponentSRP>().enabled = true;
             if (t < 1f)
             {
                 t += Time.deltaTime;
                 flashLight.GetComponent<Light>().intensity = 200 * (1 - t);
-            } else if (t > .5f) flashLight.GetComponent<LensFlareComponentSRP>().enabled = false;
+            }
+            else if (t > .5f) flashLight.GetComponent<LensFlareComponentSRP>().enabled = false;
             else flashLight.GetComponent<Light>().intensity = 0;
         }
 
@@ -81,29 +82,14 @@ public class SimpleCarController : MonoBehaviour
         if (!racetrack.lightsOutAndAwayWeGOOOOO || hasCrashed) return;
         else t = 0;
 
-        bool isGrounded = Physics.Raycast(transform.position, Vector3.down, out RaycastHit hit, groundCheckDistance, roadLayer);
-        bool isGrounded2 = Physics.Raycast(transform.position + new Vector3(0.1f, 0.1f), Vector3.down, out RaycastHit hit2, groundCheckDistance, roadLayer);
+        (int wheelsInContact, RoadMesh roadMesh) = BotPlayer.IsGrounded(transform.gameObject, groundCheckDistance, roadLayer);
 
-        // Detect road type when grounded
-        if (isGrounded)
+        if (wheelsInContact == 0)
         {
-            RoadMesh roadMesh = hit.collider.GetComponent<RoadMesh>();
-            if (isGrounded2) roadMesh = hit2.collider.GetComponent<RoadMesh>();
-            if (roadMesh != null)
-            {
-                currentRoadType = roadMesh.roadType;
-            }
-        }
-
-        // Apply downforce only when in the air
-        if (!isGrounded && !isGrounded2)
-        {
-            rb.AddForce(Vector3.down * downforce * rb.linearVelocity.magnitude, ForceMode.Force);
+            rb.AddForce(downforce * rb.linearVelocity.magnitude * Vector3.down, ForceMode.Force);
             return;
         }
-
-        // Don't allow movement during reset
-        //if (racetrack != null && racetrack.IsPlayerDuringReset(0)) return;
+        else currentRoadType = roadMesh.roadType;
 
         float accel = 0f;
         float steer = 0f;
@@ -132,9 +118,9 @@ public class SimpleCarController : MonoBehaviour
                 attemptDrift = Input.GetKey(KeyCode.RightShift);
                 break;
         }
-
-        // limit forward speed
-        //float forwardVel = Vector3.Dot(rb.linearVelocity, forward);
+        Transform rearLights = transform.Find("lights/rear");
+        if (braking) for (int i = 0; i < 2; i++) rearLights.GetChild(i).GetComponent<Light>().intensity = 25;
+        else for (int i = 0; i < 2; i++) rearLights.GetChild(i).GetComponent<Light>().intensity = 1;
 
         // Apply road type effects
         float accelMultiplier = 1.0f;
@@ -169,19 +155,19 @@ public class SimpleCarController : MonoBehaviour
         else
         {
             // apply road-specific acceleration multiplier
-            rb.AddForce(forward * accel * motorPower * accelMultiplier * Time.fixedDeltaTime, ForceMode.Acceleration);
+            rb.AddForce(forward * accel * motorPower * accelMultiplier * wheelsInContact / 4f * Time.fixedDeltaTime, ForceMode.Acceleration);
         }
 
         // steering: apply torque, boosted during drift for tighter turns
         float steerMultiplier = drifting ? driftSteerBoost : 1f;
         float steerFactor = 9.5f;
-        rb.AddRelativeTorque(Vector3.up * steer * steerTorque * steerFactor * steerMultiplier * steerRoadMultiplier * Time.fixedDeltaTime, ForceMode.Acceleration);
+        rb.AddRelativeTorque(Vector3.up * steer * steerTorque * steerFactor * steerMultiplier * steerRoadMultiplier * wheelsInContact / 4f * Time.fixedDeltaTime, ForceMode.Acceleration);
 
         // friction: reduced grip while drifting allows sliding
         Vector3 right = transform.right;
         float lateralVel = Vector3.Dot(rb.linearVelocity, right);
         float gripStrength = (drifting ? driftGrip : normalGrip) * lateralGripMultiplier;
-        Vector3 lateralImpulse = -right * lateralVel * gripStrength;
+        Vector3 lateralImpulse = -right * lateralVel * gripStrength * wheelsInContact / 4f;
         rb.AddForce(lateralImpulse, ForceMode.VelocityChange);
 
         // braking: space for hard brake, drift also slows you down, or dirt slows you down

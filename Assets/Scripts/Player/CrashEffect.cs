@@ -23,8 +23,7 @@ public class CrashEffect : MonoBehaviour
         Transform speed = transform.Find("speed");
         if (speed != null) speed.gameObject.SetActive(false);
 
-        transform.Find("light 0").gameObject.SetActive(false);
-        transform.Find("light 1").gameObject.SetActive(false);
+        transform.Find("lights").gameObject.SetActive(false);
 
         // Apply random physics to each cube
         foreach (Transform child in fragmentClone.transform)

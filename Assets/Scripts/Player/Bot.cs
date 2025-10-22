@@ -81,24 +81,14 @@ public class Bot : MonoBehaviour
         if (!racetrack.lightsOutAndAwayWeGOOOOO || hasCrashed) return;
         else t = 0;
 
-        bool isGrounded = Physics.Raycast(transform.position, Vector3.down, out RaycastHit hit, groundCheckDistance, roadLayer);
+        (int wheelsInContact, RoadMesh roadMesh) = BotPlayer.IsGrounded(transform.gameObject, groundCheckDistance, roadLayer);
 
-        // Detect road type when grounded
-        if (isGrounded)
+        if (wheelsInContact == 0 || roadMesh == null)
         {
-            RoadMesh roadMesh = hit.collider.GetComponent<RoadMesh>();
-            if (roadMesh != null)
-            {
-                currentRoadType = roadMesh.roadType;
-            }
-        }
-
-        // Apply downforce only when in the air
-        if (!isGrounded)
-        {
-            rb.AddForce(Vector3.down * downforce * rb.linearVelocity.magnitude, ForceMode.Force);
+            rb.AddForce(downforce * rb.linearVelocity.magnitude * Vector3.down, ForceMode.Force);
             return;
         }
+        else currentRoadType = roadMesh.roadType;
 
         if (targets.Count == 0) UpdateTargetPoints();
         if (targets.Count == 0 || currentTargetIndex >= targets.Count) return;
@@ -154,6 +144,10 @@ public class Bot : MonoBehaviour
         // If turning sharply, slow down
         if (Mathf.Abs(angle) > turnSlowdownAngle && forwardVel > 40f) braking = true;
         else if (forwardVel < maxSpeed) accel = 1f;
+
+        Transform rearLights = transform.Find("lights/rear");
+        if (braking) for (int i = 0; i < 2; i++) rearLights.GetChild(i).GetComponent<Light>().intensity = 100;
+        else for (int i = 0; i < 2; i++) rearLights.GetChild(i).GetComponent<Light>().intensity = 50;
 
         // apply forward or braking force with road-specific acceleration multiplier
         if (accel > 0f && forwardVel < maxSpeed)

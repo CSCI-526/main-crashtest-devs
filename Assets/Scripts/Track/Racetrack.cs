@@ -228,7 +228,7 @@ public class Racetrack : MonoBehaviour
     {
         for (int j = 0; j < 2; j++)
         {
-            Light light = player.transform.Find($"light {j}").GetComponent<Light>();
+            Light light = player.transform.Find($"lights/front/light {j}").GetComponent<Light>();
             light.intensity = intensity;
             light.range = range;
         }
@@ -297,7 +297,7 @@ public class Racetrack : MonoBehaviour
         if (hasCrashed)
         {
             players[playerID].player.GetComponent<MeshRenderer>().enabled = true;
-            for (int i = 0; i < 3; i++) players[playerID].player.transform.GetChild(i).gameObject.SetActive(true);
+            for (int i = 0; i < 2; i++) players[playerID].player.transform.GetChild(i).gameObject.SetActive(true);
         }
     }
 }
