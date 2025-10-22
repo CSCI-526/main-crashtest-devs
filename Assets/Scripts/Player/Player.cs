@@ -84,7 +84,7 @@ public class SimpleCarController : MonoBehaviour
 
         (int wheelsInContact, RoadMesh roadMesh) = BotPlayer.IsGrounded(transform.gameObject, groundCheckDistance, roadLayer);
 
-        if (wheelsInContact == 0)
+        if (wheelsInContact == 0 || roadMesh == null)
         {
             rb.AddForce(downforce * rb.linearVelocity.magnitude * Vector3.down, ForceMode.Force);
             return;
