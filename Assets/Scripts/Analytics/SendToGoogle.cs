@@ -5,7 +5,7 @@ using System;
 
 public class SendToGoogle : MonoBehaviour
 {
-    [SerializeField] private string URL = "https://docs.google.com/forms/u/0/d/e/1FAIpQLSde_bEOu758vRX9KBMkOcseaMh4n4YhW6E843XedV0GWnnHXw/formResponse";
+    [SerializeField] private string baseURL = "https://docs.google.com/forms/d/e/1FAIpQLSde_bEOu758vRX9KBMkOcseaMh4n4YhW6E843XedV0GWnnHXw/formResponse";
 
     [Header("Form Entry IDs")]
     [SerializeField] private string sessionIDEntry = "entry.180420280";
@@ -28,14 +28,15 @@ public class SendToGoogle : MonoBehaviour
     private IEnumerator Post(string segmentType, string surfaceType,
         string eventType, float playerSpeed)
     {
-        WWWForm form = new WWWForm();
-        form.AddField(sessionIDEntry, _sessionID.ToString());
-        form.AddField(segmentTypeEntry, segmentType);
-        form.AddField(surfaceTypeEntry, surfaceType);
-        form.AddField(eventTypeEntry, eventType);
-        form.AddField(playerSpeedEntry, playerSpeed.ToString("F2"));
+        // Build URL with query parameters (Google Forms prefers GET with query string)
+        string url = baseURL +
+            "?" + sessionIDEntry + "=" + UnityWebRequest.EscapeURL(_sessionID.ToString()) +
+            "&" + segmentTypeEntry + "=" + UnityWebRequest.EscapeURL(segmentType) +
+            "&" + surfaceTypeEntry + "=" + UnityWebRequest.EscapeURL(surfaceType) +
+            "&" + eventTypeEntry + "=" + UnityWebRequest.EscapeURL(eventType) +
+            "&" + playerSpeedEntry + "=" + UnityWebRequest.EscapeURL(playerSpeed.ToString("F2"));
 
-        using (UnityWebRequest www = UnityWebRequest.Post(URL, form))
+        using (UnityWebRequest www = UnityWebRequest.Get(url))
         {
             yield return www.SendWebRequest();
 
