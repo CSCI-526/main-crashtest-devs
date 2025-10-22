@@ -7126,6 +7126,8 @@ GameObject:
   - component: {fileID: 3826949871008778716}
   - component: {fileID: 2982156189848827058}
   - component: {fileID: 5376061845053620418}
+  - component: {fileID: 6582297117037623556}
+  - component: {fileID: 5790690627279536737}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -7286,6 +7288,7 @@ MonoBehaviour:
   brakeDrag: 1
   normalDrag: 0.1
   downforce: 25
+  analytics: {fileID: 0}
   normalGrip: 0.8
   driftGrip: 0.25
   driftSteerBoost: 1.3
@@ -7316,6 +7319,38 @@ MonoBehaviour:
   upwardModifier: 5
   randomTorque: 20
   lifetime: 3
+--- !u!114 &6582297117037623556
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7667004058892913686}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2e4a8f8f3b792432386051b86a55107a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  racetrack: {fileID: 0}
+  warningUI: {fileID: 0}
+--- !u!114 &5790690627279536737
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7667004058892913686}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 94ff6a9b1efc6944db763fd158182ea7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  baseURL: https://docs.google.com/forms/d/e/1FAIpQLSde_bEOu758vRX9KBMkOcseaMh4n4YhW6E843XedV0GWnnHXw/formResponse
+  sessionIDEntry: entry.180420280
+  segmentTypeEntry: entry.1294476547
+  surfaceTypeEntry: entry.1404718073
+  eventTypeEntry: entry.457228854
+  playerSpeedEntry: entry.1688723416
 --- !u!1 &7750304827915642547
 GameObject:
   m_ObjectHideFlags: 0

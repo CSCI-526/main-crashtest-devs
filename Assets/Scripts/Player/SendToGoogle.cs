@@ -36,18 +36,16 @@ public class SendToGoogle : MonoBehaviour
             "&" + eventTypeEntry + "=" + UnityWebRequest.EscapeURL(eventType) +
             "&" + playerSpeedEntry + "=" + UnityWebRequest.EscapeURL(playerSpeed.ToString("F2"));
 
-        using (UnityWebRequest www = UnityWebRequest.Get(url))
-        {
-            yield return www.SendWebRequest();
+        using UnityWebRequest www = UnityWebRequest.Get(url);
+        yield return www.SendWebRequest();
 
-            if (www.result != UnityWebRequest.Result.Success)
-            {
-                Debug.LogError("Analytics submission failed: " + www.error);
-            }
-            else
-            {
-                Debug.Log("Crash analytics sent successfully");
-            }
+        if (www.result != UnityWebRequest.Result.Success)
+        {
+            Debug.LogError("Analytics submission failed: " + www.error);
+        }
+        else
+        {
+            Debug.Log("Crash analytics sent successfully");
         }
     }
 
