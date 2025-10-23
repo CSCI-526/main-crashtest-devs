@@ -3,6 +3,7 @@ using System.Data.Common;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Rendering;
+using UnityEngine.UI;
 
 [RequireComponent(typeof(Rigidbody))]
 public class SimpleCarController : MonoBehaviour
@@ -10,7 +11,7 @@ public class SimpleCarController : MonoBehaviour
     public bool player0 = true;
     public Racetrack racetrack;
     public GameObject startLights;
-    public GameObject speed;
+    public GameObject canvas;
     [SerializeField] private float groundCheckDistance = 0.75f;
     [SerializeField] private LayerMask roadLayer;
     public bool hasCrashed = false;
@@ -50,6 +51,7 @@ public class SimpleCarController : MonoBehaviour
     private float previousSpeed = 0f;
     private float t = 0f;
     private bool analyticsAlreadySent = false;
+    private readonly float[] points = new float[] { 0, 0 };
 
     void Start()
     {
@@ -104,7 +106,7 @@ public class SimpleCarController : MonoBehaviour
         Vector3 forward = transform.forward;
         float forwardVel = Vector3.Dot(rb.linearVelocity, forward);
 
-        speed.GetComponent<TMP_Text>().text = $"{Mathf.Abs(Mathf.RoundToInt(rb.linearVelocity.magnitude * 2.237f))}";
+        canvas.transform.Find("speed").GetComponent<TMP_Text>().text = $"{Mathf.Abs(Mathf.RoundToInt(rb.linearVelocity.magnitude * 2.237f))} mph";
 
         if (!racetrack.lightsOutAndAwayWeGOOOOO || hasCrashed) return;
         else t = 0;
@@ -129,13 +131,25 @@ public class SimpleCarController : MonoBehaviour
         switch (player0)
         {
             case true:
-                if (Input.GetKey(KeyCode.W)) accel = 1f;
-                else if (Input.GetKey(KeyCode.S)) accel = -.5f;
+                if (Input.GetKey(KeyCode.W))
+                {
+                    accel = 1f;
+                    points[0]++;
+                    points[1] -= 5;
+                }
+                else points[0]--;
+                if (Input.GetKey(KeyCode.S)) accel = -.5f;
 
                 if (Input.GetKey(KeyCode.D)) steer = 1f;
                 else if (Input.GetKey(KeyCode.A)) steer = -1f;
 
                 braking = Input.GetKey(KeyCode.LeftCommand);
+                if (braking)
+                {
+                    points[0] -= 5;
+                    points[1]++;
+                }
+                else points[1]--;
                 attemptDrift = Input.GetKey(KeyCode.LeftShift);
                 break;
             case false:
@@ -205,7 +219,40 @@ public class SimpleCarController : MonoBehaviour
         float activeDrag = braking ? brakeDrag : (drifting ? driftDrag : roadDragMultiplier);
         rb.linearDamping = activeDrag;
 
-        speed.GetComponent<TMP_Text>().text = $"{Mathf.Abs(Mathf.RoundToInt(rb.linearVelocity.magnitude * 2.237f))}";
+        canvas.transform.Find("speed").GetComponent<TMP_Text>().text = $"{Mathf.Abs(Mathf.RoundToInt(rb.linearVelocity.magnitude * 2.237f))} mph";
+
+        UpdateImages();
+
     }
+
+    private void UpdateImages()
+    {
+        float max = 40;
+        for (int i = 0; i < 2; i++)
+        {
+            if (points[i] < 0) points[i] = 0;
+            if (points[i] > max) points[i] = max;
+        }
+
+        RectTransform gasRect = canvas.transform.Find("playerStats/leftSide/gas/grey/Image").GetComponent<RectTransform>();
+        float fill = Mathf.Clamp01(points[0] / max);
+
+        gasRect.anchorMin = new Vector2(gasRect.anchorMin.x, 0f);
+        gasRect.anchorMax = new Vector2(gasRect.anchorMax.x, fill);
+
+        gasRect.offsetMin = Vector2.zero;
+        gasRect.offsetMax = Vector2.zero;
+
+        gasRect = canvas.transform.Find("playerStats/leftSide/brake/grey/Image").GetComponent<RectTransform>();
+        fill = Mathf.Clamp01(points[1] / max);
+
+        gasRect.anchorMin = new Vector2(gasRect.anchorMin.x, 0f);
+        gasRect.anchorMax = new Vector2(gasRect.anchorMax.x, fill);
+
+        gasRect.offsetMin = Vector2.zero;
+        gasRect.offsetMax = Vector2.zero;
+    }
+
+
 
 }

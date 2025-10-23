@@ -4,11 +4,12 @@ using Unity.Mathematics;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using TMPro;
 
 public class Racetrack : MonoBehaviour
 {
     public GameObject startLights;
-    public GameObject progressBar;
+    public GameObject canvas;
     public bool lightsOutAndAwayWeGOOOOO = false;
     private float startTimer = 1.5f;
     private int lightCount = 0;
@@ -27,6 +28,7 @@ public class Racetrack : MonoBehaviour
         public GameObject player;
         public float playerTimer;
         public int currentSection = 0;
+        public int currentSubSection = 0;
         public GameObject checkpoint;
         public bool bot;
         public float finishTime = -1f;
@@ -48,10 +50,10 @@ public class Racetrack : MonoBehaviour
         scoreboard = FindFirstObjectByType<ScoreboardUIManager>();
         int start = 1;
 
-        players.Add(new CheckPointCheck(0, GameObject.Find("Player 0"), GameObject.Find("RaceTrack/Start Straight 0/Checkpoint"), false));
+        players.Add(new CheckPointCheck(0, GameObject.Find("Player 0"), GameObject.Find("RaceTrack/Start Straight 0/Checkpoints/cp 3"), false));
         if (SceneManager.GetActiveScene().name == "MultiPlayer")
         {
-            players.Add(new CheckPointCheck(1, GameObject.Find("Player 1"), GameObject.Find("RaceTrack/Start Straight 0/Checkpoint"), false));
+            players.Add(new CheckPointCheck(1, GameObject.Find("Player 1"), GameObject.Find("RaceTrack/Start Straight 0/Checkpoints/cp 3"), false));
             start = 2;
             isSinglePlayer = false;
         }
@@ -61,15 +63,15 @@ public class Racetrack : MonoBehaviour
             GameObject bot = GameObject.Find($"Bot {i}");
             if (bot == null) break;
 
-            GameObject checkpoint = GameObject.Find("RaceTrack/Start Straight 0/Checkpoint");
+            GameObject checkpoint = GameObject.Find("RaceTrack/Start Straight 0/Checkpoints/cp 3");
             players.Add(new CheckPointCheck(0, bot, checkpoint));
 
-            GameObject newMarker = Instantiate(progressBar.transform.GetChild(start).gameObject, progressBar.transform);
+            GameObject newMarker = Instantiate(canvas.transform.Find("progressBar").transform.GetChild(start).gameObject, canvas.transform.Find("progressBar").transform);
             newMarker.SetActive(true);
             newMarker.name = $"bm{i}";
         }
-        progressBar.transform.GetChild(0).SetAsLastSibling();
-        if (start == 2) progressBar.transform.GetChild(0).SetAsLastSibling();
+        canvas.transform.Find("progressBar").transform.GetChild(0).SetAsLastSibling();
+        if (start == 2) canvas.transform.Find("progressBar").transform.GetChild(0).SetAsLastSibling();
     }
 
     void FixedUpdate()
@@ -122,7 +124,7 @@ public class Racetrack : MonoBehaviour
         CheckPointTrigger.OnAnyPlaneTrigger -= HandlePlaneTrigger;
     }
 
-    private void HandlePlaneTrigger(Transform section, string obj)
+    private void HandlePlaneTrigger(Transform section, string obj, int cpNum)
     {
         string[] parts1 = obj.Split();
         if (parts1.Length < 2 || obj[0] == 'T' || obj[0] == 'C') return;
@@ -131,7 +133,115 @@ public class Racetrack : MonoBehaviour
         string[] parts2 = section.name.Split();
         int sectionID = int.Parse(parts2[2]);
 
-        UpdateSection(playerID, sectionID, section.Find("Checkpoint").gameObject);
+        if (cpNum == 3) UpdateSection(playerID, sectionID, section.Find("Checkpoints/cp 3").gameObject);
+        UpdateUI(playerID, sectionID, cpNum);
+    }
+
+    private void UpdateUI(int playerID, int sectionID, int cpNum)
+    {
+        // sub checkpoints
+        if (players[playerID].currentSection == sectionID)
+        {
+            if (players[playerID].currentSubSection + 1 == cpNum)
+            {
+                players[playerID].currentSubSection += 1;
+                players[playerID].playerTimer += 3;
+            }
+        }
+        else if (players[playerID].currentSection + 1 == sectionID && cpNum == 3)
+        {
+            players[playerID].currentSubSection = 0;
+            players[playerID].playerTimer += 3;
+        }
+
+        int playerSection = players[0].currentSection;
+        int playerSubSection = players[0].currentSubSection;
+
+        // ranking - very buggy
+        if (playerID == 0 || sectionID == players[0].currentSection)
+        {
+            int rank = 1;
+
+            for (int i = 1; i < players.Count; i++)
+            {
+                if (players[i].currentSection == playerSection)
+                {
+                    if (players[i].currentSubSection > playerSubSection) rank++;
+                    else if (players[i].currentSubSection == playerSubSection)
+                    {
+                        /*
+                        Vector3 nextCheckpointPos;
+                        if (playerSubSection == 2) nextCheckpointPos = curves[sectionID + 1].GetPoint(1 / 3f);
+                        else nextCheckpointPos = curves[sectionID].GetPoint((playerSubSection + 1) / 3f);
+                        Vector3 player2pos = players[0].player.transform.position - nextCheckpointPos;
+                        Vector3 bot2pos = players[i].player.transform.position - nextCheckpointPos;
+                        if (bot2pos.magnitude < player2pos.magnitude) rank++;*/
+                    }
+                }
+                else if (players[i].currentSection > playerSection) rank++;
+            }
+
+            string rankString = $"{rank}";
+            Color rankColor = new(1, 1, 1);
+
+            switch (rank)
+            {
+                case 1:
+                    rankString += "st";
+                    rankColor = new(1, .75f, 0);
+                    break;
+                case 2:
+                    rankString += "nd";
+                    rankColor = new(.69f, .69f, .69f);
+                    break;
+                case 3:
+                    rankString += "rd";
+                    rankColor = new(.55f, .32f, .14f);
+                    break;
+                default:
+                    rankString += "th";
+                    break;
+            }
+
+            canvas.transform.Find("ranking").GetComponent<TMP_Text>().text = rankString;
+            canvas.transform.Find("ranking").GetComponent<TMP_Text>().color = rankColor;
+
+            // compass
+            if (playerID == 0)
+            {
+                List<Vector3> nextCheckpoints = new();
+                playerSection++;
+
+                for (int i = 0; i < 3; i++)
+                {
+                    playerSubSection++;
+                    if (playerSubSection > 3)
+                    {
+                        playerSubSection = 1;
+                        playerSection++;
+                    }
+                    nextCheckpoints.Add(curves[playerSection].GetPoint(playerSubSection / 3f));
+                }
+
+                Vector3 playerForward = new Vector3(players[0].player.transform.forward.x, 0f, players[0].player.transform.forward.z).normalized;
+                Vector3 playerPos = new(players[0].player.transform.position.x, 0f, players[0].player.transform.position.z);
+
+                float totalAngle = 0f;
+
+                foreach (Vector3 checkpoint in nextCheckpoints)
+                {
+                    Vector3 targetPos = new(checkpoint.x, 0f, checkpoint.z);
+                    Vector3 toCheckpoint = (targetPos - playerPos).normalized;
+
+                    float angle = Vector3.SignedAngle(playerForward, toCheckpoint, Vector3.up);
+
+                    totalAngle += angle;
+                }
+                float averageAngle = totalAngle / nextCheckpoints.Count;
+                RectTransform compass = canvas.transform.Find("playerStats/leftSide/compass/Image").GetComponent<RectTransform>();
+                compass.localEulerAngles = new Vector3(0f, 0f, -averageAngle);
+            }
+        }
     }
 
     private void UpdateSection(int playerID, int sectionID, GameObject checkpoint)
@@ -227,8 +337,8 @@ public class Racetrack : MonoBehaviour
     private void UpdateProgressBar(int playerID)
     {
         GameObject marker;
-        if (players[playerID].bot) marker = progressBar.transform.Find($"bm{playerID}").gameObject;
-        else marker = progressBar.transform.Find($"pm{playerID}").gameObject;
+        if (players[playerID].bot) marker = canvas.transform.Find("progressBar").transform.Find($"bm{playerID}").gameObject;
+        else marker = canvas.transform.Find("progressBar").transform.Find($"pm{playerID}").gameObject;
 
         marker.GetComponent<RectTransform>().pivot = new Vector2(players[playerID].currentSection / (curves.Count * 1.0f), 0);
         marker.GetComponent<RectTransform>().anchoredPosition = Vector3.zero;
@@ -272,7 +382,7 @@ public class Racetrack : MonoBehaviour
         if (players[playerID].bot)
         {
             Bot botScript = players[playerID].player.GetComponent<Bot>();
-            string[] parts = players[playerID].checkpoint.transform.parent.name.Split();
+            string[] parts = players[playerID].checkpoint.transform.parent.parent.name.Split();
             botScript.ChangeTarget(int.Parse(parts[2]) * 2);
             hasCrashed = botScript.hasCrashed;
             botScript.hasCrashed = false;
@@ -302,8 +412,12 @@ public class Racetrack : MonoBehaviour
 
     public void DynamicObstacles(int sectionID)
     {
+        if (UnityEngine.Random.value > .25f) return; // every section there is a 25% a tree falls ahead
 
-        Transform sectionTrees = transform.GetChild(sectionID + 3).Find("Obstacles/Trees");
+        int section = UnityEngine.Random.Range(sectionID + 3, sectionID + 6);
+        if (section >= curves.Count) return;
+
+        Transform sectionTrees = transform.GetChild(section).Find("Obstacles/Trees");
         if (sectionTrees == null || sectionTrees.childCount == 0) return;
 
         Transform tree = sectionTrees.GetChild(UnityEngine.Random.Range(0, sectionTrees.childCount));
@@ -313,7 +427,7 @@ public class Racetrack : MonoBehaviour
             rb.mass = 250f;
         }
 
-        Vector3 curveMid = curves[sectionID + 3].GetPoint(0.5f);
+        Vector3 curveMid = curves[section].GetPoint(0.5f);
         Vector3 dirToRoad = (curveMid - tree.position).normalized;
 
         Quaternion tilt = Quaternion.FromToRotation(Vector3.up, Vector3.up + dirToRoad * 0.1f);

@@ -20,8 +20,8 @@ public class CrashEffect : MonoBehaviour
         GameObject fragmentClone = Instantiate(fragments.gameObject, fragments.position, fragments.rotation);
         fragmentClone.SetActive(true);
 
-        Transform speed = transform.Find("speed");
-        if (speed != null) speed.gameObject.SetActive(false);
+        //Transform speed = transform.Find("speed");
+        //if (speed != null) speed.gameObject.SetActive(false);
 
         transform.Find("lights").gameObject.SetActive(false);
 
