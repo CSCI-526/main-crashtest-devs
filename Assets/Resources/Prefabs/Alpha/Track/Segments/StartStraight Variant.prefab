@@ -831,6 +831,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Start Lights
       objectReference: {fileID: 0}
+    - target: {fileID: 4698230620492735003, guid: 04ae31bc7728045169fae7a779db7d9b, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
