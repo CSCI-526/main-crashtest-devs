@@ -8,7 +8,7 @@ public class BezierCurve : MonoBehaviour
     public Transform p2;
     public Transform p3;
     public bool[] respawnSpots = new bool[10]; // false means not taken, true means taken
-    public float[] respawnTimers = new float[10]; 
+    public float[] respawnTimers = new float[10];
 
     // bezier formula
     public Vector3 GetPoint(float t)
@@ -45,5 +45,26 @@ public class BezierCurve : MonoBehaviour
                 respawnSpots[i] = false;
             }
         }
+    }
+
+    public float GetClosestTOnCurve(Vector3 position)
+    {
+        int samples = 20;
+        float closestT = 0f;
+        float closestDist = float.MaxValue;
+
+        for (int i = 0; i <= samples; i++)
+        {
+            float t = i / (float)samples;
+            Vector3 point = GetPoint(t);
+            float dist = Vector3.SqrMagnitude(position - point);
+            if (dist < closestDist)
+            {
+                closestDist = dist;
+                closestT = t;
+            }
+        }
+
+        return closestT;
     }
 }

@@ -85,7 +85,7 @@ public class Racetrack : MonoBehaviour
                 ShowCountdown();
                 countdownStage++;
                 startTimer = 1.0f;
-                
+
                 // Add slight random delay before "GO!" for excitement
                 if (countdownStage == 4) startTimer += UnityEngine.Random.Range(-0.1f, 0.3f);
             }
@@ -96,6 +96,8 @@ public class Racetrack : MonoBehaviour
             players[i].playerTimer -= Time.deltaTime;
             if (players[i].playerTimer <= 0f) RespawnPlayer(i);
         }
+
+        UpdateUI();
     }
 
     private void ShowCountdown()
@@ -103,7 +105,7 @@ public class Racetrack : MonoBehaviour
         // Reset scale for new text
         if (countdownText != null)
             countdownText.transform.localScale = Vector3.one;
-        
+
         switch (countdownStage)
         {
             case 0: // READY
@@ -112,68 +114,68 @@ public class Racetrack : MonoBehaviour
                 countdownText.fontSize = 120;
                 StartCoroutine(PulseText(0.8f, 1.2f, 0.5f)); // pulse between 0.8 and 1.2 scale
                 break;
-                
+
             case 1: // 3
                 countdownText.text = "3";
                 countdownText.color = Color.red;
                 countdownText.fontSize = 180;
                 StartCoroutine(PulseText(0.5f, 1.3f, 0.4f)); // bigger pulse
                 break;
-                
+
             case 2: // 2
                 countdownText.text = "2";
                 countdownText.color = Color.yellow;
                 countdownText.fontSize = 180;
                 StartCoroutine(PulseText(0.5f, 1.3f, 0.4f));
                 break;
-                
+
             case 3: // 1
                 countdownText.text = "1";
                 countdownText.color = Color.yellow;
                 countdownText.fontSize = 180;
                 StartCoroutine(PulseText(0.5f, 1.3f, 0.4f));
                 break;
-                
+
             case 4: // GO!
                 countdownText.text = "GO!";
                 countdownText.color = Color.green;
                 countdownText.fontSize = 200;
                 StartCoroutine(PulseText(0.8f, 1.5f, 0.3f)); // explosive pulse for GO!
-                
+
                 // Start race AFTER the GO! text disappears (1.2 seconds)
                 Invoke(nameof(StartRace), 1.2f);
-                
+
                 // Hide countdown text after 1.2 seconds
                 Invoke(nameof(HideCountdown), 1.2f);
                 break;
         }
     }
-    
+
     private System.Collections.IEnumerator PulseText(float minScale, float maxScale, float speed)
     {
         float elapsed = 0f;
-        
+
         while (countdownText != null && countdownText.gameObject.activeInHierarchy)
         {
             elapsed += Time.deltaTime * speed;
-            
+
             // Ping-pong between min and max scale
             float scale = Mathf.Lerp(minScale, maxScale, Mathf.PingPong(elapsed, 1f));
             countdownText.transform.localScale = Vector3.one * scale;
-            
+
             yield return null;
         }
     }
-    
+
     private void StartRace()
     {
         lightsOutAndAwayWeGOOOOO = true;
         finishedPlayers = 0;
-        
+
         if (raceStartTime < 0f)
             raceStartTime = Time.time;
     }
-    
+
     private void HideCountdown()
     {
         if (countdownText != null)
@@ -200,10 +202,10 @@ public class Racetrack : MonoBehaviour
         int sectionID = int.Parse(parts2[2]);
 
         if (cpNum == 3) UpdateSection(playerID, sectionID, section.Find("Checkpoints/cp 3").gameObject);
-        UpdateUI(playerID, sectionID, cpNum);
+        UpdateSubCheckpoints(playerID, sectionID, cpNum);
     }
 
-    private void UpdateUI(int playerID, int sectionID, int cpNum)
+    private void UpdateSubCheckpoints(int playerID, int sectionID, int cpNum)
     {
         // sub checkpoints
         if (players[playerID].currentSection == sectionID)
@@ -219,32 +221,44 @@ public class Racetrack : MonoBehaviour
             players[playerID].currentSubSection = 0;
             players[playerID].playerTimer += 3;
         }
+    }
 
-        int playerSection = players[0].currentSection;
-        int playerSubSection = players[0].currentSubSection;
-
-        // ranking - very buggy
-        if (playerID == 0 || sectionID == players[0].currentSection)
+    private void UpdateUI()
+    {
+        string compassGO = "playerStats/leftSide/compass";
+        int numPlayers = 1;
+        if (!isSinglePlayer)
         {
-            int rank = 1;
+            numPlayers = 2;
+            compassGO = "compass";
+        }
 
-            for (int i = 1; i < players.Count; i++)
+        for (int j = 0; j < numPlayers; j++)
+        {
+            int playerSection = players[j].currentSection;
+
+            // ranking - very buggy
+            if (playerSection == 0) return;
+            int rank = 1;
+            Vector3 playerPos = players[j].player.transform.position;
+
+            // Approximate where the player is along the curve
+            float playerT = curves[playerSection + 1].GetClosestTOnCurve(playerPos);
+
+            for (int i = numPlayers; i < players.Count; i++)
             {
-                if (players[i].currentSection == playerSection)
+                int botSection = players[i].currentSection;
+
+                if (botSection > playerSection)
                 {
-                    if (players[i].currentSubSection > playerSubSection) rank++;
-                    else if (players[i].currentSubSection == playerSubSection)
-                    {
-                        /*
-                        Vector3 nextCheckpointPos;
-                        if (playerSubSection == 2) nextCheckpointPos = curves[sectionID + 1].GetPoint(1 / 3f);
-                        else nextCheckpointPos = curves[sectionID].GetPoint((playerSubSection + 1) / 3f);
-                        Vector3 player2pos = players[0].player.transform.position - nextCheckpointPos;
-                        Vector3 bot2pos = players[i].player.transform.position - nextCheckpointPos;
-                        if (bot2pos.magnitude < player2pos.magnitude) rank++;*/
-                    }
+                    rank++;
                 }
-                else if (players[i].currentSection > playerSection) rank++;
+                else if (botSection == playerSection)
+                {
+                    Vector3 botPos = players[i].player.transform.position;
+                    float botT = curves[botSection + 1].GetClosestTOnCurve(botPos);
+                    if (botT > playerT) rank++;
+                }
             }
 
             string rankString = $"{rank}";
@@ -269,44 +283,44 @@ public class Racetrack : MonoBehaviour
                     break;
             }
 
-            canvas.transform.Find("ranking").GetComponent<TMP_Text>().text = rankString;
-            canvas.transform.Find("ranking").GetComponent<TMP_Text>().color = rankColor;
+            canvas.transform.Find($"ranking{j+1}").GetComponent<TMP_Text>().text = rankString;
+            canvas.transform.Find($"ranking{j+1}").GetComponent<TMP_Text>().color = rankColor;
 
-            // compass
-            if (playerID == 0)
+            
+            List<Vector3> nextCheckpoints = new();
+            playerSection++;
+            int playerSubSection = players[j].currentSubSection;
+
+            for (int i = 0; i < 3; i++)
             {
-                List<Vector3> nextCheckpoints = new();
-                playerSection++;
-
-                for (int i = 0; i < 3; i++)
+                playerSubSection++;
+                if (playerSubSection > 3)
                 {
-                    playerSubSection++;
-                    if (playerSubSection > 3)
-                    {
-                        playerSubSection = 1;
-                        playerSection++;
-                    }
-                    nextCheckpoints.Add(curves[playerSection].GetPoint(playerSubSection / 3f));
+                    playerSubSection = 1;
+                    playerSection++;
                 }
-
-                Vector3 playerForward = new Vector3(players[0].player.transform.forward.x, 0f, players[0].player.transform.forward.z).normalized;
-                Vector3 playerPos = new(players[0].player.transform.position.x, 0f, players[0].player.transform.position.z);
-
-                float totalAngle = 0f;
-
-                foreach (Vector3 checkpoint in nextCheckpoints)
-                {
-                    Vector3 targetPos = new(checkpoint.x, 0f, checkpoint.z);
-                    Vector3 toCheckpoint = (targetPos - playerPos).normalized;
-
-                    float angle = Vector3.SignedAngle(playerForward, toCheckpoint, Vector3.up);
-
-                    totalAngle += angle;
-                }
-                float averageAngle = totalAngle / nextCheckpoints.Count;
-                RectTransform compass = canvas.transform.Find("playerStats/leftSide/compass/Image").GetComponent<RectTransform>();
-                compass.localEulerAngles = new Vector3(0f, 0f, -averageAngle);
+                if (playerSection >= curves.Count) continue;
+                nextCheckpoints.Add(curves[playerSection].GetPoint(playerSubSection / 3f));
             }
+
+            Vector3 playerForward = new Vector3(players[j].player.transform.forward.x, 0f, players[j].player.transform.forward.z).normalized;
+            Vector3 playerPos2D = new(players[j].player.transform.position.x, 0f, players[j].player.transform.position.z);
+
+            float totalAngle = 0f;
+
+            foreach (Vector3 checkpoint in nextCheckpoints)
+            {
+                Vector3 targetPos = new(checkpoint.x, 0f, checkpoint.z);
+                Vector3 toCheckpoint = (targetPos - playerPos2D).normalized;
+
+                float angle = Vector3.SignedAngle(playerForward, toCheckpoint, Vector3.up);
+
+                totalAngle += angle;
+            }
+            float averageAngle = totalAngle / nextCheckpoints.Count;
+
+            RectTransform compass = canvas.transform.Find($"{compassGO}{j + 1}/Image").GetComponent<RectTransform>();
+            compass.localEulerAngles = new Vector3(0f, 0f, -averageAngle);
         }
     }
 

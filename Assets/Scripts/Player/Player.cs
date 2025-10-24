@@ -4,6 +4,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 [RequireComponent(typeof(Rigidbody))]
 public class SimpleCarController : MonoBehaviour
@@ -64,6 +65,8 @@ public class SimpleCarController : MonoBehaviour
 
     void FixedUpdate()
     {
+        string speedGO = "speed1";
+        if (!player0) speedGO = "speed2";
         // Reset analytics flag when player is no longer crashed (after respawn)
         if (!hasCrashed)
         {
@@ -106,7 +109,7 @@ public class SimpleCarController : MonoBehaviour
         Vector3 forward = transform.forward;
         float forwardVel = Vector3.Dot(rb.linearVelocity, forward);
 
-        canvas.transform.Find("speed").GetComponent<TMP_Text>().text = $"{Mathf.Abs(Mathf.RoundToInt(rb.linearVelocity.magnitude * 2.237f))} mph";
+        canvas.transform.Find(speedGO).GetComponent<TMP_Text>().text = $"{Mathf.Abs(Mathf.RoundToInt(rb.linearVelocity.magnitude * 2.237f))} mph";
 
         if (!racetrack.lightsOutAndAwayWeGOOOOO || hasCrashed) return;
         else t = 0;
@@ -147,7 +150,7 @@ public class SimpleCarController : MonoBehaviour
                 if (braking)
                 {
                     points[0] -= 5;
-                    points[1]++;
+                    points[1] += 3;
                 }
                 else points[1]--;
                 attemptDrift = Input.GetKey(KeyCode.LeftShift);
@@ -219,14 +222,16 @@ public class SimpleCarController : MonoBehaviour
         float activeDrag = braking ? brakeDrag : (drifting ? driftDrag : roadDragMultiplier);
         rb.linearDamping = activeDrag;
 
-        canvas.transform.Find("speed").GetComponent<TMP_Text>().text = $"{Mathf.Abs(Mathf.RoundToInt(rb.linearVelocity.magnitude * 2.237f))} mph";
+        canvas.transform.Find(speedGO).GetComponent<TMP_Text>().text = $"{Mathf.Abs(Mathf.RoundToInt(rb.linearVelocity.magnitude * 2.237f))} mph";
 
-        UpdateImages();
+        UpdateUI();
 
     }
 
-    private void UpdateImages()
+    private void UpdateUI()
     {
+        if (SceneManager.GetActiveScene().name == "MultiPlayer") return;
+
         float max = 40;
         for (int i = 0; i < 2; i++)
         {
@@ -251,6 +256,7 @@ public class SimpleCarController : MonoBehaviour
 
         gasRect.offsetMin = Vector2.zero;
         gasRect.offsetMax = Vector2.zero;
+        
     }
 
 
