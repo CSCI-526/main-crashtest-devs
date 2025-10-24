@@ -66,7 +66,7 @@ public class Racetrack : MonoBehaviour
             GameObject checkpoint = GameObject.Find("RaceTrack/Start Straight 0/Checkpoints/cp 3");
             players.Add(new CheckPointCheck(0, bot, checkpoint));
 
-            GameObject newMarker = Instantiate(canvas.transform.Find("progressBar").transform.GetChild(start).gameObject, canvas.transform.Find("progressBar").transform);
+            GameObject newMarker = Instantiate(canvas.transform.Find("progressBar").transform.GetChild(start+1).gameObject, canvas.transform.Find("progressBar").transform);
             newMarker.SetActive(true);
             newMarker.name = $"bm{i}";
         }
@@ -256,6 +256,25 @@ public class Racetrack : MonoBehaviour
                 else if (botSection == playerSection)
                 {
                     Vector3 botPos = players[i].player.transform.position;
+                    float botT = curves[botSection + 1].GetClosestTOnCurve(botPos);
+                    if (botT > playerT) rank++;
+                }
+            }
+
+            if (numPlayers == 2)
+            {
+                int extra = 1;
+                if (j == 1) extra = 0;
+
+                int botSection = players[extra].currentSection;
+
+                if (botSection > playerSection)
+                {
+                    rank++;
+                }
+                else if (botSection == playerSection)
+                {
+                    Vector3 botPos = players[extra].player.transform.position;
                     float botT = curves[botSection + 1].GetClosestTOnCurve(botPos);
                     if (botT > playerT) rank++;
                 }
