@@ -1949,9 +1949,37 @@ PrefabInstance:
       value: 45.325
       objectReference: {fileID: 0}
     - target: {fileID: 7673938580359191245, guid: 38127dd5da51e46288b76b7f9e0cd2e3, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.size
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 7673938580359191245, guid: 38127dd5da51e46288b76b7f9e0cd2e3, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_Mode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7673938580359191245, guid: 38127dd5da51e46288b76b7f9e0cd2e3, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
       objectReference: {fileID: 1657542579}
+    - target: {fileID: 7673938580359191245, guid: 38127dd5da51e46288b76b7f9e0cd2e3, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_Target
+      value: 
+      objectReference: {fileID: 1739322382}
+    - target: {fileID: 7673938580359191245, guid: 38127dd5da51e46288b76b7f9e0cd2e3, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_CallState
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 7673938580359191245, guid: 38127dd5da51e46288b76b7f9e0cd2e3, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_MethodName
+      value: ContinueToGame
+      objectReference: {fileID: 0}
+    - target: {fileID: 7673938580359191245, guid: 38127dd5da51e46288b76b7f9e0cd2e3, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_TargetAssemblyTypeName
+      value: TransitionScript, Assembly-CSharp
+      objectReference: {fileID: 0}
+    - target: {fileID: 7673938580359191245, guid: 38127dd5da51e46288b76b7f9e0cd2e3, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_Arguments.m_ObjectArgumentAssemblyTypeName
+      value: UnityEngine.Object, UnityEngine
+      objectReference: {fileID: 0}
     - target: {fileID: 7992745893314221348, guid: 38127dd5da51e46288b76b7f9e0cd2e3, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 

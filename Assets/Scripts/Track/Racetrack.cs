@@ -8,11 +8,11 @@ using TMPro;
 
 public class Racetrack : MonoBehaviour
 {
-    public GameObject startLights;
+    public TMP_Text countdownText;  // Drag your CountdownText UI element here
     public GameObject canvas;
     public bool lightsOutAndAwayWeGOOOOO = false;
-    private float startTimer = 1.5f;
-    private int lightCount = 0;
+    private float startTimer = 1.0f;  // Time between each countdown
+    private int countdownStage = 0;  // 0=Ready, 1=3, 2=2, 3=1, 4=GO
     private readonly List<CheckPointCheck> players = new();
     private List<BezierCurve> curves = new();
     private float raceStartTime = -1f;
@@ -76,16 +76,18 @@ public class Racetrack : MonoBehaviour
 
     void FixedUpdate()
     {
-        if (lightCount < 6)
+        if (countdownStage < 5)
         {
             startTimer -= Time.deltaTime;
 
             if (startTimer <= 0f)
             {
-                TurnOnLight();
-                lightCount++;
-                startTimer = 1.5f;
-                if (lightCount == 5) startTimer += UnityEngine.Random.Range(-.25f, .5f);
+                ShowCountdown();
+                countdownStage++;
+                startTimer = 1.0f;
+                
+                // Add slight random delay before "GO!" for excitement
+                if (countdownStage == 4) startTimer += UnityEngine.Random.Range(-0.1f, 0.3f);
             }
         }
 
@@ -96,22 +98,86 @@ public class Racetrack : MonoBehaviour
         }
     }
 
-    private void TurnOnLight()
+    private void ShowCountdown()
     {
-        if (lightCount == 5)
+        // Reset scale for new text
+        if (countdownText != null)
+            countdownText.transform.localScale = Vector3.one;
+        
+        switch (countdownStage)
         {
-            startLights.SetActive(false);
-            lightsOutAndAwayWeGOOOOO = true;
-            finishedPlayers = 0;
-
-            if (raceStartTime < 0f)
-                raceStartTime = Time.time;
+            case 0: // READY
+                countdownText.text = "READY";
+                countdownText.color = Color.white;
+                countdownText.fontSize = 120;
+                StartCoroutine(PulseText(0.8f, 1.2f, 0.5f)); // pulse between 0.8 and 1.2 scale
+                break;
+                
+            case 1: // 3
+                countdownText.text = "3";
+                countdownText.color = Color.red;
+                countdownText.fontSize = 180;
+                StartCoroutine(PulseText(0.5f, 1.3f, 0.4f)); // bigger pulse
+                break;
+                
+            case 2: // 2
+                countdownText.text = "2";
+                countdownText.color = Color.yellow;
+                countdownText.fontSize = 180;
+                StartCoroutine(PulseText(0.5f, 1.3f, 0.4f));
+                break;
+                
+            case 3: // 1
+                countdownText.text = "1";
+                countdownText.color = Color.yellow;
+                countdownText.fontSize = 180;
+                StartCoroutine(PulseText(0.5f, 1.3f, 0.4f));
+                break;
+                
+            case 4: // GO!
+                countdownText.text = "GO!";
+                countdownText.color = Color.green;
+                countdownText.fontSize = 200;
+                StartCoroutine(PulseText(0.8f, 1.5f, 0.3f)); // explosive pulse for GO!
+                
+                // Start race AFTER the GO! text disappears (1.2 seconds)
+                Invoke(nameof(StartRace), 1.2f);
+                
+                // Hide countdown text after 1.2 seconds
+                Invoke(nameof(HideCountdown), 1.2f);
+                break;
         }
-        else
+    }
+    
+    private System.Collections.IEnumerator PulseText(float minScale, float maxScale, float speed)
+    {
+        float elapsed = 0f;
+        
+        while (countdownText != null && countdownText.gameObject.activeInHierarchy)
         {
-            GameObject light = startLights.transform.Find($"l{lightCount + 1}/light").gameObject;
-            light.SetActive(true);
+            elapsed += Time.deltaTime * speed;
+            
+            // Ping-pong between min and max scale
+            float scale = Mathf.Lerp(minScale, maxScale, Mathf.PingPong(elapsed, 1f));
+            countdownText.transform.localScale = Vector3.one * scale;
+            
+            yield return null;
         }
+    }
+    
+    private void StartRace()
+    {
+        lightsOutAndAwayWeGOOOOO = true;
+        finishedPlayers = 0;
+        
+        if (raceStartTime < 0f)
+            raceStartTime = Time.time;
+    }
+    
+    private void HideCountdown()
+    {
+        if (countdownText != null)
+            countdownText.gameObject.SetActive(false);
     }
 
     private void OnEnable()
