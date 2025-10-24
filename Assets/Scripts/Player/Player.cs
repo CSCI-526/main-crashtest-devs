@@ -141,7 +141,13 @@ public class SimpleCarController : MonoBehaviour
                     points[1] -= 5;
                 }
                 else points[0]--;
-                if (Input.GetKey(KeyCode.S)) accel = -.5f;
+                if (Input.GetKey(KeyCode.S))
+                {
+                    accel = -.5f;
+                    points[0] -= 5;
+                    points[1] += 3;
+                }
+                else points[1]--;
 
                 if (Input.GetKey(KeyCode.D)) steer = 1f;
                 else if (Input.GetKey(KeyCode.A)) steer = -1f;
@@ -256,7 +262,7 @@ public class SimpleCarController : MonoBehaviour
 
         gasRect.offsetMin = Vector2.zero;
         gasRect.offsetMax = Vector2.zero;
-        
+
     }
 
 
