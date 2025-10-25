@@ -173,7 +173,7 @@ public class SimpleCarController : MonoBehaviour
                 break;
         }
         Transform rearLights = transform.Find("lights/rear");
-        if (braking || Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.DownArrow)) for (int i = 0; i < 2; i++) rearLights.GetChild(i).GetComponent<Light>().intensity = 25;
+        if (braking || (Input.GetKey(KeyCode.S) && player0) || (Input.GetKey(KeyCode.DownArrow) && !player0)) for (int i = 0; i < 2; i++) rearLights.GetChild(i).GetComponent<Light>().intensity = 25;
         else for (int i = 0; i < 2; i++) rearLights.GetChild(i).GetComponent<Light>().intensity = 1;
 
         // Apply road type effects

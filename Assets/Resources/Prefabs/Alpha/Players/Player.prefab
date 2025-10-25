@@ -7100,7 +7100,7 @@ MonoBehaviour:
   racetrack: {fileID: 0}
   startLights: {fileID: 0}
   canvas: {fileID: 0}
-  groundCheckDistance: 0.51
+  groundCheckDistance: 0.515
   roadLayer:
     serializedVersion: 2
     m_Bits: 8

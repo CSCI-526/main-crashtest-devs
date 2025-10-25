@@ -237,22 +237,20 @@ public class Racetrack : MonoBehaviour
         {
             int playerSection = players[j].currentSection;
 
-            // ranking - very buggy
-            if (playerSection == 0) return;
+            // ranking
+            if (playerSection == 0) continue;
             int rank = 1;
             Vector3 playerPos = players[j].player.transform.position;
 
             // Approximate where the player is along the curve
+            if (playerSection + 1 >= curves.Count) continue;
             float playerT = curves[playerSection + 1].GetClosestTOnCurve(playerPos);
 
             for (int i = numPlayers; i < players.Count; i++)
             {
                 int botSection = players[i].currentSection;
 
-                if (botSection > playerSection)
-                {
-                    rank++;
-                }
+                if (botSection > playerSection) rank++;
                 else if (botSection == playerSection)
                 {
                     Vector3 botPos = players[i].player.transform.position;
@@ -268,10 +266,7 @@ public class Racetrack : MonoBehaviour
 
                 int botSection = players[extra].currentSection;
 
-                if (botSection > playerSection)
-                {
-                    rank++;
-                }
+                if (botSection > playerSection) rank++;
                 else if (botSection == playerSection)
                 {
                     Vector3 botPos = players[extra].player.transform.position;
@@ -305,9 +300,9 @@ public class Racetrack : MonoBehaviour
             canvas.transform.Find($"ranking{j+1}").GetComponent<TMP_Text>().text = rankString;
             canvas.transform.Find($"ranking{j+1}").GetComponent<TMP_Text>().color = rankColor;
 
-            
+            // compass
             List<Vector3> nextCheckpoints = new();
-            playerSection++;
+            playerSection += 2;
             int playerSubSection = players[j].currentSubSection;
 
             for (int i = 0; i < 3; i++)
