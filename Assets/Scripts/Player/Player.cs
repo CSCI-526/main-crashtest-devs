@@ -77,6 +77,9 @@ public class SimpleCarController : MonoBehaviour
         {
             GetComponent<CrashEffect>().TriggerCrash();
             hasCrashed = true;
+            points[0] = 0;
+            points[1] = 0;
+            UpdateUI();
 
             // Send crash analytics (only once per crash)
             if (analytics != null && !analyticsAlreadySent && currentRoadMesh != null)
