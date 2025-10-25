@@ -7099,8 +7099,8 @@ MonoBehaviour:
   player0: 1
   racetrack: {fileID: 0}
   startLights: {fileID: 0}
-  speed: {fileID: 0}
-  groundCheckDistance: 0.6
+  canvas: {fileID: 0}
+  groundCheckDistance: 0.51
   roadLayer:
     serializedVersion: 2
     m_Bits: 8

@@ -66,7 +66,7 @@ public class Racetrack : MonoBehaviour
             GameObject checkpoint = GameObject.Find("RaceTrack/Start Straight 0/Checkpoints/cp 3");
             players.Add(new CheckPointCheck(0, bot, checkpoint));
 
-            GameObject newMarker = Instantiate(canvas.transform.Find("progressBar").transform.GetChild(start+1).gameObject, canvas.transform.Find("progressBar").transform);
+            GameObject newMarker = Instantiate(canvas.transform.Find("progressBar").transform.Find("bm").gameObject, canvas.transform.Find("progressBar").transform);
             newMarker.SetActive(true);
             newMarker.name = $"bm{i}";
         }
