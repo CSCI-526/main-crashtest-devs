@@ -83,12 +83,18 @@ public class Bot : MonoBehaviour
 
         (int wheelsInContact, RoadMesh roadMesh) = BotPlayer.IsGrounded(transform.gameObject, groundCheckDistance, roadLayer);
 
-        if (wheelsInContact == 0 || roadMesh == null)
+        if (wheelsInContact == 0)
         {
             rb.AddForce(downforce * rb.linearVelocity.magnitude * Vector3.down, ForceMode.Force);
             return;
         }
-        else currentRoadType = roadMesh.roadType;
+        else
+        {
+            if (wheelsInContact == -1) wheelsInContact = 4;
+
+            if (roadMesh != null) currentRoadType = roadMesh.roadType;
+            else currentRoadType = RoadType.Wet;
+        }
 
         if (targets.Count == 0) UpdateTargetPoints();
         if (targets.Count == 0 || currentTargetIndex >= targets.Count) return;

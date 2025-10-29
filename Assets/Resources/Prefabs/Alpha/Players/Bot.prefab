@@ -5274,7 +5274,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 8
   startLights: {fileID: 0}
-  groundCheckDistance: 0.515
+  groundCheckDistance: 0.52
   hasCrashed: 0
   motorPower: 2000
   steerTorque: 300

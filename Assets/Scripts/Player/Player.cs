@@ -119,15 +119,20 @@ public class SimpleCarController : MonoBehaviour
 
         (int wheelsInContact, RoadMesh roadMesh) = BotPlayer.IsGrounded(transform.gameObject, groundCheckDistance, roadLayer);
 
-        if (wheelsInContact == 0 || roadMesh == null)
+        if (wheelsInContact == 0)
         {
             rb.AddForce(downforce * rb.linearVelocity.magnitude * Vector3.down, ForceMode.Force);
             return;
         }
         else
         {
-            currentRoadType = roadMesh.roadType;
-            currentRoadMesh = roadMesh; // Track current segment for analytics
+            if (wheelsInContact == -1) wheelsInContact = 2;
+            if (roadMesh != null)
+            {
+                currentRoadType = roadMesh.roadType;
+                currentRoadMesh = roadMesh; // Track current segment for analytics
+            }
+            else currentRoadType = RoadType.Wet;
         }
 
         float accel = 0f;
