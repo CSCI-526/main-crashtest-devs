@@ -414,7 +414,7 @@ public class Racetrack : MonoBehaviour
         for (int i = 0; i < players.Count; i++)
         {
             int playerDiff = leader - players[i].currentSection;
-            SetPlayerLights(players[i].player, 100 * (1 + 0.1f * playerDiff), 50 * (1 + 0.1f * playerDiff));
+            SetPlayerLights(players[i].player, BotPlayer.intensity * (1 + 0.1f * playerDiff), BotPlayer.range * (1 + 0.1f * playerDiff));
         }
     }
 
@@ -506,7 +506,7 @@ public class Racetrack : MonoBehaviour
 
     public void DynamicObstacles(int sectionID)
     {
-        if (UnityEngine.Random.value > .25f) return; // every section there is a 25% a tree falls ahead
+        if (UnityEngine.Random.value > BotPlayer.DynamicObstacles) return;
 
         int section = UnityEngine.Random.Range(sectionID + 3, sectionID + 6);
         if (section >= curves.Count) return;

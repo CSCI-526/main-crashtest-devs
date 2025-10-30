@@ -7098,33 +7098,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   player0: 1
   racetrack: {fileID: 0}
-  startLights: {fileID: 0}
   canvas: {fileID: 0}
-  groundCheckDistance: 0.52
   roadLayer:
     serializedVersion: 2
     m_Bits: 8
   hasCrashed: 0
-  motorPower: 2000
-  steerTorque: 200
-  maxSpeed: 98
-  brakeDrag: 1
-  normalDrag: 0.1
-  downforce: 25
   analytics: {fileID: 0}
-  normalGrip: 0.8
-  driftGrip: 0.25
-  driftSteerBoost: 1.3
-  driftDrag: 0.6
-  minDriftSpeed: 30
-  wetAccelMultiplier: 0.6
-  wetSteerMultiplier: 0.95
-  wetLateralGrip: 0.15
-  wetDrag: 0
-  dirtAccelMultiplier: 0.8
-  dirtSteerMultiplier: 0.95
-  dirtLateralGrip: 0.6
-  dirtDrag: 0.18
 --- !u!114 &5376061845053620418
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7137,11 +7116,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 03bd3878b08c7429ebe0d3aaefcb7e23, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  explosionForce: 100
-  explosionRadius: 20
-  upwardModifier: 5
-  randomTorque: 20
-  lifetime: 3
 --- !u!114 &6582297117037623556
 MonoBehaviour:
   m_ObjectHideFlags: 0

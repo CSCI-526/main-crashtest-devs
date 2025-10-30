@@ -7,9 +7,9 @@ public class Bot : MonoBehaviour
 {
     public Racetrack racetrack;
     public LayerMask roadLayer;
-    public GameObject startLights;
-    public float groundCheckDistance = 0.75f;
+    //public float groundCheckDistance = 0.75f;
     public bool hasCrashed = false;
+    /*
 
     [Header("Car Physics")]
     public float motorPower = 2000f;
@@ -35,7 +35,7 @@ public class Bot : MonoBehaviour
     public float dirtAccelMultiplier = 0.8f;
     public float dirtSteerMultiplier = 0.95f;
     public float dirtLateralGrip = 0.6f;
-    public float dirtDrag = 0.18f;
+    public float dirtDrag = 0.18f;*/
 
 
     [Header("Track Following")]
@@ -54,7 +54,7 @@ public class Bot : MonoBehaviour
         rb = GetComponent<Rigidbody>();
         rb.mass = 100f;
         rb.centerOfMass = new Vector3(0f, -0.5f, 0f);
-        rb.linearDamping = normalDrag;
+        rb.linearDamping = BotPlayer.normalDrag;
         rb.angularDamping = 2f;
 
         UpdateTargetPoints();
@@ -62,7 +62,7 @@ public class Bot : MonoBehaviour
 
     void FixedUpdate()
     {
-        if (previousSpeed - rb.linearVelocity.magnitude * 2.237f >= 50f) { GetComponent<CrashEffect>().TriggerCrash(); hasCrashed = true; }
+        if (previousSpeed - rb.linearVelocity.magnitude * 2.237f >= BotPlayer.botDeltaSpeed) { GetComponent<CrashEffect>().TriggerCrash(); hasCrashed = true; }
         previousSpeed = rb.linearVelocity.magnitude * 2.237f;
 
          if (hasCrashed)
@@ -81,11 +81,11 @@ public class Bot : MonoBehaviour
         if (!racetrack.lightsOutAndAwayWeGOOOOO || hasCrashed) return;
         else t = 0;
 
-        (int wheelsInContact, RoadMesh roadMesh) = BotPlayer.IsGrounded(transform.gameObject, groundCheckDistance, roadLayer);
+        (int wheelsInContact, RoadMesh roadMesh) = BotPlayer.IsGrounded(transform.gameObject, BotPlayer.groundCheckDistance, roadLayer);
 
         if (wheelsInContact == 0)
         {
-            rb.AddForce(downforce * rb.linearVelocity.magnitude * Vector3.down, ForceMode.Force);
+            rb.AddForce(BotPlayer.downforce * rb.linearVelocity.magnitude * Vector3.down, ForceMode.Force);
             return;
         }
         else
@@ -125,21 +125,21 @@ public class Bot : MonoBehaviour
         float accelMultiplier = 1.0f;
         float steerRoadMultiplier = 1.0f;
         float lateralGripMultiplier = 1.0f;
-        float roadDragMultiplier = normalDrag;
+        float roadDragMultiplier = BotPlayer.normalDrag;
 
         switch (currentRoadType)
         {
             case RoadType.Wet:
-                accelMultiplier = wetAccelMultiplier;
-                steerRoadMultiplier = wetSteerMultiplier;
-                lateralGripMultiplier = wetLateralGrip;
-                roadDragMultiplier = wetDrag;
+                accelMultiplier = BotPlayer.wetAccelMultiplier;
+                steerRoadMultiplier = BotPlayer.wetSteerMultiplier;
+                lateralGripMultiplier = BotPlayer.wetLateralGrip;
+                roadDragMultiplier = BotPlayer.wetDrag;
                 break;
             case RoadType.Dirt:
-                accelMultiplier = dirtAccelMultiplier;
-                steerRoadMultiplier = dirtSteerMultiplier;
-                lateralGripMultiplier = dirtLateralGrip;
-                roadDragMultiplier = dirtDrag;
+                accelMultiplier = BotPlayer.dirtAccelMultiplier;
+                steerRoadMultiplier = BotPlayer.dirtSteerMultiplier;
+                lateralGripMultiplier = BotPlayer.dirtLateralGrip;
+                roadDragMultiplier = BotPlayer.dirtDrag;
                 break;
         }
 
@@ -149,29 +149,29 @@ public class Bot : MonoBehaviour
 
         // If turning sharply, slow down
         if (Mathf.Abs(angle) > turnSlowdownAngle && forwardVel > 40f) braking = true;
-        else if (forwardVel < maxSpeed) accel = 1f;
+        else if (forwardVel < BotPlayer.maxSpeed) accel = 1f;
 
         Transform rearLights = transform.Find("lights/rear");
         if (braking) for (int i = 0; i < 2; i++) rearLights.GetChild(i).GetComponent<Light>().intensity = 100;
         else for (int i = 0; i < 2; i++) rearLights.GetChild(i).GetComponent<Light>().intensity = 50;
 
         // apply forward or braking force with road-specific acceleration multiplier
-        if (accel > 0f && forwardVel < maxSpeed)
+        if (accel > 0f && forwardVel < BotPlayer.maxSpeed)
         {
-            rb.AddForce(forward * accel * motorPower * accelMultiplier * Time.fixedDeltaTime, ForceMode.Acceleration);
+            rb.AddForce(accel * accelMultiplier * BotPlayer.motorPower * Time.fixedDeltaTime * wheelsInContact * forward / 4f, ForceMode.Acceleration);
         }
 
         // Steering with road-specific multiplier
-        rb.AddRelativeTorque(Vector3.up * steer * steerTorque * 9.5f * steerRoadMultiplier * Time.fixedDeltaTime, ForceMode.Acceleration);
+        rb.AddRelativeTorque(9.5f * steer * steerRoadMultiplier * BotPlayer.steerTorque * Time.fixedDeltaTime * wheelsInContact * Vector3.up / 4f, ForceMode.Acceleration);
 
         // gripping / drifting
         Vector3 right = transform.right;
         float lateralVel = Vector3.Dot(rb.linearVelocity, right);
-        Vector3 lateralImpulse = -right * lateralVel * normalGrip * lateralGripMultiplier;
+        Vector3 lateralImpulse = lateralGripMultiplier * lateralVel * BotPlayer.normalGrip * wheelsInContact * -right / 4f;
         rb.AddForce(lateralImpulse, ForceMode.VelocityChange);
 
         // apply drag
-        float activeDrag = braking ? brakeDrag : roadDragMultiplier;
+        float activeDrag = braking ? BotPlayer.brakeDrag : roadDragMultiplier;
         rb.linearDamping = activeDrag;
 
         //Debug.DrawLine(transform.position, targetPos, Color.green);
@@ -197,6 +197,6 @@ public class Bot : MonoBehaviour
 
     public void ChangeMotorPower(float newTarget)
     {
-        motorPower = newTarget;
+        BotPlayer.motorPower = newTarget;
     }
 }

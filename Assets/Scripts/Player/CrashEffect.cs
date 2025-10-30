@@ -3,12 +3,7 @@ using System.Collections;
 
 public class CrashEffect : MonoBehaviour
 {
-    [Header("Explosion Settings")]
-    public float explosionForce = 100;      // how hard to throw the cubes
-    public float explosionRadius = 20f;       // how far the cubes can fly
-    public float upwardModifier = 5f;        // adds upward lift to the explosion
-    public float randomTorque = 20;        // how much each cube spins
-    public float lifetime = 3f;              // how long cubes stay active before disappearing
+    
 
     public void TriggerCrash()
     {
@@ -33,12 +28,12 @@ public class CrashEffect : MonoBehaviour
 
             // Random direction & spin
             Vector3 randomDir = Random.onUnitSphere;
-            rb.AddForce(randomDir * explosionForce + Vector3.up * upwardModifier, ForceMode.Impulse);
-            rb.AddTorque(Random.insideUnitSphere * randomTorque, ForceMode.Impulse);
+            rb.AddForce(randomDir * BotPlayer.explosionForce + Vector3.up * BotPlayer.upwardModifier, ForceMode.Impulse);
+            rb.AddTorque(Random.insideUnitSphere * BotPlayer.randomTorque, ForceMode.Impulse);
 
             // Auto-destroy fragment after lifetime
-            Destroy(child.gameObject, lifetime + Random.Range(0f, 1f));
+            Destroy(child.gameObject, BotPlayer.lifetime + Random.Range(0f, 1f));
         }
-        Destroy(fragmentClone, lifetime + 1);
+        Destroy(fragmentClone, BotPlayer.lifetime + 1);
     }
 }
