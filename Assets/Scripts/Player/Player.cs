@@ -15,6 +15,7 @@ public class SimpleCarController : MonoBehaviour
     //[SerializeField] private float groundCheckDistance = 0.75f;
     [SerializeField] private LayerMask roadLayer;
     public bool hasCrashed = false;
+    public bool hasFinished = false;
     [Header("Analytics")]
     public SendToGoogle analytics;
 
@@ -54,6 +55,12 @@ public class SimpleCarController : MonoBehaviour
     private float t = 0f;
     private bool analyticsAlreadySent = false;
     private readonly float[] points = new float[] { 0, 0 };
+
+    [Header("Drift Assist")]
+    [SerializeField] private float driftAssistStrength = 5f;
+    [SerializeField] private float driftAssistDuration = 3f;
+    private bool wasDrifting = false;
+    private float driftStartTime = 0f;
 
     void Start()
     {
@@ -114,6 +121,15 @@ public class SimpleCarController : MonoBehaviour
         float forwardVel = Vector3.Dot(rb.linearVelocity, forward);
 
         canvas.transform.Find(speedGO).GetComponent<TMP_Text>().text = $"{Mathf.Abs(Mathf.RoundToInt(rb.linearVelocity.magnitude * 2.237f))} mph";
+
+        // freeze physics when player finishes the race
+        if (hasFinished)
+        {
+            rb.linearVelocity = Vector3.zero;
+            rb.angularVelocity = Vector3.zero;
+            rb.constraints = RigidbodyConstraints.FreezeAll;
+            return;
+        }
 
         if (!racetrack.lightsOutAndAwayWeGOOOOO || hasCrashed) return;
         else t = 0;
@@ -211,6 +227,13 @@ public class SimpleCarController : MonoBehaviour
         bool isSteering = Mathf.Abs(steer) > 0.1f;
         bool hasSpeed = Mathf.Abs(forwardVel) > BotPlayer.minDriftSpeed;
         bool drifting = attemptDrift && isSteering && hasSpeed;
+
+        // apply drift assist to help players navigate turns
+        ApplyDriftAssist(drifting);
+
+        // apply drift visual effects (car tilt, camera tilt)
+        GetComponent<DriftEffect>()?.UpdateDrift(drifting, steer);
+
         if (accel > 0f && forwardVel > BotPlayer.maxSpeed)
         {
             // don't add more forward force if at speed cap
@@ -274,6 +297,76 @@ public class SimpleCarController : MonoBehaviour
 
     }
 
+    private Vector3 CalculateTargetDirection()
+    {
+        // get the player's current section from the racetrack
+
+        // find closest curve point to determine where on the track
+        int currentSection = 0;
+        float closestDist = float.MaxValue;
+
+        for (int i = 0; i < racetrack.GetCurveCount(); i++)
+        {
+            BezierCurve curve = racetrack.GetCurve(i);
+            Vector3 closestPoint = curve.GetPoint(curve.GetClosestTOnCurve(transform.position));
+            float dist = Vector3.Distance(transform.position, closestPoint);
+
+            if (dist < closestDist)
+            {
+                closestDist = dist;
+                currentSection = i;
+            }
+        }
+
+        // get the target direction
+        int lookAheadSection = Mathf.Min(currentSection + 2, racetrack.GetCurveCount() - 1);
+
+        if (lookAheadSection < racetrack.GetCurveCount())
+        {
+            BezierCurve targetCurve = racetrack.GetCurve(lookAheadSection);
+            float t = targetCurve.GetClosestTOnCurve(transform.position);
+
+            // get forward direction
+            Vector3 targetDirection = targetCurve.GetTangent(Mathf.Clamp01(t + 0.3f)).normalized;
+
+            return new Vector3(targetDirection.x, 0f, targetDirection.z).normalized;
+        }
+
+        return transform.forward;
+    }
+
+    private void ApplyDriftAssist(bool isDrifting)
+    {
+        // track when drift starts
+        if (isDrifting && !wasDrifting)
+        {
+            driftStartTime = Time.time;
+        }
+
+        wasDrifting = isDrifting;
+
+        // only apply assist during drift and for a short duration after starting
+        float timeSinceDriftStart = Time.time - driftStartTime;
+        if (isDrifting && timeSinceDriftStart < driftAssistDuration)
+        {
+            Vector3 targetDirection = CalculateTargetDirection();
+            Vector3 currentForward = new Vector3(transform.forward.x, 0f, transform.forward.z).normalized;
+
+            // how much to rotate toward target
+            float alignmentStrength = 1f - (timeSinceDriftStart / driftAssistDuration);
+            alignmentStrength = Mathf.Clamp01(alignmentStrength);
+
+            // rotate toward target direction
+            Vector3 newForward = Vector3.Slerp(currentForward, targetDirection, driftAssistStrength * alignmentStrength * Time.fixedDeltaTime);
+
+            // apply the rotation
+            if (newForward != Vector3.zero)
+            {
+                Quaternion targetRotation = Quaternion.LookRotation(newForward, Vector3.up);
+                rb.MoveRotation(Quaternion.Slerp(rb.rotation, targetRotation, driftAssistStrength * alignmentStrength * Time.fixedDeltaTime));
+            }
+        }
+    }
 
 
 }

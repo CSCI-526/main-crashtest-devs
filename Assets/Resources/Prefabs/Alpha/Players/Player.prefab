@@ -6952,6 +6952,7 @@ GameObject:
   - component: {fileID: 5376061845053620418}
   - component: {fileID: 6582297117037623556}
   - component: {fileID: 5790690627279536737}
+  - component: {fileID: 2777790438493316048}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -7104,6 +7105,8 @@ MonoBehaviour:
     m_Bits: 8
   hasCrashed: 0
   analytics: {fileID: 0}
+  driftAssistStrength: 5
+  driftAssistDuration: 3
 --- !u!114 &5376061845053620418
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7148,6 +7151,21 @@ MonoBehaviour:
   surfaceTypeEntry: entry.1404718073
   eventTypeEntry: entry.457228854
   playerSpeedEntry: entry.1688723416
+--- !u!114 &2777790438493316048
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7667004058892913686}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4dc081192c3d7e843827a4862984f73f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  carTiltAngle: 15
+  cameraTiltAngle: 5
+  tiltSpeed: 5
 --- !u!1 &7750304827915642547
 GameObject:
   m_ObjectHideFlags: 0

@@ -354,8 +354,15 @@ public class Racetrack : MonoBehaviour
                     players[playerID].finished = true;
                     players[playerID].finishTime = Time.time - raceStartTime;
 
+                    // Freeze player physics when they finish
                     if (!players[playerID].bot)
                     {
+                        SimpleCarController playerController = players[playerID].player.GetComponent<SimpleCarController>();
+                        if (playerController != null)
+                        {
+                            playerController.hasFinished = true;
+                        }
+
                         playerTimeDisplay += $"{finishedPlayers}. Player {playerID} : {FormatTime(players[playerID].finishTime)}\n";
                         Debug.Log("Player finished");
                         ++realFinishedPlayers;
