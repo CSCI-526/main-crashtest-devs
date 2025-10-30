@@ -13,6 +13,8 @@ public class SendToGoogle : MonoBehaviour
     [SerializeField] private string surfaceTypeEntry = "entry.1404718073";
     [SerializeField] private string eventTypeEntry = "entry.457228854";
     [SerializeField] private string playerSpeedEntry = "entry.1688723416";
+    [SerializeField] private string headlightIntensityEntry = "entry.315348212";
+    [SerializeField] private string headlightRangeEntry = "entry.505370990";
 
     private long _sessionID;
 
@@ -20,13 +22,13 @@ public class SendToGoogle : MonoBehaviour
     {
         _sessionID = DateTime.Now.Ticks;
     }
-    public void Send(string segmentType, string surfaceType, string eventType, float playerSpeed)
+    public void Send(string segmentType, string surfaceType, string eventType, float playerSpeed, float headlightIntensity = -1f, float headlightRange = -1f)
     {
-        StartCoroutine(Post(segmentType, surfaceType, eventType, playerSpeed));
+        StartCoroutine(Post(segmentType, surfaceType, eventType, playerSpeed, headlightIntensity, headlightRange));
     }
 
     private IEnumerator Post(string segmentType, string surfaceType,
-        string eventType, float playerSpeed)
+        string eventType, float playerSpeed, float headlightIntensity, float headlightRange)
     {
         // Build URL with query parameters (Google Forms prefers GET with query string)
         string url = baseURL +
@@ -34,7 +36,9 @@ public class SendToGoogle : MonoBehaviour
             "&" + segmentTypeEntry + "=" + UnityWebRequest.EscapeURL(segmentType) +
             "&" + surfaceTypeEntry + "=" + UnityWebRequest.EscapeURL(surfaceType) +
             "&" + eventTypeEntry + "=" + UnityWebRequest.EscapeURL(eventType) +
-            "&" + playerSpeedEntry + "=" + UnityWebRequest.EscapeURL(playerSpeed.ToString("F2"));
+            "&" + playerSpeedEntry + "=" + UnityWebRequest.EscapeURL(playerSpeed.ToString("F2")) +
+            "&" + headlightIntensityEntry + "=" + UnityWebRequest.EscapeURL(headlightIntensity.ToString("F2")) +
+            "&" + headlightRangeEntry + "=" + UnityWebRequest.EscapeURL(headlightRange.ToString("F2"));
 
         using UnityWebRequest www = UnityWebRequest.Get(url);
         yield return www.SendWebRequest();

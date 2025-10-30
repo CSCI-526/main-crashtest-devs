@@ -97,7 +97,21 @@ public class SimpleCarController : MonoBehaviour
                 string eventType = "crash";
                 float playerSpeed = previousSpeed;
 
-                analytics.Send(segmentType, surfaceType, eventType, playerSpeed);
+                // FOV data from headlights at crash time
+                float headlightIntensity = -1f;
+                float headlightRange = -1f;
+                Transform frontLight = transform.Find("lights/front/light 0");
+                if (frontLight != null)
+                {
+                    Light light = frontLight.GetComponent<Light>();
+                    if (light != null)
+                    {
+                        headlightIntensity = light.intensity;
+                        headlightRange = light.range;
+                    }
+                }
+
+                analytics.Send(segmentType, surfaceType, eventType, playerSpeed, headlightIntensity, headlightRange);
                 analyticsAlreadySent = true;
             }
         }
