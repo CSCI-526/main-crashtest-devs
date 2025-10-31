@@ -266,35 +266,54 @@ public class SimpleCarController : MonoBehaviour
         if (braking || (Input.GetKey(KeyCode.S) && player0) || (Input.GetKey(KeyCode.DownArrow) && !player0)) for (int i = 0; i < 2; i++) rearLights.GetChild(i).GetComponent<Light>().intensity = 25;
         else for (int i = 0; i < 2; i++) rearLights.GetChild(i).GetComponent<Light>().intensity = 1;
 
+        // Apply road type effects
+        float accelMultiplier = 1.0f;
+        float steerRoadMultiplier = 1.0f;
+        float lateralGripMultiplier = 1.0f;
+        float roadDragMultiplier = BotPlayer.normalDrag;
+
+        switch (currentRoadType)
+        {
+            case RoadType.Wet:
+                accelMultiplier = BotPlayer.wetAccelMultiplier;
+                steerRoadMultiplier = BotPlayer.wetSteerMultiplier;
+                lateralGripMultiplier = BotPlayer.wetLateralGrip;
+                roadDragMultiplier = BotPlayer.wetDrag;
+                break;
+            case RoadType.Dirt:
+                accelMultiplier = BotPlayer.dirtAccelMultiplier;
+                steerRoadMultiplier = BotPlayer.dirtSteerMultiplier;
+                lateralGripMultiplier = BotPlayer.dirtLateralGrip;
+                roadDragMultiplier = BotPlayer.dirtDrag;
+                break;
+        }
+
+        // drift only when turning + holding shift + going fast enough
+        bool isSteering = Mathf.Abs(steer) > 0.1f;
+        bool hasSpeed = Mathf.Abs(forwardVel) > BotPlayer.minDriftSpeed;
+        bool drifting = attemptDrift && isSteering && hasSpeed;
+
+        // Track drift usage for analytics
+        if (drifting)
+        {
+            driftUsedRecently = true;
+            lastDriftTime = Time.time;
+        }
+        else
+        {
+            // Check if drift was used within the tracking window
+            driftUsedRecently = (Time.time - lastDriftTime) <= driftTrackingWindow;
+        }
+
+        // apply drift assist to help players navigate turns
+        ApplyDriftAssist(drifting);
+
+        // apply drift visual effects (car tilt, camera tilt)
+        GetComponent<DriftEffect>()?.UpdateDrift(drifting, steer);
+
         // Skip manual physics if autodrive is active (autodrive handles it)
         if (!isAutoDriveActive)
         {
-            // Apply road type effects
-            float accelMultiplier = 1.0f;
-            float steerRoadMultiplier = 1.0f;
-            float lateralGripMultiplier = 1.0f;
-            float roadDragMultiplier = BotPlayer.normalDrag;
-
-            switch (currentRoadType)
-            {
-                case RoadType.Wet:
-                    accelMultiplier = BotPlayer.wetAccelMultiplier;
-                    steerRoadMultiplier = BotPlayer.wetSteerMultiplier;
-                    lateralGripMultiplier = BotPlayer.wetLateralGrip;
-                    roadDragMultiplier = BotPlayer.wetDrag;
-                    break;
-                case RoadType.Dirt:
-                    accelMultiplier = BotPlayer.dirtAccelMultiplier;
-                    steerRoadMultiplier = BotPlayer.dirtSteerMultiplier;
-                    lateralGripMultiplier = BotPlayer.dirtLateralGrip;
-                    roadDragMultiplier = BotPlayer.dirtDrag;
-                    break;
-            }
-
-            // drift only when turning + holding shift + going fast enough
-            bool isSteering = Mathf.Abs(steer) > 0.1f;
-            bool hasSpeed = Mathf.Abs(forwardVel) > BotPlayer.minDriftSpeed;
-            bool drifting = attemptDrift && isSteering && hasSpeed;
             if (accel > 0f && forwardVel > BotPlayer.maxSpeed)
             {
                 // don't add more forward force if at speed cap
@@ -321,55 +340,6 @@ public class SimpleCarController : MonoBehaviour
             float activeDrag = braking ? BotPlayer.brakeDrag : (drifting ? BotPlayer.driftDrag : roadDragMultiplier);
             rb.linearDamping = activeDrag;
         }
-
-        // drift only when turning + holding shift + going fast enough
-        bool isSteering = Mathf.Abs(steer) > 0.1f;
-        bool hasSpeed = Mathf.Abs(forwardVel) > BotPlayer.minDriftSpeed;
-        bool drifting = attemptDrift && isSteering && hasSpeed;
-
-        // Track drift usage for analytics
-        if (drifting)
-        {
-            driftUsedRecently = true;
-            lastDriftTime = Time.time;
-        }
-        else
-        {
-            // Check if drift was used within the tracking window
-            driftUsedRecently = (Time.time - lastDriftTime) <= driftTrackingWindow;
-        }
-
-        // apply drift assist to help players navigate turns
-        ApplyDriftAssist(drifting);
-
-        // apply drift visual effects (car tilt, camera tilt)
-        GetComponent<DriftEffect>()?.UpdateDrift(drifting, steer);
-
-        if (accel > 0f && forwardVel > BotPlayer.maxSpeed)
-        {
-            // don't add more forward force if at speed cap
-        }
-        else
-        {
-            // apply road-specific acceleration multiplier
-            rb.AddForce(accel * accelMultiplier * BotPlayer.motorPower * wheelsInContact * forward / 4f * Time.fixedDeltaTime, ForceMode.Acceleration);
-        }
-
-        // steering: apply torque, boosted during drift for tighter turns
-        float steerMultiplier = drifting ? BotPlayer.driftSteerBoost : 1f;
-        float steerFactor = 9.5f;
-        rb.AddRelativeTorque(Vector3.up * steer * BotPlayer.steerTorque * steerFactor * steerMultiplier * steerRoadMultiplier * wheelsInContact / 4f * Time.fixedDeltaTime, ForceMode.Acceleration);
-
-        // friction: reduced grip while drifting allows sliding
-        Vector3 right = transform.right;
-        float lateralVel = Vector3.Dot(rb.linearVelocity, right);
-        float gripStrength = (drifting ? BotPlayer.driftGrip : BotPlayer.normalGrip) * lateralGripMultiplier;
-        Vector3 lateralImpulse = -right * lateralVel * gripStrength * wheelsInContact / 4f;
-        rb.AddForce(lateralImpulse, ForceMode.VelocityChange);
-
-        // braking: space for hard brake, drift also slows you down, or dirt slows you down
-        float activeDrag = braking ? BotPlayer.brakeDrag : (drifting ? BotPlayer.driftDrag : roadDragMultiplier);
-        rb.linearDamping = activeDrag;
 
         canvas.transform.Find(speedGO).GetComponent<TMP_Text>().text = $"{Mathf.Abs(Mathf.RoundToInt(rb.linearVelocity.magnitude * 2.237f))} mph";
 
