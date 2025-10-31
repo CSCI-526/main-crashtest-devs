@@ -55,6 +55,7 @@ public class SimpleCarController : MonoBehaviour
     private float t = 0f;
     private bool analyticsAlreadySent = false;
     private readonly float[] points = new float[] { 0, 0 };
+    private AutoDrive autoDrive;
 
     [Header("Drift Assist")]
     [SerializeField] private float driftAssistStrength = 5f;
@@ -69,6 +70,9 @@ public class SimpleCarController : MonoBehaviour
         rb.centerOfMass = new Vector3(0f, -0.5f, 0f); // lowers center for stability
         rb.linearDamping = BotPlayer.normalDrag;
         rb.angularDamping = 2f;
+        
+        // Get AutoDrive component (only for single player)
+        autoDrive = GetComponent<AutoDrive>();
     }
 
     void FixedUpdate()
@@ -107,12 +111,13 @@ public class SimpleCarController : MonoBehaviour
                     if (light != null)
                     {
                         headlightIntensity = light.intensity;
-                        headlightRange = light.range;
-                    }
+                    headlightRange = light.range;
                 }
+            }
 
-                analytics.Send(segmentType, surfaceType, eventType, playerSpeed, headlightIntensity, headlightRange);
-                analyticsAlreadySent = true;
+            // DISABLED: Analytics temporarily disabled
+            // analytics.Send(segmentType, surfaceType, eventType, playerSpeed, headlightIntensity, headlightRange);
+            analyticsAlreadySent = true;
             }
         }
         previousSpeed = rb.linearVelocity.magnitude * 2.237f;
@@ -170,109 +175,120 @@ public class SimpleCarController : MonoBehaviour
         float steer = 0f;
         bool braking;
         bool attemptDrift;
-        switch (player0)
+        
+        // Check if autodrive is active - if so, skip manual input
+        bool isAutoDriveActive = (autoDrive != null && autoDrive.IsAutoDriving());
+        
+        if (isAutoDriveActive)
         {
-            case true:
-                if (Input.GetKey(KeyCode.W))
-                {
-                    accel = 1f;
-                    points[0]++;
-                    points[1] -= 5;
-                }
-                else points[0]--;
-                if (Input.GetKey(KeyCode.S))
-                {
-                    accel = -.5f;
-                    points[0] -= 5;
-                    points[1] += 3;
-                }
-                else points[1]--;
+            // AutoDrive handles all movement, so set defaults
+            braking = false;
+            attemptDrift = false;
+        }
+        else
+        {
+            // Normal player input
+            switch (player0)
+            {
+                case true:
+                    if (Input.GetKey(KeyCode.W))
+                    {
+                        accel = 1f;
+                        points[0]++;
+                        points[1] -= 5;
+                    }
+                    else points[0]--;
+                    if (Input.GetKey(KeyCode.S))
+                    {
+                        accel = -.5f;
+                        points[0] -= 5;
+                        points[1] += 3;
+                    }
+                    else points[1]--;
 
-                if (Input.GetKey(KeyCode.D)) steer = 1f;
-                else if (Input.GetKey(KeyCode.A)) steer = -1f;
+                    if (Input.GetKey(KeyCode.D)) steer = 1f;
+                    else if (Input.GetKey(KeyCode.A)) steer = -1f;
 
-                braking = Input.GetKey(KeyCode.LeftCommand);
-                if (braking)
-                {
-                    points[0] -= 5;
-                    points[1] += 3;
-                }
-                else points[1]--;
-                attemptDrift = Input.GetKey(KeyCode.LeftShift);
-                break;
-            case false:
-                if (Input.GetKey(KeyCode.UpArrow)) accel = 1f;
-                else if (Input.GetKey(KeyCode.DownArrow)) accel = -1f;
+                    braking = Input.GetKey(KeyCode.LeftCommand);
+                    if (braking)
+                    {
+                        points[0] -= 5;
+                        points[1] += 3;
+                    }
+                    else points[1]--;
+                    attemptDrift = Input.GetKey(KeyCode.LeftShift);
+                    break;
+                case false:
+                    if (Input.GetKey(KeyCode.UpArrow)) accel = 1f;
+                    else if (Input.GetKey(KeyCode.DownArrow)) accel = -1f;
 
-                if (Input.GetKey(KeyCode.RightArrow)) steer = 1f;
-                else if (Input.GetKey(KeyCode.LeftArrow)) steer = -1f;
+                    if (Input.GetKey(KeyCode.RightArrow)) steer = 1f;
+                    else if (Input.GetKey(KeyCode.LeftArrow)) steer = -1f;
 
-                braking = Input.GetKey(KeyCode.RightCommand);
-                attemptDrift = Input.GetKey(KeyCode.RightShift);
-                break;
+                    braking = Input.GetKey(KeyCode.RightCommand);
+                    attemptDrift = Input.GetKey(KeyCode.RightShift);
+                    break;
+            }
         }
         Transform rearLights = transform.Find("lights/rear");
         if (braking || (Input.GetKey(KeyCode.S) && player0) || (Input.GetKey(KeyCode.DownArrow) && !player0)) for (int i = 0; i < 2; i++) rearLights.GetChild(i).GetComponent<Light>().intensity = 25;
         else for (int i = 0; i < 2; i++) rearLights.GetChild(i).GetComponent<Light>().intensity = 1;
 
-        // Apply road type effects
-        float accelMultiplier = 1.0f;
-        float steerRoadMultiplier = 1.0f;
-        float lateralGripMultiplier = 1.0f;
-        float roadDragMultiplier = BotPlayer.normalDrag;
-
-        switch (currentRoadType)
+        // Skip manual physics if autodrive is active (autodrive handles it)
+        if (!isAutoDriveActive)
         {
-            case RoadType.Wet:
-                accelMultiplier = BotPlayer.wetAccelMultiplier;
-                steerRoadMultiplier = BotPlayer.wetSteerMultiplier;
-                lateralGripMultiplier = BotPlayer.wetLateralGrip;
-                roadDragMultiplier = BotPlayer.wetDrag;
-                break;
-            case RoadType.Dirt:
-                accelMultiplier = BotPlayer.dirtAccelMultiplier;
-                steerRoadMultiplier = BotPlayer.dirtSteerMultiplier;
-                lateralGripMultiplier = BotPlayer.dirtLateralGrip;
-                roadDragMultiplier = BotPlayer.dirtDrag;
-                break;
+            // Apply road type effects
+            float accelMultiplier = 1.0f;
+            float steerRoadMultiplier = 1.0f;
+            float lateralGripMultiplier = 1.0f;
+            float roadDragMultiplier = BotPlayer.normalDrag;
+
+            switch (currentRoadType)
+            {
+                case RoadType.Wet:
+                    accelMultiplier = BotPlayer.wetAccelMultiplier;
+                    steerRoadMultiplier = BotPlayer.wetSteerMultiplier;
+                    lateralGripMultiplier = BotPlayer.wetLateralGrip;
+                    roadDragMultiplier = BotPlayer.wetDrag;
+                    break;
+                case RoadType.Dirt:
+                    accelMultiplier = BotPlayer.dirtAccelMultiplier;
+                    steerRoadMultiplier = BotPlayer.dirtSteerMultiplier;
+                    lateralGripMultiplier = BotPlayer.dirtLateralGrip;
+                    roadDragMultiplier = BotPlayer.dirtDrag;
+                    break;
+            }
+
+            // drift only when turning + holding shift + going fast enough
+            bool isSteering = Mathf.Abs(steer) > 0.1f;
+            bool hasSpeed = Mathf.Abs(forwardVel) > BotPlayer.minDriftSpeed;
+            bool drifting = attemptDrift && isSteering && hasSpeed;
+            if (accel > 0f && forwardVel > BotPlayer.maxSpeed)
+            {
+                // don't add more forward force if at speed cap
+            }
+            else
+            {
+                // apply road-specific acceleration multiplier
+                rb.AddForce(forward * accel * BotPlayer.motorPower * accelMultiplier * wheelsInContact / 4f * Time.fixedDeltaTime, ForceMode.Acceleration);
+            }
+
+            // steering: apply torque, boosted during drift for tighter turns
+            float steerMultiplier = drifting ? BotPlayer.driftSteerBoost : 1f;
+            float steerFactor = 9.5f;
+            rb.AddRelativeTorque(Vector3.up * steer * BotPlayer.steerTorque * steerFactor * steerMultiplier * steerRoadMultiplier * wheelsInContact / 4f * Time.fixedDeltaTime, ForceMode.Acceleration);
+
+            // friction: reduced grip while drifting allows sliding
+            Vector3 right = transform.right;
+            float lateralVel = Vector3.Dot(rb.linearVelocity, right);
+            float gripStrength = (drifting ? BotPlayer.driftGrip : BotPlayer.normalGrip) * lateralGripMultiplier;
+            Vector3 lateralImpulse = -right * lateralVel * gripStrength * wheelsInContact / 4f;
+            rb.AddForce(lateralImpulse, ForceMode.VelocityChange);
+
+            // braking: space for hard brake, drift also slows you down, or dirt slows you down
+            float activeDrag = braking ? BotPlayer.brakeDrag : (drifting ? BotPlayer.driftDrag : roadDragMultiplier);
+            rb.linearDamping = activeDrag;
         }
-
-        // drift only when turning + holding shift + going fast enough
-        bool isSteering = Mathf.Abs(steer) > 0.1f;
-        bool hasSpeed = Mathf.Abs(forwardVel) > BotPlayer.minDriftSpeed;
-        bool drifting = attemptDrift && isSteering && hasSpeed;
-
-        // apply drift assist to help players navigate turns
-        ApplyDriftAssist(drifting);
-
-        // apply drift visual effects (car tilt, camera tilt)
-        GetComponent<DriftEffect>()?.UpdateDrift(drifting, steer);
-
-        if (accel > 0f && forwardVel > BotPlayer.maxSpeed)
-        {
-            // don't add more forward force if at speed cap
-        }
-        else
-        {
-            // apply road-specific acceleration multiplier
-            rb.AddForce(accel * accelMultiplier * BotPlayer.motorPower * wheelsInContact * forward / 4f * Time.fixedDeltaTime, ForceMode.Acceleration);
-        }
-
-        // steering: apply torque, boosted during drift for tighter turns
-        float steerMultiplier = drifting ? BotPlayer.driftSteerBoost : 1f;
-        float steerFactor = 9.5f;
-        rb.AddRelativeTorque(Vector3.up * steer * BotPlayer.steerTorque * steerFactor * steerMultiplier * steerRoadMultiplier * wheelsInContact / 4f * Time.fixedDeltaTime, ForceMode.Acceleration);
-
-        // friction: reduced grip while drifting allows sliding
-        Vector3 right = transform.right;
-        float lateralVel = Vector3.Dot(rb.linearVelocity, right);
-        float gripStrength = (drifting ? BotPlayer.driftGrip : BotPlayer.normalGrip) * lateralGripMultiplier;
-        Vector3 lateralImpulse = -right * lateralVel * gripStrength * wheelsInContact / 4f;
-        rb.AddForce(lateralImpulse, ForceMode.VelocityChange);
-
-        // braking: space for hard brake, drift also slows you down, or dirt slows you down
-        float activeDrag = braking ? BotPlayer.brakeDrag : (drifting ? BotPlayer.driftDrag : roadDragMultiplier);
-        rb.linearDamping = activeDrag;
 
         canvas.transform.Find(speedGO).GetComponent<TMP_Text>().text = $"{Mathf.Abs(Mathf.RoundToInt(rb.linearVelocity.magnitude * 2.237f))} mph";
 
@@ -309,6 +325,44 @@ public class SimpleCarController : MonoBehaviour
         gasRect.offsetMin = Vector2.zero;
         gasRect.offsetMax = Vector2.zero;
 
+        // Update AutoDrive UI
+        UpdateAutoDriveUI();
+    }
+
+    private void UpdateAutoDriveUI()
+    {
+        if (autoDrive == null) return;
+
+        // Update autodrive uses remaining display
+        Transform autoDriveUsesTransform = canvas.transform.Find("playerStats/leftSide/autoDrive/usesText");
+        if (autoDriveUsesTransform != null)
+        {
+            TMP_Text usesText = autoDriveUsesTransform.GetComponent<TMP_Text>();
+            if (usesText != null)
+            {
+                usesText.text = $"{autoDrive.GetAutoDriveUsesRemaining()}/{autoDrive.GetMaxAutoDriveUses()}";
+            }
+        }
+
+        // Update autodrive active indicator and timer
+        Transform autoDriveActiveTransform = canvas.transform.Find("playerStats/leftSide/autoDrive/activeIndicator");
+        if (autoDriveActiveTransform != null)
+        {
+            GameObject activeIndicator = autoDriveActiveTransform.gameObject;
+            if (autoDrive.IsAutoDriving())
+            {
+                activeIndicator.SetActive(true);
+                TMP_Text timerText = autoDriveActiveTransform.Find("timerText")?.GetComponent<TMP_Text>();
+                if (timerText != null)
+                {
+                    timerText.text = $"{Mathf.Ceil(autoDrive.GetAutoDriveTimeRemaining())}s";
+                }
+            }
+            else
+            {
+                activeIndicator.SetActive(false);
+            }
+        }
     }
 
     private Vector3 CalculateTargetDirection()
