@@ -62,6 +62,16 @@ public class SimpleCarController : MonoBehaviour
     private bool wasDrifting = false;
     private float driftStartTime = 0f;
 
+    // drift data collection
+    private bool driftUsedRecently = false;
+    private float lastDriftTime = 0f;
+    [SerializeField] private float driftTrackingWindow = 2f;
+
+    // progress track
+    private float raceStartTime = -1f;
+    private int raceCrashCount = 0;
+    private bool raceCompletionSent = false;
+
     void Start()
     {
         rb = GetComponent<Rigidbody>();
@@ -75,6 +85,13 @@ public class SimpleCarController : MonoBehaviour
     {
         string speedGO = "speed1";
         if (!player0) speedGO = "speed2";
+
+        // Track race start time (use realtimeSinceStartup to avoid scene reload issues)
+        if (racetrack.lightsOutAndAwayWeGOOOOO && raceStartTime < 0f)
+        {
+            raceStartTime = Time.realtimeSinceStartup;
+        }
+
         // Reset analytics flag when player is no longer crashed (after respawn)
         if (!hasCrashed)
         {
@@ -85,6 +102,7 @@ public class SimpleCarController : MonoBehaviour
         {
             GetComponent<CrashEffect>().TriggerCrash();
             hasCrashed = true;
+            raceCrashCount++; // Track crashes for progress track
             points[0] = 0;
             points[1] = 0;
             UpdateUI();
@@ -111,7 +129,7 @@ public class SimpleCarController : MonoBehaviour
                     }
                 }
 
-                analytics.Send(segmentType, surfaceType, eventType, playerSpeed, headlightIntensity, headlightRange);
+                analytics.Send(segmentType, surfaceType, eventType, playerSpeed, headlightIntensity, headlightRange, driftUsedRecently);
                 analyticsAlreadySent = true;
             }
         }
@@ -142,6 +160,16 @@ public class SimpleCarController : MonoBehaviour
             rb.linearVelocity = Vector3.zero;
             rb.angularVelocity = Vector3.zero;
             rb.constraints = RigidbodyConstraints.FreezeAll;
+
+            // Send race completion analytics (only once)
+            if (!raceCompletionSent && analytics != null && raceStartTime > 0f)
+            {
+                float completionTime = Time.realtimeSinceStartup - raceStartTime;
+                float progressPercentage = 100f;
+                analytics.SendRaceCompletion("race_complete", completionTime, progressPercentage, raceCrashCount);
+                raceCompletionSent = true;
+            }
+
             return;
         }
 
@@ -211,6 +239,11 @@ public class SimpleCarController : MonoBehaviour
                 attemptDrift = Input.GetKey(KeyCode.RightShift);
                 break;
         }
+        if (forwardVel < 0)
+        {
+            steer *= -1f;
+        }
+        
         Transform rearLights = transform.Find("lights/rear");
         if (braking || (Input.GetKey(KeyCode.S) && player0) || (Input.GetKey(KeyCode.DownArrow) && !player0)) for (int i = 0; i < 2; i++) rearLights.GetChild(i).GetComponent<Light>().intensity = 25;
         else for (int i = 0; i < 2; i++) rearLights.GetChild(i).GetComponent<Light>().intensity = 1;
@@ -241,6 +274,18 @@ public class SimpleCarController : MonoBehaviour
         bool isSteering = Mathf.Abs(steer) > 0.1f;
         bool hasSpeed = Mathf.Abs(forwardVel) > BotPlayer.minDriftSpeed;
         bool drifting = attemptDrift && isSteering && hasSpeed;
+
+        // Track drift usage for analytics
+        if (drifting)
+        {
+            driftUsedRecently = true;
+            lastDriftTime = Time.time;
+        }
+        else
+        {
+            // Check if drift was used within the tracking window
+            driftUsedRecently = (Time.time - lastDriftTime) <= driftTrackingWindow;
+        }
 
         // apply drift assist to help players navigate turns
         ApplyDriftAssist(drifting);
@@ -309,6 +354,51 @@ public class SimpleCarController : MonoBehaviour
         gasRect.offsetMin = Vector2.zero;
         gasRect.offsetMax = Vector2.zero;
 
+    }
+
+    private void OnDestroy() // to check if game shut down before finished
+    {
+        // Send dropout analytics if race started but not finished
+        if (raceStartTime > 0f && !hasFinished && !raceCompletionSent && analytics != null)
+        {
+            float elapsedTime = Time.realtimeSinceStartup - raceStartTime;
+
+            // Safety check: Only send if elapsed time is positive and reasonable
+            if (elapsedTime > 0f && elapsedTime < 3600f) // Max 1 hour
+            {
+                float progressPercentage = CalculateProgressPercentage();
+                analytics.SendRaceCompletion("dropout", elapsedTime, progressPercentage, raceCrashCount);
+                raceCompletionSent = true;
+            }
+        }
+    }
+
+    private float CalculateProgressPercentage()
+    {
+        // Calculate approximate progress based on position along track
+        if (racetrack == null || racetrack.GetCurveCount() == 0)
+            return 0f;
+
+        // Find closest curve to player
+        int closestSection = 0;
+        float closestDist = float.MaxValue;
+
+        for (int i = 0; i < racetrack.GetCurveCount(); i++)
+        {
+            BezierCurve curve = racetrack.GetCurve(i);
+            Vector3 closestPoint = curve.GetPoint(curve.GetClosestTOnCurve(transform.position));
+            float dist = Vector3.Distance(transform.position, closestPoint);
+
+            if (dist < closestDist)
+            {
+                closestDist = dist;
+                closestSection = i;
+            }
+        }
+
+        // Calculate percentage: currentSection / totalSections * 100
+        float progress = (closestSection / (float)(racetrack.GetCurveCount() - 1)) * 100f;
+        return Mathf.Clamp(progress, 0f, 100f);
     }
 
     private Vector3 CalculateTargetDirection()
