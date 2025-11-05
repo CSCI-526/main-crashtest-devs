@@ -5,6 +5,7 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using TMPro;
+using UnityEngine.AI;
 
 public class Racetrack : MonoBehaviour
 {
@@ -33,6 +34,8 @@ public class Racetrack : MonoBehaviour
         public bool bot;
         public float finishTime = -1f;
         public bool finished = false;
+        public int tries = 3;
+        public int respawnSection = 0;
 
         public CheckPointCheck(int playerID, GameObject player, GameObject checkpoint, bool bot = true)
         {
@@ -95,6 +98,20 @@ public class Racetrack : MonoBehaviour
         {
             players[i].playerTimer -= Time.deltaTime;
             if (players[i].playerTimer <= 0f) RespawnPlayer(i);
+            else if (players[i].playerTimer > 3f)
+            {
+                if (players[i].bot)
+                {
+                    Bot botScript = players[i].player.GetComponent<Bot>();
+                    if (botScript.hasCrashed) players[i].playerTimer = 3f;
+                }
+                else
+                {
+                    SimpleCarController playerScript = players[i].player.GetComponent<SimpleCarController>();
+                    if (playerScript.hasCrashed) players[i].playerTimer = 3f;
+                }
+            }
+
         }
 
         UpdateUI();
@@ -297,8 +314,8 @@ public class Racetrack : MonoBehaviour
                     break;
             }
 
-            canvas.transform.Find($"ranking{j+1}").GetComponent<TMP_Text>().text = rankString;
-            canvas.transform.Find($"ranking{j+1}").GetComponent<TMP_Text>().color = rankColor;
+            canvas.transform.Find($"ranking{j + 1}").GetComponent<TMP_Text>().text = rankString;
+            canvas.transform.Find($"ranking{j + 1}").GetComponent<TMP_Text>().color = rankColor;
 
             // compass
             List<Vector3> nextCheckpoints = new();
@@ -345,6 +362,14 @@ public class Racetrack : MonoBehaviour
             players[playerID].currentSection++;
             players[playerID].playerTimer = 5f;
             players[playerID].checkpoint = checkpoint;
+
+            if (!players[playerID].bot) players[playerID].playerTimer = 15f;
+
+            if (players[playerID].bot)
+            {
+                Bot botScript = players[playerID].player.GetComponent<Bot>();
+                botScript.ChangeTarget(sectionID);
+            }
 
             if (sectionID >= curves.Count - 1)
             {
@@ -447,7 +472,24 @@ public class Racetrack : MonoBehaviour
 
     private void RespawnPlayer(int playerID)
     {
+        if (players[playerID].tries == 3 || players[playerID].respawnSection != players[playerID].currentSection)
+        {
+            players[playerID].respawnSection = players[playerID].currentSection;
+            players[playerID].tries--;
+        }
+        else players[playerID].tries--;
+
+        if (players[playerID].tries == 0)
+        {
+            players[playerID].tries = 3;
+            players[playerID].currentSection++;
+            players[playerID].respawnSection = players[playerID].currentSection;
+        }
+
+
+
         players[playerID].playerTimer = 5f;
+        if (!players[playerID].bot) players[playerID].playerTimer = 15f;
         RectTransform rt = players[playerID].player.GetComponent<RectTransform>();
 
         // position
@@ -483,8 +525,8 @@ public class Racetrack : MonoBehaviour
         if (players[playerID].bot)
         {
             Bot botScript = players[playerID].player.GetComponent<Bot>();
-            string[] parts = players[playerID].checkpoint.transform.parent.parent.name.Split();
-            botScript.ChangeTarget(int.Parse(parts[2]) * 2);
+            //string[] parts = players[playerID].checkpoint.transform.parent.parent.name.Split();
+            botScript.ChangeTarget(players[playerID].currentSection);
             hasCrashed = botScript.hasCrashed;
             botScript.hasCrashed = false;
         }

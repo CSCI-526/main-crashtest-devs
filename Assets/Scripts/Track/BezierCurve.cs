@@ -49,7 +49,7 @@ public class BezierCurve : MonoBehaviour
 
     public float GetClosestTOnCurve(Vector3 position)
     {
-        int samples = 20;
+        int samples = 40;
         float closestT = 0f;
         float closestDist = float.MaxValue;
 

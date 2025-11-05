@@ -12,41 +12,11 @@ public class SimpleCarController : MonoBehaviour
     public bool player0 = true;
     public Racetrack racetrack;
     public GameObject canvas;
-    //[SerializeField] private float groundCheckDistance = 0.75f;
     [SerializeField] private LayerMask roadLayer;
     public bool hasCrashed = false;
     public bool hasFinished = false;
     [Header("Analytics")]
     public SendToGoogle analytics;
-
-/*
-    [Header("Car Physics")]
-    public float motorPower = 2000f;
-    public float steerTorque = 200f;
-    public float maxSpeed = 98f;
-    public float brakeDrag = 1f;
-    public float normalDrag = 0.1f;
-    public float downforce = 100f;
-
-    
-
-    [Header("Grip / Handling")]
-    public float normalGrip = 0.8f;
-    public float driftGrip = 0.25f;
-    public float driftSteerBoost = 1.3f;
-    public float driftDrag = 0.6f;
-    public float minDriftSpeed = 30f;
-
-    [Header("Road Type Multipliers")]
-    public float wetAccelMultiplier = 0.6f;
-    public float wetSteerMultiplier = 0.95f;
-    public float wetLateralGrip = 0.15f;
-    public float wetDrag = 0f;
-
-    public float dirtAccelMultiplier = 0.8f;
-    public float dirtSteerMultiplier = 0.95f;
-    public float dirtLateralGrip = 0.6f;
-    public float dirtDrag = 0.18f;*/
 
     private Rigidbody rb;
     private RoadType currentRoadType = RoadType.Normal;
@@ -80,7 +50,7 @@ public class SimpleCarController : MonoBehaviour
         rb.centerOfMass = new Vector3(0f, -0.5f, 0f); // lowers center for stability
         rb.linearDamping = BotPlayer.normalDrag;
         rb.angularDamping = 2f;
-        
+
         // Get AutoDrive component (only for single player)
         autoDrive = GetComponent<AutoDrive>();
     }
@@ -102,7 +72,7 @@ public class SimpleCarController : MonoBehaviour
             analyticsAlreadySent = false;
         }
 
-        if (previousSpeed - rb.linearVelocity.magnitude * 2.237f >= BotPlayer.playerDeltaSpeed)
+        if (previousSpeed - rb.linearVelocity.magnitude * 2.237f >= BotPlayer.playerDeltaSpeed || Input.GetKey(KeyCode.R))
         {
             GetComponent<CrashEffect>().TriggerCrash();
             hasCrashed = true;
@@ -129,9 +99,9 @@ public class SimpleCarController : MonoBehaviour
                     if (light != null)
                     {
                         headlightIntensity = light.intensity;
-                    headlightRange = light.range;
+                        headlightRange = light.range;
+                    }
                 }
-            }
 
                 analytics.Send(segmentType, surfaceType, eventType, playerSpeed, headlightIntensity, headlightRange, driftUsedRecently);
                 analyticsAlreadySent = true;
@@ -202,10 +172,10 @@ public class SimpleCarController : MonoBehaviour
         float steer = 0f;
         bool braking;
         bool attemptDrift;
-        
+
         // Check if autodrive is active - if so, skip manual input
         bool isAutoDriveActive = (autoDrive != null && autoDrive.IsAutoDriving());
-        
+
         if (isAutoDriveActive)
         {
             // AutoDrive handles all movement, so set defaults
@@ -227,7 +197,7 @@ public class SimpleCarController : MonoBehaviour
                     else points[0]--;
                     if (Input.GetKey(KeyCode.S))
                     {
-                        accel = -.5f;
+                        accel = -.75f;
                         points[0] -= 5;
                         points[1] += 3;
                     }
@@ -247,7 +217,7 @@ public class SimpleCarController : MonoBehaviour
                     break;
                 case false:
                     if (Input.GetKey(KeyCode.UpArrow)) accel = 1f;
-                    else if (Input.GetKey(KeyCode.DownArrow)) accel = -1f;
+                    else if (Input.GetKey(KeyCode.DownArrow)) accel = -.75f;
 
                     if (Input.GetKey(KeyCode.RightArrow)) steer = 1f;
                     else if (Input.GetKey(KeyCode.LeftArrow)) steer = -1f;
@@ -261,28 +231,28 @@ public class SimpleCarController : MonoBehaviour
         {
             steer *= -1f;
         }
-        
+
         Transform rearLights = transform.Find("lights/rear");
         if (braking || (Input.GetKey(KeyCode.S) && player0) || (Input.GetKey(KeyCode.DownArrow) && !player0)) for (int i = 0; i < 2; i++) rearLights.GetChild(i).GetComponent<Light>().intensity = 25;
         else for (int i = 0; i < 2; i++) rearLights.GetChild(i).GetComponent<Light>().intensity = 1;
 
         // Apply road type effects
         float accelMultiplier = 1.0f;
-        float steerRoadMultiplier = 1.0f;
-        float lateralGripMultiplier = 1.0f;
+        float steerRoadMultiplier = 1.5f;
+        float lateralGripMultiplier = .9f;
         float roadDragMultiplier = BotPlayer.normalDrag;
 
         switch (currentRoadType)
         {
             case RoadType.Wet:
                 accelMultiplier = BotPlayer.wetAccelMultiplier;
-                steerRoadMultiplier = BotPlayer.wetSteerMultiplier;
+                steerRoadMultiplier = BotPlayer.wetSteerMultiplier / 2f;
                 lateralGripMultiplier = BotPlayer.wetLateralGrip;
                 roadDragMultiplier = BotPlayer.wetDrag;
                 break;
             case RoadType.Dirt:
                 accelMultiplier = BotPlayer.dirtAccelMultiplier;
-                steerRoadMultiplier = BotPlayer.dirtSteerMultiplier;
+                steerRoadMultiplier = BotPlayer.dirtSteerMultiplier / 2f;
                 lateralGripMultiplier = BotPlayer.dirtLateralGrip;
                 roadDragMultiplier = BotPlayer.dirtDrag;
                 break;
@@ -314,37 +284,38 @@ public class SimpleCarController : MonoBehaviour
         // Skip manual physics if autodrive is active (autodrive handles it)
         if (!isAutoDriveActive)
         {
-            if (accel > 0f && forwardVel > BotPlayer.maxSpeed)
-            {
-                // don't add more forward force if at speed cap
-            }
-            else
-            {
-                // apply road-specific acceleration multiplier
-                rb.AddForce(forward * accel * BotPlayer.motorPower * accelMultiplier * wheelsInContact / 4f * Time.fixedDeltaTime, ForceMode.Acceleration);
-            }
 
             // steering: apply torque, boosted during drift for tighter turns
             float steerMultiplier = drifting ? BotPlayer.driftSteerBoost : 1f;
-            float steerFactor = 9.5f;
-            rb.AddRelativeTorque(Vector3.up * steer * BotPlayer.steerTorque * steerFactor * steerMultiplier * steerRoadMultiplier * wheelsInContact / 4f * Time.fixedDeltaTime, ForceMode.Acceleration);
+            //rb.AddRelativeTorque(Vector3.up * steer * 100 * steerMultiplier * steerRoadMultiplier * wheelsInContact / 4f, ForceMode.Acceleration);
+
+            float rotationSpeed = steer * steerRoadMultiplier * steerMultiplier * wheelsInContact / 4f;
+
+            Quaternion turnRotation = Quaternion.Euler(0f, rotationSpeed, 0f);
+            rb.MoveRotation(rb.rotation * turnRotation);
+
 
             // friction: reduced grip while drifting allows sliding
             Vector3 right = transform.right;
-            float lateralVel = Vector3.Dot(rb.linearVelocity, right);
+            //float lateralVel = Vector3.Dot(rb.linearVelocity, right);
             float gripStrength = (drifting ? BotPlayer.driftGrip : BotPlayer.normalGrip) * lateralGripMultiplier;
-            Vector3 lateralImpulse = -right * lateralVel * gripStrength * wheelsInContact / 4f;
-            rb.AddForce(lateralImpulse, ForceMode.VelocityChange);
+            //Vector3 lateralImpulse = -right * lateralVel * gripStrength * wheelsInContact / 4f;
+            //rb.AddForce(lateralImpulse, ForceMode.VelocityChange);
+
+            Vector3 lateralVel = Vector3.Dot(rb.linearVelocity, right) * right;
+            Vector3 correctedVel = rb.linearVelocity - lateralVel * gripStrength;
+            rb.linearVelocity = correctedVel;
 
             // braking: space for hard brake, drift also slows you down, or dirt slows you down
             float activeDrag = braking ? BotPlayer.brakeDrag : (drifting ? BotPlayer.driftDrag : roadDragMultiplier);
             rb.linearDamping = activeDrag;
+
+            if (!braking && forwardVel < BotPlayer.maxSpeed)
+                rb.AddForce(accel * accelMultiplier * BotPlayer.motorPower * wheelsInContact * forward / 4f, ForceMode.Acceleration);
+
         }
 
-        canvas.transform.Find(speedGO).GetComponent<TMP_Text>().text = $"{Mathf.Abs(Mathf.RoundToInt(rb.linearVelocity.magnitude * 2.237f))} mph";
-
         UpdateUI();
-
     }
 
     private void UpdateUI()

@@ -9,12 +9,13 @@ public class BotPlayer : MonoBehaviour
     public static float range = 50f;
 
     [Header("Car Physics")]
-    public static float motorPower = 2000f;
+    public static float motorPower = 40;
+    public static float botPowerMulti = 1f;
     public static float steerTorque = 200f;
     public static float maxSpeed = 98f;
     public static float brakeDrag = 1f;
     public static float normalDrag = 0.1f;
-    public static float downforce = 100f;
+    public static float downforce =  75;
 
     [Header("Grip / Handling")]
     public static float normalGrip = 0.8f;
@@ -25,11 +26,11 @@ public class BotPlayer : MonoBehaviour
 
     [Header("Road Type Multipliers")]
     public static float wetAccelMultiplier = 0.6f;
-    public static float wetSteerMultiplier = 0.95f;
+    public static float wetSteerMultiplier = 1f;
     public static float wetLateralGrip = 0.15f;
     public static float wetDrag = 0f;
     public static float dirtAccelMultiplier = 0.8f;
-    public static float dirtSteerMultiplier = 0.95f;
+    public static float dirtSteerMultiplier = 2f;
     public static float dirtLateralGrip = 0.6f;
     public static float dirtDrag = 0.18f;
 
