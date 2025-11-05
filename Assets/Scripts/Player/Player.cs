@@ -43,6 +43,10 @@ public class SimpleCarController : MonoBehaviour
     private int raceCrashCount = 0;
     private bool raceCompletionSent = false;
 
+    //respawn timer
+    private float p0RespawnTimer = 0f;
+    private float p1RespawnTimer = 0f;
+
     void Start()
     {
         rb = GetComponent<Rigidbody>();
@@ -60,6 +64,9 @@ public class SimpleCarController : MonoBehaviour
         string speedGO = "speed1";
         if (!player0) speedGO = "speed2";
 
+        p0RespawnTimer += Time.deltaTime;
+        p1RespawnTimer += Time.deltaTime;
+
         // Track race start time (use realtimeSinceStartup to avoid scene reload issues)
         if (racetrack.lightsOutAndAwayWeGOOOOO && raceStartTime < 0f)
         {
@@ -72,13 +79,21 @@ public class SimpleCarController : MonoBehaviour
             analyticsAlreadySent = false;
         }
 
-        if (previousSpeed - rb.linearVelocity.magnitude * 2.237f >= BotPlayer.playerDeltaSpeed || Input.GetKey(KeyCode.R))
+        if (previousSpeed - rb.linearVelocity.magnitude * 2.237f >= BotPlayer.playerDeltaSpeed ||
+            (player0 && Input.GetKey(KeyCode.R) && p0RespawnTimer >= 5.0f) ||
+            (!player0 && Input.GetKey(KeyCode.Slash) && p1RespawnTimer >= 5.0f))
         {
             GetComponent<CrashEffect>().TriggerCrash();
             hasCrashed = true;
             raceCrashCount++; // Track crashes for progress track
             points[0] = 0;
             points[1] = 0;
+
+            if (player0)
+                p0RespawnTimer = 0f;
+            else
+                p1RespawnTimer = 0f;
+
             UpdateUI();
 
             // Send crash analytics (only once per crash)
