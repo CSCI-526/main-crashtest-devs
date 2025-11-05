@@ -12,6 +12,8 @@ public class Racetrack : MonoBehaviour
     public TMP_Text countdownText;  // Drag your CountdownText UI element here
     public GameObject canvas;
     public bool lightsOutAndAwayWeGOOOOO = false;
+    public GameObject p0StuckScreen;
+    public GameObject p1StuckScreen;
     private float startTimer = 1.0f;  // Time between each countdown
     private int countdownStage = 0;  // 0=Ready, 1=3, 2=2, 3=1, 4=GO
     private readonly List<CheckPointCheck> players = new();
@@ -22,6 +24,9 @@ public class Racetrack : MonoBehaviour
     private bool isSinglePlayer = true;
     private string playerTimeDisplay = "";
     private ScoreboardUIManager scoreboard;
+
+    private float p0ShowStuckTimer = 0f;
+    private float p1ShowStuckTimer = 0f;
 
     private class CheckPointCheck
     {
@@ -79,6 +84,18 @@ public class Racetrack : MonoBehaviour
 
     void FixedUpdate()
     {
+        p0ShowStuckTimer += Time.deltaTime;
+        p1ShowStuckTimer += Time.deltaTime;
+
+        if(p0StuckScreen && p0StuckScreen.activeInHierarchy && p0ShowStuckTimer >= 2.0f)
+        {
+            p0StuckScreen.SetActive(false);
+        }
+        if (p1StuckScreen && p1StuckScreen.activeInHierarchy && p1ShowStuckTimer >= 2.0f)
+        {
+            p1StuckScreen.SetActive(false);
+        }
+
         if (countdownStage < 5)
         {
             startTimer -= Time.deltaTime;
@@ -109,6 +126,25 @@ public class Racetrack : MonoBehaviour
                 {
                     SimpleCarController playerScript = players[i].player.GetComponent<SimpleCarController>();
                     if (playerScript.hasCrashed) players[i].playerTimer = 3f;
+                }
+            }
+
+            if (lightsOutAndAwayWeGOOOOO && players[i].playerTimer <= 7f && players[i].playerTimer > 3f)
+            {
+                // show stuck? screen
+                if (!players[i].bot && players[i].playerID == 0 && p0ShowStuckTimer > 3.0f)
+                {
+                    p0StuckScreen.SetActive(true);
+                    p0ShowStuckTimer = 0f;
+
+                }
+                else if (!players[i].bot && players[i].playerID == 1 && p1ShowStuckTimer > 3.0f)
+                {
+                    if (p1StuckScreen)
+                    {
+                        p1StuckScreen.SetActive(true);
+                        p1ShowStuckTimer = 0f;
+                    }
                 }
             }
 
@@ -489,7 +525,7 @@ public class Racetrack : MonoBehaviour
 
 
         players[playerID].playerTimer = 5f;
-        if (!players[playerID].bot) players[playerID].playerTimer = 15f;
+        if (!players[playerID].bot) players[playerID].playerTimer = 20f;
         RectTransform rt = players[playerID].player.GetComponent<RectTransform>();
 
         // position
