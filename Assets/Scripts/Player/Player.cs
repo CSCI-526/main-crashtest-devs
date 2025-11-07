@@ -199,88 +199,90 @@ public class SimpleCarController : MonoBehaviour
             else currentRoadType = RoadType.Wet;
         }
 
-        if (points >= 499)
+        if (SceneManager.GetActiveScene().name != "MultiPlayer")
         {
-            canvas.transform.Find("playerStats/leftSide/shield").GetComponent<TMP_Text>().color = Color.white;
-            canvas.transform.Find("playerStats/leftSide/shield/text").GetComponent<TMP_Text>().color = Color.white;
-
-            if (points >= 999)
+            if (points >= 499)
             {
-                canvas.transform.Find("playerStats/leftSide/auto").GetComponent<TMP_Text>().color = Color.white;
-                canvas.transform.Find("playerStats/leftSide/auto/text").GetComponent<TMP_Text>().color = Color.white;
+                canvas.transform.Find("playerStats/leftSide/shield").GetComponent<TMP_Text>().color = Color.white;
+                canvas.transform.Find("playerStats/leftSide/shield/text").GetComponent<TMP_Text>().color = Color.white;
+
+                if (points >= 999)
+                {
+                    canvas.transform.Find("playerStats/leftSide/auto").GetComponent<TMP_Text>().color = Color.white;
+                    canvas.transform.Find("playerStats/leftSide/auto/text").GetComponent<TMP_Text>().color = Color.white;
+                }
+                else
+                {
+                    canvas.transform.Find("playerStats/leftSide/auto").GetComponent<TMP_Text>().color = Color.gray;
+                    canvas.transform.Find("playerStats/leftSide/auto/text").GetComponent<TMP_Text>().color = Color.gray;
+                }
             }
             else
             {
+                canvas.transform.Find("playerStats/leftSide/shield").GetComponent<TMP_Text>().color = Color.gray;
+                canvas.transform.Find("playerStats/leftSide/shield/text").GetComponent<TMP_Text>().color = Color.gray;
+
                 canvas.transform.Find("playerStats/leftSide/auto").GetComponent<TMP_Text>().color = Color.gray;
                 canvas.transform.Find("playerStats/leftSide/auto/text").GetComponent<TMP_Text>().color = Color.gray;
-            }
-        }
-        else
-        {
-            canvas.transform.Find("playerStats/leftSide/shield").GetComponent<TMP_Text>().color = Color.gray;
-            canvas.transform.Find("playerStats/leftSide/shield/text").GetComponent<TMP_Text>().color = Color.gray;
 
-            canvas.transform.Find("playerStats/leftSide/auto").GetComponent<TMP_Text>().color = Color.gray;
-            canvas.transform.Find("playerStats/leftSide/auto/text").GetComponent<TMP_Text>().color = Color.gray;
-
-        }
-
-
-        if (Input.GetKey(KeyCode.Alpha1) && points >= 499 || shield)
-        {
-            shield = true;
-            pointsUsed -= 2;
-            points -= 2;
-            transform.Find("shield").gameObject.SetActive(true);
-            if (pointsUsed < 0)
-            {
-                shield = false;
-                transform.Find("shield").gameObject.SetActive(false);
-                pointsUsed = 500;
             }
 
-        }
-        else if (Input.GetKey(KeyCode.Alpha2) && points >= 999 || isAutoDriveActive)
-        {
-            isAutoDriveActive = true;
-            points -= 3;
-            if (points < 0)
+
+            if (Input.GetKey(KeyCode.Alpha1) && points >= 499 || shield)
             {
-                isAutoDriveActive = false;
-                rb.useGravity = true;
-                rb.linearDamping = BotPlayer.normalDrag;
-                rb.angularDamping = 2f;
-                rb.linearVelocity = transform.forward * BotPlayer.maxSpeed;
+                shield = true;
+                pointsUsed -= 2;
+                points -= 2;
+                transform.Find("shield").gameObject.SetActive(true);
+                if (pointsUsed < 0)
+                {
+                    shield = false;
+                    transform.Find("shield").gameObject.SetActive(false);
+                    pointsUsed = 500;
+                }
+
+            }
+            else if (Input.GetKey(KeyCode.Alpha2) && points >= 999 || isAutoDriveActive)
+            {
+                isAutoDriveActive = true;
+                points -= 3;
+                if (points < 0)
+                {
+                    isAutoDriveActive = false;
+                    rb.useGravity = true;
+                    rb.linearDamping = BotPlayer.normalDrag;
+                    rb.angularDamping = 2f;
+                    rb.linearVelocity = transform.forward * BotPlayer.maxSpeed;
+                    return;
+                }
+
+                AutoDriveTHingidk();
+
+                rb.useGravity = false;
+                rb.linearDamping = 0f;
+                rb.angularDamping = 0f;
+
+                Vector3 pos = transform.position;
+                transform.position = pos;
+                Vector3 toTarget = target - transform.position;
+                toTarget.y += .5f;
+
+                if (toTarget.sqrMagnitude > 1f)
+                {
+                    float autoDriveSpeed = BotPlayer.maxSpeed * 1.1f;
+                    transform.position += autoDriveSpeed * Time.fixedDeltaTime * transform.forward;
+
+                    Quaternion targetRot = Quaternion.LookRotation(toTarget.normalized, Vector3.up);
+                    transform.rotation = targetRot;
+                }
+                else
+                {
+                    rb.linearVelocity = Vector3.zero;
+                }
+                UpdateUI();
                 return;
             }
-
-            AutoDriveTHingidk();
-
-            rb.useGravity = false;
-            rb.linearDamping = 0f;
-            rb.angularDamping = 0f;
-
-            Vector3 pos = transform.position;
-            transform.position = pos;
-            Vector3 toTarget = target - transform.position;
-            toTarget.y += .5f;
-
-            if (toTarget.sqrMagnitude > 1f)
-            {
-                float autoDriveSpeed = BotPlayer.maxSpeed * 1.1f;
-                transform.position += autoDriveSpeed * Time.fixedDeltaTime * transform.forward;
-
-                Quaternion targetRot = Quaternion.LookRotation(toTarget.normalized, Vector3.up);
-                transform.rotation = targetRot;
-            }
-            else
-            {
-                rb.linearVelocity = Vector3.zero;
-            }
-            UpdateUI();
-            return;
         }
-
 
 
 
