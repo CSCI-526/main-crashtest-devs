@@ -278,12 +278,11 @@ public class Racetrack : MonoBehaviour
 
     private void UpdateUI()
     {
-        string compassGO = "playerStats/leftSide/compass";
+        string compassGO = "compass";
         int numPlayers = 1;
         if (!isSinglePlayer)
         {
             numPlayers = 2;
-            compassGO = "compass";
         }
 
         for (int j = 0; j < numPlayers; j++)
@@ -405,6 +404,10 @@ public class Racetrack : MonoBehaviour
             {
                 Bot botScript = players[playerID].player.GetComponent<Bot>();
                 botScript.ChangeTarget(sectionID);
+            } else
+            {
+                SimpleCarController playerScript = players[playerID].player.GetComponent<SimpleCarController>();
+                playerScript.ChangeTarget(sectionID);
             }
 
             if (sectionID >= curves.Count - 1)

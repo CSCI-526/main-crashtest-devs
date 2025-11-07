@@ -5,6 +5,7 @@ using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
+using System.Collections.Generic;
 
 [RequireComponent(typeof(Rigidbody))]
 public class SimpleCarController : MonoBehaviour
@@ -24,8 +25,8 @@ public class SimpleCarController : MonoBehaviour
     private float previousSpeed = 0f;
     private float t = 0f;
     private bool analyticsAlreadySent = false;
-    private readonly float[] points = new float[] { 0, 0 };
-    private AutoDrive autoDrive;
+    private float points = 0f;
+    //private AutoDrive autoDrive;
 
     [Header("Drift Assist")]
     [SerializeField] private float driftAssistStrength = 5f;
@@ -47,6 +48,15 @@ public class SimpleCarController : MonoBehaviour
     private float p0RespawnTimer = 0f;
     private float p1RespawnTimer = 0f;
 
+
+
+    private bool shield = false;
+    private bool isAutoDriveActive = false;
+    private int pointsUsed = 500;
+
+
+
+
     void Start()
     {
         rb = GetComponent<Rigidbody>();
@@ -56,7 +66,7 @@ public class SimpleCarController : MonoBehaviour
         rb.angularDamping = 2f;
 
         // Get AutoDrive component (only for single player)
-        autoDrive = GetComponent<AutoDrive>();
+        //autoDrive = GetComponent<AutoDrive>();
     }
 
     void FixedUpdate()
@@ -79,15 +89,21 @@ public class SimpleCarController : MonoBehaviour
             analyticsAlreadySent = false;
         }
 
-        if (previousSpeed - rb.linearVelocity.magnitude * 2.237f >= BotPlayer.playerDeltaSpeed ||
+        if ((previousSpeed - rb.linearVelocity.magnitude * 2.237f >= BotPlayer.playerDeltaSpeed ||
             (player0 && Input.GetKey(KeyCode.R) && p0RespawnTimer >= 5.0f) ||
-            (!player0 && Input.GetKey(KeyCode.Slash) && p1RespawnTimer >= 5.0f))
+            (!player0 && Input.GetKey(KeyCode.Slash) && p1RespawnTimer >= 5.0f)) && !isAutoDriveActive)
         {
+            if (shield)
+            {
+                shield = false;
+                transform.Find("shield").gameObject.SetActive(false);
+                previousSpeed = 0;
+                return;
+            }
             GetComponent<CrashEffect>().TriggerCrash();
             hasCrashed = true;
             raceCrashCount++; // Track crashes for progress track
-            points[0] = 0;
-            points[1] = 0;
+            points -= 10;
 
             if (player0)
                 p0RespawnTimer = 0f;
@@ -183,13 +199,104 @@ public class SimpleCarController : MonoBehaviour
             else currentRoadType = RoadType.Wet;
         }
 
+        if (points >= 499)
+        {
+            canvas.transform.Find("playerStats/leftSide/shield").GetComponent<TMP_Text>().color = Color.white;
+            canvas.transform.Find("playerStats/leftSide/shield/text").GetComponent<TMP_Text>().color = Color.white;
+
+            if (points >= 999)
+            {
+                canvas.transform.Find("playerStats/leftSide/auto").GetComponent<TMP_Text>().color = Color.white;
+                canvas.transform.Find("playerStats/leftSide/auto/text").GetComponent<TMP_Text>().color = Color.white;
+            }
+            else
+            {
+                canvas.transform.Find("playerStats/leftSide/auto").GetComponent<TMP_Text>().color = Color.gray;
+                canvas.transform.Find("playerStats/leftSide/auto/text").GetComponent<TMP_Text>().color = Color.gray;
+            }
+        }
+        else
+        {
+            canvas.transform.Find("playerStats/leftSide/shield").GetComponent<TMP_Text>().color = Color.gray;
+            canvas.transform.Find("playerStats/leftSide/shield/text").GetComponent<TMP_Text>().color = Color.gray;
+
+            canvas.transform.Find("playerStats/leftSide/auto").GetComponent<TMP_Text>().color = Color.gray;
+            canvas.transform.Find("playerStats/leftSide/auto/text").GetComponent<TMP_Text>().color = Color.gray;
+
+        }
+
+
+        if (Input.GetKey(KeyCode.Alpha1) && points >= 499 || shield)
+        {
+            shield = true;
+            pointsUsed -= 2;
+            points -= 2;
+            transform.Find("shield").gameObject.SetActive(true);
+            if (pointsUsed < 0)
+            {
+                shield = false;
+                transform.Find("shield").gameObject.SetActive(false);
+                pointsUsed = 500;
+            }
+
+        }
+        else if (Input.GetKey(KeyCode.Alpha2) && points >= 999 || isAutoDriveActive)
+        {
+            isAutoDriveActive = true;
+            points -= 3;
+            if (points < 0)
+            {
+                isAutoDriveActive = false;
+                rb.useGravity = true;
+                rb.linearDamping = BotPlayer.normalDrag;
+                rb.angularDamping = 2f;
+                rb.linearVelocity = transform.forward * BotPlayer.maxSpeed;
+                return;
+            }
+
+            AutoDriveTHingidk();
+
+            rb.useGravity = false;
+            rb.linearDamping = 0f;
+            rb.angularDamping = 0f;
+
+            Vector3 pos = transform.position;
+            transform.position = pos;
+            Vector3 toTarget = target - transform.position;
+            toTarget.y += .5f;
+
+            if (toTarget.sqrMagnitude > 1f)
+            {
+                float autoDriveSpeed = BotPlayer.maxSpeed * 1.1f;
+                transform.position += autoDriveSpeed * Time.fixedDeltaTime * transform.forward;
+
+                Quaternion targetRot = Quaternion.LookRotation(toTarget.normalized, Vector3.up);
+                transform.rotation = targetRot;
+            }
+            else
+            {
+                rb.linearVelocity = Vector3.zero;
+            }
+            UpdateUI();
+            return;
+        }
+
+
+
+
+
+
+
+
+
+
         float accel = 0f;
         float steer = 0f;
         bool braking;
         bool attemptDrift;
 
         // Check if autodrive is active - if so, skip manual input
-        bool isAutoDriveActive = (autoDrive != null && autoDrive.IsAutoDriving());
+        //bool isAutoDriveActive = (autoDrive != null && autoDrive.IsAutoDriving());
 
         if (isAutoDriveActive)
         {
@@ -203,32 +310,19 @@ public class SimpleCarController : MonoBehaviour
             switch (player0)
             {
                 case true:
-                    if (Input.GetKey(KeyCode.W))
-                    {
-                        accel = 1f;
-                        points[0]++;
-                        points[1] -= 5;
-                    }
-                    else points[0]--;
-                    if (Input.GetKey(KeyCode.S))
-                    {
-                        accel = -.75f;
-                        points[0] -= 5;
-                        points[1] += 3;
-                    }
-                    else points[1]--;
+                    if (Input.GetKey(KeyCode.W)) accel = 1f;
+                    if (Input.GetKey(KeyCode.S)) accel = -.75f;
 
                     if (Input.GetKey(KeyCode.D)) steer = 1f;
                     else if (Input.GetKey(KeyCode.A)) steer = -1f;
 
                     braking = Input.GetKey(KeyCode.LeftCommand);
-                    if (braking)
+                    if (Input.GetKey(KeyCode.LeftShift))
                     {
-                        points[0] -= 5;
-                        points[1] += 3;
+                        attemptDrift = true;
+                        points++;
                     }
-                    else points[1]--;
-                    attemptDrift = Input.GetKey(KeyCode.LeftShift);
+                    else attemptDrift = false;
                     break;
                 case false:
                     if (Input.GetKey(KeyCode.UpArrow)) accel = 1f;
@@ -242,10 +336,6 @@ public class SimpleCarController : MonoBehaviour
                     break;
             }
         }
-        // if (forwardVel < 0)
-        // {
-        //     steer *= -1f;
-        // }
 
         Transform rearLights = transform.Find("lights/rear");
         if (braking || (Input.GetKey(KeyCode.S) && player0) || (Input.GetKey(KeyCode.DownArrow) && !player0)) for (int i = 0; i < 2; i++) rearLights.GetChild(i).GetComponent<Light>().intensity = 25;
@@ -337,15 +427,13 @@ public class SimpleCarController : MonoBehaviour
     {
         if (SceneManager.GetActiveScene().name == "MultiPlayer") return;
 
-        float max = 40;
-        for (int i = 0; i < 2; i++)
-        {
-            if (points[i] < 0) points[i] = 0;
-            if (points[i] > max) points[i] = max;
-        }
+        float max = 1000;
+        if (points < 0) points = 0;
+        if (points > max) points = max;
+
 
         RectTransform gasRect = canvas.transform.Find("playerStats/leftSide/gas/grey/Image").GetComponent<RectTransform>();
-        float fill = Mathf.Clamp01(points[0] / max);
+        float fill = Mathf.Clamp01(points / max);
 
         gasRect.anchorMin = new Vector2(gasRect.anchorMin.x, 0f);
         gasRect.anchorMax = new Vector2(gasRect.anchorMax.x, fill);
@@ -353,21 +441,51 @@ public class SimpleCarController : MonoBehaviour
         gasRect.offsetMin = Vector2.zero;
         gasRect.offsetMax = Vector2.zero;
 
+        /*
         gasRect = canvas.transform.Find("playerStats/leftSide/brake/grey/Image").GetComponent<RectTransform>();
-        fill = Mathf.Clamp01(points[1] / max);
+        fill = Mathf.Clamp01(points / max);
 
         gasRect.anchorMin = new Vector2(gasRect.anchorMin.x, 0f);
         gasRect.anchorMax = new Vector2(gasRect.anchorMax.x, fill);
 
         gasRect.offsetMin = Vector2.zero;
-        gasRect.offsetMax = Vector2.zero;
+        gasRect.offsetMax = Vector2.zero;*/
 
         // Update AutoDrive UI
-        UpdateAutoDriveUI();
+        //UpdateAutoDriveUI();
+    }
+
+    private Vector3 target = new();
+    private int currentTargetIndex = 1;
+    private void AutoDriveTHingidk()
+    {
+        BezierCurve currentCurve = racetrack.GetCurve(currentTargetIndex);
+        float currentT = currentCurve.GetClosestTOnCurve(transform.position);
+
+
+        int curveIndex = currentTargetIndex;
+        float tAhead = currentT + 0.2f;
+
+        while (tAhead > 1f)
+        {
+            tAhead -= 1f;
+            curveIndex++;
+            if (curveIndex >= racetrack.GetCurveCount())
+                curveIndex = racetrack.GetCurveCount() - 1;
+        }
+
+        BezierCurve curve = racetrack.GetCurve(curveIndex);
+        target = curve.GetPoint(tAhead);
+    }
+
+    public void ChangeTarget(int newTarget)
+    {
+        currentTargetIndex = newTarget + 1;
     }
 
     private void UpdateAutoDriveUI()
     {
+        /*
         if (autoDrive == null) return;
 
         // Update autodrive uses remaining display
@@ -399,7 +517,7 @@ public class SimpleCarController : MonoBehaviour
             {
                 activeIndicator.SetActive(false);
             }
-        }
+        }*/
     }
 
     private void OnDestroy() // to check if game shut down before finished

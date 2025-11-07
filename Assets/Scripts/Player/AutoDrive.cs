@@ -70,6 +70,7 @@ public class AutoDrive : MonoBehaviour
     void Update()
     {
         // Check for spacebar input to activate autodrive (only in single player)
+        return;
         if (Input.GetKeyDown(KeyCode.Space) && !isAutoDriving && autoDriveUsesRemaining > 0)
         {
             SimpleCarController playerController = GetComponent<SimpleCarController>();
