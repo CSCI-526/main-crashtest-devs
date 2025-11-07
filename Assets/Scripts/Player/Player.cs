@@ -26,6 +26,7 @@ public class SimpleCarController : MonoBehaviour
     private bool analyticsAlreadySent = false;
     private readonly float[] points = new float[] { 0, 0 };
     private AutoDrive autoDrive;
+    private ShieldPowerup shieldPowerup;
 
     [Header("Drift Assist")]
     [SerializeField] private float driftAssistStrength = 5f;
@@ -57,6 +58,13 @@ public class SimpleCarController : MonoBehaviour
 
         // Get AutoDrive component (only for single player)
         autoDrive = GetComponent<AutoDrive>();
+
+        // Get shield powerup component
+        ShieldPowerup[] allShields = GetComponents<ShieldPowerup>();
+        if (allShields.Length > 0)
+        {
+            shieldPowerup = allShields[allShields.Length - 1];
+        }
     }
 
     void FixedUpdate()
@@ -79,49 +87,63 @@ public class SimpleCarController : MonoBehaviour
             analyticsAlreadySent = false;
         }
 
-        if (previousSpeed - rb.linearVelocity.magnitude * 2.237f >= BotPlayer.playerDeltaSpeed ||
-            (player0 && Input.GetKey(KeyCode.R) && p0RespawnTimer >= 5.0f) ||
-            (!player0 && Input.GetKey(KeyCode.Slash) && p1RespawnTimer >= 5.0f))
+        float speedDelta = previousSpeed - rb.linearVelocity.magnitude * 2.237f;
+        bool speedCrash = speedDelta >= BotPlayer.playerDeltaSpeed;
+        bool respawnCrash = (player0 && Input.GetKey(KeyCode.R) && p0RespawnTimer >= 5.0f) ||
+                            (!player0 && Input.GetKey(KeyCode.Slash) && p1RespawnTimer >= 5.0f);
+        bool wouldCrash = speedCrash || respawnCrash;
+
+        if (wouldCrash)
         {
-            GetComponent<CrashEffect>().TriggerCrash();
-            hasCrashed = true;
-            raceCrashCount++; // Track crashes for progress track
-            points[0] = 0;
-            points[1] = 0;
+            bool hasShield = (shieldPowerup != null && shieldPowerup.isActive);
 
-            if (player0)
-                p0RespawnTimer = 0f;
-            else
-                p1RespawnTimer = 0f;
-
-            UpdateUI();
-
-            // Send crash analytics (only once per crash)
-            if (analytics != null && !analyticsAlreadySent && currentRoadMesh != null)
+            if (!hasShield)
             {
-                string segmentType = currentRoadMesh.segmentName;
-                string surfaceType = currentRoadMesh.roadType.ToString();
-                string eventType = "crash";
-                float playerSpeed = previousSpeed;
+                GetComponent<CrashEffect>().TriggerCrash();
+                hasCrashed = true;
+                raceCrashCount++; // Track crashes for progress track
+                points[0] = 0;
+                points[1] = 0;
 
-                // FOV data from headlights at crash time
-                float headlightIntensity = -1f;
-                float headlightRange = -1f;
-                Transform frontLight = transform.Find("lights/front/light 0");
-                if (frontLight != null)
+                if (player0)
+                    p0RespawnTimer = 0f;
+                else
+                    p1RespawnTimer = 0f;
+
+                UpdateUI();
+
+                // Send crash analytics (only once per crash)
+                if (analytics != null && !analyticsAlreadySent && currentRoadMesh != null)
                 {
-                    Light light = frontLight.GetComponent<Light>();
-                    if (light != null)
-                    {
-                        headlightIntensity = light.intensity;
-                        headlightRange = light.range;
-                    }
-                }
+                    string segmentType = currentRoadMesh.segmentName;
+                    string surfaceType = currentRoadMesh.roadType.ToString();
+                    string eventType = "crash";
+                    float playerSpeed = previousSpeed;
 
-                analytics.Send(segmentType, surfaceType, eventType, playerSpeed, headlightIntensity, headlightRange, driftUsedRecently);
-                analyticsAlreadySent = true;
+                    // FOV data from headlights at crash time
+                    float headlightIntensity = -1f;
+                    float headlightRange = -1f;
+                    Transform frontLight = transform.Find("lights/front/light 0");
+                    if (frontLight != null)
+                    {
+                        Light light = frontLight.GetComponent<Light>();
+                        if (light != null)
+                        {
+                            headlightIntensity = light.intensity;
+                            headlightRange = light.range;
+                        }
+                    }
+
+                    analytics.Send(segmentType, surfaceType, eventType, playerSpeed, headlightIntensity, headlightRange, driftUsedRecently);
+                    analyticsAlreadySent = true;
+                }
+            }
+            else
+            {
+                Debug.Log($"SHIELD BLOCKED CRASH! (shieldPowerup.isActive={shieldPowerup.isActive})");
             }
         }
+
         previousSpeed = rb.linearVelocity.magnitude * 2.237f;
 
         if (hasCrashed)
@@ -242,10 +264,11 @@ public class SimpleCarController : MonoBehaviour
                     break;
             }
         }
-        if (forwardVel < 0)
-        {
-            steer *= -1f;
-        }
+        // Removed steering inversion when reversing for more intuitive controls
+        // if (forwardVel < 0)
+        // {
+        //     steer *= -1f;
+        // }
 
         Transform rearLights = transform.Find("lights/rear");
         if (braking || (Input.GetKey(KeyCode.S) && player0) || (Input.GetKey(KeyCode.DownArrow) && !player0)) for (int i = 0; i < 2; i++) rearLights.GetChild(i).GetComponent<Light>().intensity = 25;
@@ -402,7 +425,7 @@ public class SimpleCarController : MonoBehaviour
         }
     }
 
-    private void OnDestroy() // to check if game shut down before finished
+    private void OnDestroy()
     {
         // Send dropout analytics if race started but not finished
         if (raceStartTime > 0f && !hasFinished && !raceCompletionSent && analytics != null)
@@ -517,6 +540,4 @@ public class SimpleCarController : MonoBehaviour
             }
         }
     }
-
-
 }
