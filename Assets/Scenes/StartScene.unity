@@ -3867,7 +3867,7 @@ PrefabInstance:
     - target: {fileID: 810623131839300638, guid: 38127dd5da51e46288b76b7f9e0cd2e3, type: 3}
       propertyPath: m_text
       value: "                       Race in the dark! \n\n                                         
-        Drive\n\n\n                                           Drift\n\n\nDifficulty:\n\nBeware
+        Drive\n\n\n                                           Drift (for points)\n\n\nDifficulty:\n\nBeware
         of different ground \ntypes! Your headlights are \nyour only vision.\n"
       objectReference: {fileID: 0}
     - target: {fileID: 810623131839300638, guid: 38127dd5da51e46288b76b7f9e0cd2e3, type: 3}

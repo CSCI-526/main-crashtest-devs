@@ -266,13 +266,13 @@ public class Racetrack : MonoBehaviour
             if (players[playerID].currentSubSection + 1 == cpNum)
             {
                 players[playerID].currentSubSection += 1;
-                players[playerID].playerTimer += 3;
+                players[playerID].playerTimer += 5;
             }
         }
         else if (players[playerID].currentSection + 1 == sectionID && cpNum == 3)
         {
             players[playerID].currentSubSection = 0;
-            players[playerID].playerTimer += 3;
+            players[playerID].playerTimer += 5;
         }
     }
 
@@ -395,7 +395,7 @@ public class Racetrack : MonoBehaviour
         if (players[playerID].currentSection + 1 == sectionID)
         {
             players[playerID].currentSection++;
-            players[playerID].playerTimer = 5f;
+            players[playerID].playerTimer = 7.5f;
             players[playerID].checkpoint = checkpoint;
 
             if (!players[playerID].bot) players[playerID].playerTimer = 15f;
@@ -527,7 +527,7 @@ public class Racetrack : MonoBehaviour
 
 
 
-        players[playerID].playerTimer = 5f;
+        players[playerID].playerTimer = 7.5f;
         if (!players[playerID].bot) players[playerID].playerTimer = 20f;
         RectTransform rt = players[playerID].player.GetComponent<RectTransform>();
 
