@@ -58,8 +58,8 @@ public class WrongWayDetector : MonoBehaviour
         // Get the direction of the section, mid to end
         Vector3 trackForward = currentCurve.GetTangent(0.5f).normalized;
 
-        // Get player's movement direction
-        Vector3 playerDirection = rb.linearVelocity.normalized;
+        // Get player's facing direction (not velocity, so backing up doesn't trigger warning)
+        Vector3 playerDirection = transform.forward;
 
         // Compare directions using dot product
         float directionDot = Vector3.Dot(playerDirection, trackForward);
