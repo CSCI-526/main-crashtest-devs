@@ -320,7 +320,7 @@ public class SimpleCarController : MonoBehaviour
                     if (Input.GetKey(KeyCode.LeftShift))
                     {
                         attemptDrift = true;
-                        points++;
+                        points += 2;
                     }
                     else attemptDrift = false;
                     break;
