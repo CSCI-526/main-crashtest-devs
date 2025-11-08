@@ -295,7 +295,8 @@ public class SimpleCarController : MonoBehaviour
                 else if (Input.GetKey(KeyCode.A)) steer = -1f;
 
                 braking = Input.GetKey(KeyCode.LeftCommand);
-                if (Input.GetKey(KeyCode.LeftShift))
+                if (Input.GetKey(KeyCode.LeftShift) ||
+                    SceneManager.GetActiveScene().name != "MultiPlayer" && Input.GetKey(KeyCode.RightShift))
                 {
                     attemptDrift = true;
                     points += 2;
