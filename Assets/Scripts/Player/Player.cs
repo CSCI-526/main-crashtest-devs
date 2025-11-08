@@ -6,6 +6,7 @@ using UnityEngine.Rendering;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using System.Collections.Generic;
+using UnityEditor.Experimental.GraphView;
 
 [RequireComponent(typeof(Rigidbody))]
 public class SimpleCarController : MonoBehaviour
@@ -25,8 +26,6 @@ public class SimpleCarController : MonoBehaviour
     private float previousSpeed = 0f;
     private float t = 0f;
     private bool analyticsAlreadySent = false;
-    private float points = 0f;
-    //private AutoDrive autoDrive;
 
     [Header("Drift Assist")]
     [SerializeField] private float driftAssistStrength = 5f;
@@ -49,11 +48,10 @@ public class SimpleCarController : MonoBehaviour
     private float p1RespawnTimer = 0f;
 
 
-
-    private bool shield = false;
-    private bool isAutoDriveActive = false;
-    private int pointsUsed = 500;
-
+    // powerups
+    private int points = 0;
+    private readonly bool[] powerUps = new bool[3]; // shield, disco, auto
+    private readonly int[] pointsUsed = new int[] { 300, 600, 900 };
 
 
 
@@ -91,11 +89,11 @@ public class SimpleCarController : MonoBehaviour
 
         if ((previousSpeed - rb.linearVelocity.magnitude * 2.237f >= BotPlayer.playerDeltaSpeed ||
             (player0 && Input.GetKey(KeyCode.R) && p0RespawnTimer >= 5.0f) ||
-            (!player0 && Input.GetKey(KeyCode.Slash) && p1RespawnTimer >= 5.0f)) && !isAutoDriveActive)
+            (!player0 && Input.GetKey(KeyCode.Slash) && p1RespawnTimer >= 5.0f)) && !powerUps[2])
         {
-            if (shield)
+            if (powerUps[0])
             {
-                shield = false;
+                powerUps[0] = false;
                 transform.Find("shield").gameObject.SetActive(false);
                 previousSpeed = 0;
                 return;
@@ -103,7 +101,7 @@ public class SimpleCarController : MonoBehaviour
             GetComponent<CrashEffect>().TriggerCrash();
             hasCrashed = true;
             raceCrashCount++; // Track crashes for progress track
-            points -= 10;
+            points -= 100;
 
             if (player0)
                 p0RespawnTimer = 0f;
@@ -126,8 +124,7 @@ public class SimpleCarController : MonoBehaviour
                 Transform frontLight = transform.Find("lights/front/light 0");
                 if (frontLight != null)
                 {
-                    Light light = frontLight.GetComponent<Light>();
-                    if (light != null)
+                    if (frontLight.TryGetComponent<Light>(out var light))
                     {
                         headlightIntensity = light.intensity;
                         headlightRange = light.range;
@@ -201,58 +198,58 @@ public class SimpleCarController : MonoBehaviour
 
         if (SceneManager.GetActiveScene().name != "MultiPlayer")
         {
-            if (points >= 499)
+
+            if (points >= 300) canvas.transform.Find("playerStats/leftSide/points/grey/shield").GetComponent<PowerUpsAnim>().UpdateAnim(true);
+            else canvas.transform.Find("playerStats/leftSide/points/grey/shield").GetComponent<PowerUpsAnim>().UpdateAnim(false);
+
+            if (points >= 600) canvas.transform.Find("playerStats/leftSide/points/grey/disco").GetComponent<PowerUpsAnim>().UpdateAnim(true);
+            else canvas.transform.Find("playerStats/leftSide/points/grey/disco").GetComponent<PowerUpsAnim>().UpdateAnim(false);
+
+            if (points >= 900) canvas.transform.Find("playerStats/leftSide/points/grey/auto").GetComponent<PowerUpsAnim>().UpdateAnim(true);
+            else canvas.transform.Find("playerStats/leftSide/points/grey/auto").GetComponent<PowerUpsAnim>().UpdateAnim(false);
+
+            if (Input.GetKey(KeyCode.Alpha1) && points >= 300 || powerUps[0])
             {
-                canvas.transform.Find("playerStats/leftSide/shield").GetComponent<TMP_Text>().color = Color.white;
-                canvas.transform.Find("playerStats/leftSide/shield/text").GetComponent<TMP_Text>().color = Color.white;
+                powerUps[0] = true;
+                pointsUsed[0] -= 1;
+                points -= 1;
 
-                if (points >= 999)
-                {
-                    canvas.transform.Find("playerStats/leftSide/auto").GetComponent<TMP_Text>().color = Color.white;
-                    canvas.transform.Find("playerStats/leftSide/auto/text").GetComponent<TMP_Text>().color = Color.white;
-                }
-                else
-                {
-                    canvas.transform.Find("playerStats/leftSide/auto").GetComponent<TMP_Text>().color = Color.gray;
-                    canvas.transform.Find("playerStats/leftSide/auto/text").GetComponent<TMP_Text>().color = Color.gray;
-                }
-            }
-            else
-            {
-                canvas.transform.Find("playerStats/leftSide/shield").GetComponent<TMP_Text>().color = Color.gray;
-                canvas.transform.Find("playerStats/leftSide/shield/text").GetComponent<TMP_Text>().color = Color.gray;
-
-                canvas.transform.Find("playerStats/leftSide/auto").GetComponent<TMP_Text>().color = Color.gray;
-                canvas.transform.Find("playerStats/leftSide/auto/text").GetComponent<TMP_Text>().color = Color.gray;
-
-            }
-
-
-            if (Input.GetKey(KeyCode.Alpha1) && points >= 499 || shield)
-            {
-                shield = true;
-                pointsUsed -= 2;
-                points -= 2;
                 transform.Find("shield").gameObject.SetActive(true);
-                if (pointsUsed < 0)
+                if (pointsUsed[0] < 0)
                 {
-                    shield = false;
+                    powerUps[0] = false;
                     transform.Find("shield").gameObject.SetActive(false);
-                    pointsUsed = 500;
+                    pointsUsed[0] = 300;
                 }
-
             }
-            else if (Input.GetKey(KeyCode.Alpha2) && points >= 999 || isAutoDriveActive)
+            else if (Input.GetKey(KeyCode.Alpha2) && points >= 600 || powerUps[1])
             {
-                isAutoDriveActive = true;
-                points -= 3;
-                if (points < 0)
+                powerUps[1] = true;
+                points -= 2;
+                pointsUsed[1] -= 2;
+                racetrack.PartyTime(true);
+
+                if (pointsUsed[1] < 0)
                 {
-                    isAutoDriveActive = false;
+                    powerUps[1] = false;
+                    racetrack.PartyTime(false);
+                    pointsUsed[1] = 600;
+                }
+            }
+            else if (Input.GetKey(KeyCode.Alpha3) && points >= 900 || powerUps[2])
+            {
+                powerUps[2] = true;
+                points -= 3;
+                pointsUsed[2] -= 3;
+
+                if (pointsUsed[2] < 0)
+                {
+                    powerUps[2] = false;
                     rb.useGravity = true;
                     rb.linearDamping = BotPlayer.normalDrag;
                     rb.angularDamping = 2f;
                     rb.linearVelocity = transform.forward * BotPlayer.maxSpeed;
+                    pointsUsed[2] = 900;
                     return;
                 }
 
@@ -275,21 +272,11 @@ public class SimpleCarController : MonoBehaviour
                     Quaternion targetRot = Quaternion.LookRotation(toTarget.normalized, Vector3.up);
                     transform.rotation = targetRot;
                 }
-                else
-                {
-                    rb.linearVelocity = Vector3.zero;
-                }
+                else rb.linearVelocity = Vector3.zero;
                 UpdateUI();
                 return;
             }
         }
-
-
-
-
-
-
-
 
 
         float accel = 0f;
@@ -297,47 +284,37 @@ public class SimpleCarController : MonoBehaviour
         bool braking;
         bool attemptDrift;
 
-        // Check if autodrive is active - if so, skip manual input
-        //bool isAutoDriveActive = (autoDrive != null && autoDrive.IsAutoDriving());
 
-        if (isAutoDriveActive)
+        switch (player0)
         {
-            // AutoDrive handles all movement, so set defaults
-            braking = false;
-            attemptDrift = false;
+            case true:
+                if (Input.GetKey(KeyCode.W)) accel = 1f;
+                if (Input.GetKey(KeyCode.S)) accel = -.75f;
+
+                if (Input.GetKey(KeyCode.D)) steer = 1f;
+                else if (Input.GetKey(KeyCode.A)) steer = -1f;
+
+                braking = Input.GetKey(KeyCode.LeftCommand);
+                if (Input.GetKey(KeyCode.LeftShift))
+                {
+                    attemptDrift = true;
+                    points += 2;
+                }
+                else attemptDrift = false;
+                transform.Find("sparks").GetComponent<DriftSparks>().UpdateAnim(attemptDrift);
+                break;
+            case false:
+                if (Input.GetKey(KeyCode.UpArrow)) accel = 1f;
+                else if (Input.GetKey(KeyCode.DownArrow)) accel = -.75f;
+
+                if (Input.GetKey(KeyCode.RightArrow)) steer = 1f;
+                else if (Input.GetKey(KeyCode.LeftArrow)) steer = -1f;
+
+                braking = Input.GetKey(KeyCode.RightCommand);
+                attemptDrift = Input.GetKey(KeyCode.RightShift);
+                break;
         }
-        else
-        {
-            // Normal player input
-            switch (player0)
-            {
-                case true:
-                    if (Input.GetKey(KeyCode.W)) accel = 1f;
-                    if (Input.GetKey(KeyCode.S)) accel = -.75f;
 
-                    if (Input.GetKey(KeyCode.D)) steer = 1f;
-                    else if (Input.GetKey(KeyCode.A)) steer = -1f;
-
-                    braking = Input.GetKey(KeyCode.LeftCommand);
-                    if (Input.GetKey(KeyCode.LeftShift))
-                    {
-                        attemptDrift = true;
-                        points += 2;
-                    }
-                    else attemptDrift = false;
-                    break;
-                case false:
-                    if (Input.GetKey(KeyCode.UpArrow)) accel = 1f;
-                    else if (Input.GetKey(KeyCode.DownArrow)) accel = -.75f;
-
-                    if (Input.GetKey(KeyCode.RightArrow)) steer = 1f;
-                    else if (Input.GetKey(KeyCode.LeftArrow)) steer = -1f;
-
-                    braking = Input.GetKey(KeyCode.RightCommand);
-                    attemptDrift = Input.GetKey(KeyCode.RightShift);
-                    break;
-            }
-        }
 
         Transform rearLights = transform.Find("lights/rear");
         if (braking || (Input.GetKey(KeyCode.S) && player0) || (Input.GetKey(KeyCode.DownArrow) && !player0)) for (int i = 0; i < 2; i++) rearLights.GetChild(i).GetComponent<Light>().intensity = 25;
@@ -388,39 +365,33 @@ public class SimpleCarController : MonoBehaviour
         // apply drift visual effects (car tilt, camera tilt)
         GetComponent<DriftEffect>()?.UpdateDrift(drifting, steer);
 
-        // Skip manual physics if autodrive is active (autodrive handles it)
-        if (!isAutoDriveActive)
-        {
+        // steering: apply torque, boosted during drift for tighter turns
+        float steerMultiplier = drifting ? BotPlayer.driftSteerBoost : 1f;
+        //rb.AddRelativeTorque(Vector3.up * steer * 100 * steerMultiplier * steerRoadMultiplier * wheelsInContact / 4f, ForceMode.Acceleration);
 
-            // steering: apply torque, boosted during drift for tighter turns
-            float steerMultiplier = drifting ? BotPlayer.driftSteerBoost : 1f;
-            //rb.AddRelativeTorque(Vector3.up * steer * 100 * steerMultiplier * steerRoadMultiplier * wheelsInContact / 4f, ForceMode.Acceleration);
+        float rotationSpeed = steer * steerRoadMultiplier * steerMultiplier * wheelsInContact / 4f;
 
-            float rotationSpeed = steer * steerRoadMultiplier * steerMultiplier * wheelsInContact / 4f;
-
-            Quaternion turnRotation = Quaternion.Euler(0f, rotationSpeed, 0f);
-            rb.MoveRotation(rb.rotation * turnRotation);
+        Quaternion turnRotation = Quaternion.Euler(0f, rotationSpeed, 0f);
+        rb.MoveRotation(rb.rotation * turnRotation);
 
 
-            // friction: reduced grip while drifting allows sliding
-            Vector3 right = transform.right;
-            //float lateralVel = Vector3.Dot(rb.linearVelocity, right);
-            float gripStrength = (drifting ? BotPlayer.driftGrip : BotPlayer.normalGrip) * lateralGripMultiplier;
-            //Vector3 lateralImpulse = -right * lateralVel * gripStrength * wheelsInContact / 4f;
-            //rb.AddForce(lateralImpulse, ForceMode.VelocityChange);
+        // friction: reduced grip while drifting allows sliding
+        Vector3 right = transform.right;
+        //float lateralVel = Vector3.Dot(rb.linearVelocity, right);
+        float gripStrength = (drifting ? BotPlayer.driftGrip : BotPlayer.normalGrip) * lateralGripMultiplier;
+        //Vector3 lateralImpulse = -right * lateralVel * gripStrength * wheelsInContact / 4f;
+        //rb.AddForce(lateralImpulse, ForceMode.VelocityChange);
 
-            Vector3 lateralVel = Vector3.Dot(rb.linearVelocity, right) * right;
-            Vector3 correctedVel = rb.linearVelocity - lateralVel * gripStrength;
-            rb.linearVelocity = correctedVel;
+        Vector3 lateralVel = Vector3.Dot(rb.linearVelocity, right) * right;
+        Vector3 correctedVel = rb.linearVelocity - lateralVel * gripStrength;
+        rb.linearVelocity = correctedVel;
 
-            // braking: space for hard brake, drift also slows you down, or dirt slows you down
-            float activeDrag = braking ? BotPlayer.brakeDrag : (drifting ? BotPlayer.driftDrag : roadDragMultiplier);
-            rb.linearDamping = activeDrag;
+        // braking: space for hard brake, drift also slows you down, or dirt slows you down
+        float activeDrag = braking ? BotPlayer.brakeDrag : (drifting ? BotPlayer.driftDrag : roadDragMultiplier);
+        rb.linearDamping = activeDrag;
 
-            if (!braking && forwardVel < BotPlayer.maxSpeed)
-                rb.AddForce(accel * accelMultiplier * BotPlayer.motorPower * wheelsInContact * forward / 4f, ForceMode.Acceleration);
-
-        }
+        if (!braking && forwardVel < BotPlayer.maxSpeed)
+            rb.AddForce(accel * accelMultiplier * BotPlayer.motorPower * wheelsInContact * forward / 4f, ForceMode.Acceleration);
 
         UpdateUI();
     }
@@ -429,13 +400,13 @@ public class SimpleCarController : MonoBehaviour
     {
         if (SceneManager.GetActiveScene().name == "MultiPlayer") return;
 
-        float max = 1000;
+        int max = 1000;
         if (points < 0) points = 0;
         if (points > max) points = max;
 
 
-        RectTransform gasRect = canvas.transform.Find("playerStats/leftSide/gas/grey/Image").GetComponent<RectTransform>();
-        float fill = Mathf.Clamp01(points / max);
+        RectTransform gasRect = canvas.transform.Find("playerStats/leftSide/points/grey/Image").GetComponent<RectTransform>();
+        float fill = Mathf.Clamp01(points / (1.0f * max));
 
         gasRect.anchorMin = new Vector2(gasRect.anchorMin.x, 0f);
         gasRect.anchorMax = new Vector2(gasRect.anchorMax.x, fill);

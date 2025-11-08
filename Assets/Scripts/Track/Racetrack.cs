@@ -5,7 +5,8 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using TMPro;
-using UnityEngine.AI;
+using System.Collections;
+using Microsoft.Unity.VisualStudio.Editor;
 
 public class Racetrack : MonoBehaviour
 {
@@ -27,6 +28,8 @@ public class Racetrack : MonoBehaviour
 
     private float p0ShowStuckTimer = 0f;
     private float p1ShowStuckTimer = 0f;
+    private bool disco = false;
+    private readonly List<float> discoballHueOffsets = new();
 
     private class CheckPointCheck
     {
@@ -41,6 +44,7 @@ public class Racetrack : MonoBehaviour
         public bool finished = false;
         public int tries = 3;
         public int respawnSection = 0;
+        public float playerHueOffsets;
 
         public CheckPointCheck(int playerID, GameObject player, GameObject checkpoint, bool bot = true)
         {
@@ -50,6 +54,7 @@ public class Racetrack : MonoBehaviour
             this.playerID = playerID;
             this.checkpoint = checkpoint;
             this.bot = bot;
+            this.playerHueOffsets = UnityEngine.Random.Range(0f, 1f);
         }
     }
 
@@ -87,7 +92,7 @@ public class Racetrack : MonoBehaviour
         p0ShowStuckTimer += Time.deltaTime;
         p1ShowStuckTimer += Time.deltaTime;
 
-        if(p0StuckScreen && p0StuckScreen.activeInHierarchy && p0ShowStuckTimer >= 2.0f)
+        if (p0StuckScreen && p0StuckScreen.activeInHierarchy && p0ShowStuckTimer >= 2.0f)
         {
             p0StuckScreen.SetActive(false);
         }
@@ -147,10 +152,152 @@ public class Racetrack : MonoBehaviour
                     }
                 }
             }
-
         }
 
         UpdateUI();
+        if (disco)
+        {
+            Transform mainDiscoBall = transform.Find("Start Straight 0/discoballs/db1");
+            Light discoLight = mainDiscoBall.Find("light").GetComponent<Light>();
+            Renderer mainRenderer = mainDiscoBall.GetComponent<Renderer>();
+
+            Color currentColor = discoLight.color;
+            Color.RGBToHSV(currentColor, out float h, out float s, out float v);
+
+            float hueSpeed = 0.75f;
+            h += hueSpeed * Time.fixedDeltaTime;
+            if (h > 1f) h -= 1f;
+
+            Color mainColor = Color.HSVToRGB(h, 1f, 1f);
+            discoLight.color = mainColor;
+
+            if (mainRenderer != null && mainRenderer.material != null)
+            {
+                mainRenderer.material.SetColor("_EmissionColor", mainColor * 100f);
+                mainRenderer.material.EnableKeyword("_EMISSION");
+            }
+
+            Color playerColor = mainColor;
+            foreach (var playerData in players)
+            {
+                GameObject player = playerData.player;
+                Transform lights = player.transform.Find("lights/front");
+
+                float offsetHue = h + playerData.playerHueOffsets;
+                if (offsetHue > 1f) offsetHue -= 1f;
+                playerColor = Color.HSVToRGB(offsetHue, 1f, 1f);
+
+                if (lights.GetChild(0).TryGetComponent(out Light light))
+                    light.color = playerColor;
+
+                offsetHue += playerData.playerHueOffsets;
+                if (offsetHue > 1f) offsetHue -= 1f;
+                playerColor = Color.HSVToRGB(offsetHue, 1f, 1f);
+
+                if (lights.GetChild(1).TryGetComponent(out Light light2))
+                    light2.color = playerColor;
+            }
+
+            int discoCount = 0;
+            Color newColor = mainColor;
+            for (int i = 0; i < transform.childCount; i++)
+            {
+                Transform discoParent = transform.GetChild(i).Find("discoballs");
+                if (discoParent == null) continue;
+
+                for (int j = 0; j < discoParent.childCount; j++)
+                {
+                    Transform disco = discoParent.GetChild(j);
+                    Renderer discoRenderer = disco.GetComponent<Renderer>();
+                    Light light = disco.GetComponent<Light>();
+
+                    float localHue = h + discoballHueOffsets[discoCount];
+                    if (localHue > 1f) localHue -= 1f;
+
+                    newColor = Color.HSVToRGB(localHue, 1f, 1f);
+                    if (light != null)
+                        light.color = newColor;
+
+                    if (discoRenderer != null && discoRenderer.material != null)
+                    {
+                        discoRenderer.material.SetColor("_EmissionColor", newColor * 100f);
+                        discoRenderer.material.EnableKeyword("_EMISSION");
+                    }
+
+                    discoCount++;
+                }
+            }
+
+            canvas.transform.Find($"compass1/Image").GetComponent<UnityEngine.UI.Image>().color = mainColor;
+            canvas.transform.Find($"ranking1").GetComponent<TMP_Text>().color = newColor;
+            canvas.transform.Find($"playerStats/leftSide/points/grey/Image").GetComponent<UnityEngine.UI.Image>().color = playerColor;
+
+        }
+        else
+        {
+            foreach (var playerData in players)
+            {
+                GameObject player = playerData.player;
+                Transform lights = player.transform.Find("lights/front");
+                if (lights != null)
+                {
+                    for (int i = 0; i < lights.childCount; i++)
+                    {
+                        if (lights.GetChild(i).TryGetComponent(out Light light))
+                            light.color = Color.white;
+                    }
+                }
+            }
+            canvas.transform.Find($"compass1/Image").GetComponent<UnityEngine.UI.Image>().color = Color.white;
+            canvas.transform.Find($"playerStats/leftSide/points/grey/Image").GetComponent<UnityEngine.UI.Image>().color = new(0, .15f, 1);
+        }
+    }
+
+    IEnumerator RaiseOrLowerDiscoBalls(float duration = 1f)
+    {
+        List<Transform> discoParents = new();
+
+        for (int i = 0; i < transform.childCount; i++)
+        {
+            Transform discoParent = transform.GetChild(i).Find("discoballs");
+            if (discoParent != null)
+            {
+                if (disco)
+                    discoParent.gameObject.SetActive(true);
+
+                discoParents.Add(discoParent);
+            }
+        }
+
+        float elapsed = 0f;
+        Vector3[] startPositions = new Vector3[discoParents.Count];
+        Vector3[] targetPositions = new Vector3[discoParents.Count];
+
+        for (int i = 0; i < discoParents.Count; i++)
+        {
+            startPositions[i] = discoParents[i].position;
+            targetPositions[i] = startPositions[i];
+            targetPositions[i].y += disco ? 8f : -8f;
+        }
+
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+            float t = Mathf.Clamp01(elapsed / duration);
+
+            for (int i = 0; i < discoParents.Count; i++)
+                discoParents[i].position = Vector3.Lerp(startPositions[i], targetPositions[i], t);
+            
+            yield return null;
+        }
+
+        for (int i = 0; i < discoParents.Count; i++)
+        {
+            discoParents[i].position = targetPositions[i];
+
+            if (!disco)
+                discoParents[i].gameObject.SetActive(false);
+        }
     }
 
     private void ShowCountdown()
@@ -350,7 +497,7 @@ public class Racetrack : MonoBehaviour
             }
 
             canvas.transform.Find($"ranking{j + 1}").GetComponent<TMP_Text>().text = rankString;
-            canvas.transform.Find($"ranking{j + 1}").GetComponent<TMP_Text>().color = rankColor;
+            if (!disco) canvas.transform.Find($"ranking{j + 1}").GetComponent<TMP_Text>().color = rankColor;
 
             // compass
             List<Vector3> nextCheckpoints = new();
@@ -404,7 +551,8 @@ public class Racetrack : MonoBehaviour
             {
                 Bot botScript = players[playerID].player.GetComponent<Bot>();
                 botScript.ChangeTarget(sectionID);
-            } else
+            }
+            else
             {
                 SimpleCarController playerScript = players[playerID].player.GetComponent<SimpleCarController>();
                 playerScript.ChangeTarget(sectionID);
@@ -589,7 +737,14 @@ public class Racetrack : MonoBehaviour
 
     public void AddTrackCurves()
     {
-        for (int i = 0; i < gameObject.transform.childCount; i++) curves.Add(gameObject.transform.GetChild(i).GetComponent<RoadMesh>().curve);
+        for (int i = 0; i < gameObject.transform.childCount; i++)
+        {
+            curves.Add(gameObject.transform.GetChild(i).GetComponent<RoadMesh>().curve);
+            for (int j = 0; j < gameObject.transform.GetChild(i).Find("discoballs").childCount; j++)
+            {
+                discoballHueOffsets.Add(UnityEngine.Random.Range(0f, 1f));
+            }
+        }
     }
 
     public void DynamicObstacles(int sectionID)
@@ -616,6 +771,13 @@ public class Racetrack : MonoBehaviour
 
         tree.rotation = tilt * tree.rotation;
         tree.Rotate(Vector3.up, UnityEngine.Random.Range(-10f, 10f), Space.Self);
+    }
+
+    public void PartyTime(bool partyTime)
+    {
+        if (partyTime == disco) return;
+        disco = partyTime;
+        StartCoroutine(RaiseOrLowerDiscoBalls());
     }
 
 }
