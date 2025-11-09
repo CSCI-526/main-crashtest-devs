@@ -230,7 +230,7 @@ public class Racetrack : MonoBehaviour
 
             canvas.transform.Find($"compass1/Image").GetComponent<UnityEngine.UI.Image>().color = mainColor;
             canvas.transform.Find($"ranking1").GetComponent<TMP_Text>().color = newColor;
-            canvas.transform.Find($"playerStats/leftSide/points/grey/Image").GetComponent<UnityEngine.UI.Image>().color = playerColor;
+            canvas.transform.Find($"driftBar/leftSide/bar/tally").GetComponent<UnityEngine.UI.Image>().color = playerColor;
 
         }
         else
@@ -249,7 +249,7 @@ public class Racetrack : MonoBehaviour
                 }
             }
             canvas.transform.Find($"compass1/Image").GetComponent<UnityEngine.UI.Image>().color = Color.white;
-            canvas.transform.Find($"playerStats/leftSide/points/grey/Image").GetComponent<UnityEngine.UI.Image>().color = new(0, .15f, 1);
+            canvas.transform.Find($"driftBar/leftSide/bar/tally").GetComponent<UnityEngine.UI.Image>().color = new(0, .15f, 1);
         }
     }
 

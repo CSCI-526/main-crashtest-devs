@@ -200,14 +200,14 @@ public class SimpleCarController : MonoBehaviour
         if (SceneManager.GetActiveScene().name != "MultiPlayer")
         {
 
-            if (points >= 300) canvas.transform.Find("playerStats/leftSide/points/grey/shield").GetComponent<PowerUpsAnim>().UpdateAnim(true);
-            else canvas.transform.Find("playerStats/leftSide/points/grey/shield").GetComponent<PowerUpsAnim>().UpdateAnim(false);
+            if (points >= 300) canvas.transform.Find("driftBar/rightSide/shield").GetComponent<PowerUpsAnim>().UpdateAnim(true);
+            else canvas.transform.Find("driftBar/rightSide/shield").GetComponent<PowerUpsAnim>().UpdateAnim(false);
 
-            if (points >= 600) canvas.transform.Find("playerStats/leftSide/points/grey/disco").GetComponent<PowerUpsAnim>().UpdateAnim(true);
-            else canvas.transform.Find("playerStats/leftSide/points/grey/disco").GetComponent<PowerUpsAnim>().UpdateAnim(false);
+            if (points >= 600) canvas.transform.Find("driftBar/rightSide/disco").GetComponent<PowerUpsAnim>().UpdateAnim(true);
+            else canvas.transform.Find("driftBar/rightSide/disco").GetComponent<PowerUpsAnim>().UpdateAnim(false);
 
-            if (points >= 900) canvas.transform.Find("playerStats/leftSide/points/grey/auto").GetComponent<PowerUpsAnim>().UpdateAnim(true);
-            else canvas.transform.Find("playerStats/leftSide/points/grey/auto").GetComponent<PowerUpsAnim>().UpdateAnim(false);
+            if (points >= 900) canvas.transform.Find("driftBar/rightSide/auto").GetComponent<PowerUpsAnim>().UpdateAnim(true);
+            else canvas.transform.Find("driftBar/rightSide/auto").GetComponent<PowerUpsAnim>().UpdateAnim(false);
 
             if (Input.GetKey(KeyCode.Alpha1) && points >= 300 || powerUps[0])
             {
@@ -407,7 +407,7 @@ public class SimpleCarController : MonoBehaviour
         if (points > max) points = max;
 
 
-        RectTransform gasRect = canvas.transform.Find("playerStats/leftSide/points/grey/Image").GetComponent<RectTransform>();
+        RectTransform gasRect = canvas.transform.Find("driftBar/leftSide/bar/tally").GetComponent<RectTransform>();
         float fill = Mathf.Clamp01(points / (1.0f * max));
 
         gasRect.anchorMin = new Vector2(gasRect.anchorMin.x, 0f);
