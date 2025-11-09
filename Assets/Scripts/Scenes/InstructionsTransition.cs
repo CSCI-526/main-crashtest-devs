@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class TransitionScript : MonoBehaviour
 {
@@ -51,5 +52,10 @@ public class TransitionScript : MonoBehaviour
         startRot = transform.rotation;
         elapsed = 0f;
         transitioning = true;
+    }
+
+    public void StartTutoral()
+    {
+        SceneManager.LoadScene("Assets/Scenes/Tutorial.unity");
     }
 }

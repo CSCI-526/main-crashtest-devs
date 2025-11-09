@@ -19,6 +19,7 @@ public class SimpleCarController : MonoBehaviour
     public bool hasFinished = false;
     [Header("Analytics")]
     public SendToGoogle analytics;
+    public bool isTutorial = false;
 
     private Rigidbody rb;
     private RoadType currentRoadType = RoadType.Normal;
@@ -87,7 +88,7 @@ public class SimpleCarController : MonoBehaviour
             analyticsAlreadySent = false;
         }
 
-        if ((previousSpeed - rb.linearVelocity.magnitude * 2.237f >= BotPlayer.playerDeltaSpeed ||
+        if (!isTutorial && (previousSpeed - rb.linearVelocity.magnitude * 2.237f >= BotPlayer.playerDeltaSpeed ||
             (player0 && Input.GetKey(KeyCode.R) && p0RespawnTimer >= 5.0f) ||
             (!player0 && Input.GetKey(KeyCode.Slash) && p1RespawnTimer >= 5.0f)) && !powerUps[2])
         {

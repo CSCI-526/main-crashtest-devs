@@ -5,6 +5,7 @@ public class TrackGen : MonoBehaviour
 {
     public List<GameObject> trackPrefabs;
     public GameObject trackObject;
+    public bool isTutorial = false;
     private BezierCurve lastCurve;
     private int segmentCount = 1;
     private enum TrackSegmentsChoices { smallS, largeS, smallT, largeT }
@@ -25,7 +26,8 @@ public class TrackGen : MonoBehaviour
 
     private void Start()
     {
-        MakeTrack();
+        if(!isTutorial)
+            MakeTrack();
     }
 
     private void MakeTrack()
