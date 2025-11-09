@@ -54,10 +54,14 @@ public class ScoreboardUIManager : MonoBehaviour
             //Debug.Log("play multiplayer again");
             HideAndGoTo("Assets/Scenes/MultiPlayer.unity");
         }
-        else
+        else if(SceneManager.GetActiveScene().name == "SinglePlayer")
         {
             //Debug.Log("play single again");
             HideAndGoTo("Assets/Scenes/SinglePlayer.unity");
+        }
+        else
+        {
+            HideAndGoTo("Assets/Scenes/Tutorial.unity");
         }
     }
     public void OnMainMenuButton() => HideAndGoTo("Assets/Scenes/StartScene.unity");
