@@ -17,7 +17,7 @@ public class InstructionsUIManager : MonoBehaviour
 
     public void OnContinueButton()
     {
-        if (TransitionScript.gameMode)
+        if (InstructionsTransition.gameMode)
         {
             SceneManager.LoadScene("Assets/Scenes/SinglePlayer.unity");
         }

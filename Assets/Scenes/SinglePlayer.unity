@@ -5101,7 +5101,131 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1971427676}
   m_CullTransparentMesh: 1
---- !u!43 &1983420837
+--- !u!1 &2002828860
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2002828861}
+  - component: {fileID: 2002828863}
+  - component: {fileID: 2002828862}
+  m_Layer: 5
+  m_Name: b
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &2002828861
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2002828860}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 253669232}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &2002828862
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2002828860}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 0}
+  m_Color: {r: 0.6603774, g: 0.6603774, b: 0.6603774, a: 1}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 0}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!222 &2002828863
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2002828860}
+  m_CullTransparentMesh: 1
+--- !u!1 &2023677866 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 7667004058892913686, guid: 41f9d1e1c6dc14d7b964ac233a84cfaf, type: 3}
+  m_PrefabInstance: {fileID: 4421045634358088058}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &2023677867
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2023677866}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2e4a8f8f3b792432386051b86a55107a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  racetrack: {fileID: 1432448806438218318}
+  warningUI: {fileID: 252505993}
+--- !u!114 &2023677868
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2023677866}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7f8b9c3d4e5f6a7b8c9d0e1f2a3b4c5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  racetrack: {fileID: 1432448806438218318}
+  roadLayer:
+    serializedVersion: 2
+    m_Bits: 8
+  groundCheckDistance: 0.75
+  maxAutoDriveUses: 3
+  autoDriveDuration: 5
+  targetSwitchDistance: 10
+  lookaheadDistance: 25
+  waypointsPerCurve: 5
+  cornerSpeedMultiplier: 0.7
+  steerSmoothness: 8
+  maxSteerAngle: 25
+  steerMultiplier: 1.5
+  targetSpeed: 95
+  cornerDetectionAngle: 20
+  sharpCornerAngle: 45
+  minCornerSpeed: 35
+--- !u!43 &2054921708
 Mesh:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -5266,130 +5390,6 @@ Mesh:
     offset: 0
     size: 0
     path: 
---- !u!1 &2002828860
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 2002828861}
-  - component: {fileID: 2002828863}
-  - component: {fileID: 2002828862}
-  m_Layer: 5
-  m_Name: b
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!224 &2002828861
-RectTransform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2002828860}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 253669232}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0}
-  m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
-  m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &2002828862
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2002828860}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_Material: {fileID: 0}
-  m_Color: {r: 0.6603774, g: 0.6603774, b: 0.6603774, a: 1}
-  m_RaycastTarget: 1
-  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
-  m_Maskable: 1
-  m_OnCullStateChanged:
-    m_PersistentCalls:
-      m_Calls: []
-  m_Sprite: {fileID: 0}
-  m_Type: 0
-  m_PreserveAspect: 0
-  m_FillCenter: 1
-  m_FillMethod: 4
-  m_FillAmount: 1
-  m_FillClockwise: 1
-  m_FillOrigin: 0
-  m_UseSpriteMesh: 0
-  m_PixelsPerUnitMultiplier: 1
---- !u!222 &2002828863
-CanvasRenderer:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2002828860}
-  m_CullTransparentMesh: 1
---- !u!1 &2023677866 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 7667004058892913686, guid: 41f9d1e1c6dc14d7b964ac233a84cfaf, type: 3}
-  m_PrefabInstance: {fileID: 4421045634358088058}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &2023677867
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2023677866}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2e4a8f8f3b792432386051b86a55107a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  racetrack: {fileID: 1432448806438218318}
-  warningUI: {fileID: 252505993}
---- !u!114 &2023677868
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2023677866}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a7f8b9c3d4e5f6a7b8c9d0e1f2a3b4c5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  racetrack: {fileID: 1432448806438218318}
-  roadLayer:
-    serializedVersion: 2
-    m_Bits: 8
-  groundCheckDistance: 0.75
-  maxAutoDriveUses: 3
-  autoDriveDuration: 5
-  targetSwitchDistance: 10
-  lookaheadDistance: 25
-  waypointsPerCurve: 5
-  cornerSpeedMultiplier: 0.7
-  steerSmoothness: 8
-  maxSteerAngle: 25
-  steerMultiplier: 1.5
-  targetSpeed: 95
-  cornerDetectionAngle: 20
-  sharpCornerAngle: 45
-  minCornerSpeed: 35
 --- !u!1 &2072870169
 GameObject:
   m_ObjectHideFlags: 0
@@ -5782,11 +5782,11 @@ PrefabInstance:
     - target: {fileID: 5499709892284377471, guid: 8841c4a9502bb4ed9abafef34193ed1a, type: 3}
       propertyPath: m_Mesh
       value: 
-      objectReference: {fileID: 1983420837}
+      objectReference: {fileID: 2054921708}
     - target: {fileID: 8311703228662641647, guid: 8841c4a9502bb4ed9abafef34193ed1a, type: 3}
       propertyPath: m_Mesh
       value: 
-      objectReference: {fileID: 1983420837}
+      objectReference: {fileID: 2054921708}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -6152,7 +6152,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7740857103949423246, guid: 25811ee77fb3d454d9c6abed2285febb, type: 3}
       propertyPath: m_Name
-      value: driftBar
+      value: p0bar
       objectReference: {fileID: 0}
     - target: {fileID: 8741295382101431367, guid: 25811ee77fb3d454d9c6abed2285febb, type: 3}
       propertyPath: m_fontSize

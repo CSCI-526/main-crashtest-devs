@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public class TransitionScript : MonoBehaviour
+public class InstructionsTransition : MonoBehaviour
 {
     public Transform tutorialView; // assign TutorialCameraPoint here
     public float transitionDuration = 2f;

@@ -73,8 +73,8 @@ public class AutoDrive : MonoBehaviour
         return;
         if (Input.GetKeyDown(KeyCode.Space) && !isAutoDriving && autoDriveUsesRemaining > 0)
         {
-            SimpleCarController playerController = GetComponent<SimpleCarController>();
-            if (playerController != null && !playerController.hasCrashed && racetrack.lightsOutAndAwayWeGOOOOO)
+            //SimpleCarController playerController = GetComponent<SimpleCarController>();
+            //if (playerController != null && !playerController.hasCrashed && racetrack.lightsOutAndAwayWeGOOOOO)
             {
                 ActivateAutoDrive();
             }

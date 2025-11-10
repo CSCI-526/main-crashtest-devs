@@ -129,7 +129,7 @@ public class Racetrack : MonoBehaviour
                 }
                 else
                 {
-                    SimpleCarController playerScript = players[i].player.GetComponent<SimpleCarController>();
+                    Player playerScript = players[i].player.GetComponent<Player>();
                     if (playerScript.hasCrashed) players[i].playerTimer = 3f;
                 }
             }
@@ -228,9 +228,19 @@ public class Racetrack : MonoBehaviour
                 }
             }
 
-            canvas.transform.Find($"compass1/Image").GetComponent<UnityEngine.UI.Image>().color = mainColor;
-            canvas.transform.Find($"ranking1").GetComponent<TMP_Text>().color = newColor;
-            canvas.transform.Find($"driftBar/leftSide/bar/tally").GetComponent<UnityEngine.UI.Image>().color = playerColor;
+            if (isSinglePlayer)
+            {
+                canvas.transform.Find($"compass1/Image").GetComponent<UnityEngine.UI.Image>().color = mainColor;
+                canvas.transform.Find($"ranking1").GetComponent<TMP_Text>().color = newColor;
+                canvas.transform.Find($"p0bar/leftSide/bar/tally").GetComponent<UnityEngine.UI.Image>().color = playerColor;
+            }
+            else
+            {
+                canvas.transform.Find($"ranking1").GetComponent<TMP_Text>().color = mainColor;
+                canvas.transform.Find($"ranking2").GetComponent<TMP_Text>().color = newColor;
+                canvas.transform.Find($"p0bar/leftSide/bar/tally").GetComponent<UnityEngine.UI.Image>().color = playerColor;
+                canvas.transform.Find($"p1bar/leftSide/bar/tally").GetComponent<UnityEngine.UI.Image>().color = playerColor;
+            }
 
         }
         else
@@ -248,8 +258,17 @@ public class Racetrack : MonoBehaviour
                     }
                 }
             }
-            canvas.transform.Find($"compass1/Image").GetComponent<UnityEngine.UI.Image>().color = Color.white;
-            canvas.transform.Find($"driftBar/leftSide/bar/tally").GetComponent<UnityEngine.UI.Image>().color = new(0, .15f, 1);
+
+            if (isSinglePlayer)
+            {
+                canvas.transform.Find($"compass1/Image").GetComponent<UnityEngine.UI.Image>().color = Color.white;
+                canvas.transform.Find($"p0bar/leftSide/bar/tally").GetComponent<UnityEngine.UI.Image>().color = new(0, .15f, 1);
+            }
+            else
+            {
+                canvas.transform.Find($"p0bar/leftSide/bar/tally").GetComponent<UnityEngine.UI.Image>().color = new(0, .15f, 1);
+                canvas.transform.Find($"p1bar/leftSide/bar/tally").GetComponent<UnityEngine.UI.Image>().color = new(0, .15f, 1);
+            }
         }
     }
 
@@ -287,7 +306,7 @@ public class Racetrack : MonoBehaviour
 
             for (int i = 0; i < discoParents.Count; i++)
                 discoParents[i].position = Vector3.Lerp(startPositions[i], targetPositions[i], t);
-            
+
             yield return null;
         }
 
@@ -554,7 +573,7 @@ public class Racetrack : MonoBehaviour
             }
             else
             {
-                SimpleCarController playerScript = players[playerID].player.GetComponent<SimpleCarController>();
+                Player playerScript = players[playerID].player.GetComponent<Player>();
                 playerScript.ChangeTarget(sectionID);
             }
 
@@ -569,7 +588,7 @@ public class Racetrack : MonoBehaviour
                     // Freeze player physics when they finish
                     if (!players[playerID].bot)
                     {
-                        SimpleCarController playerController = players[playerID].player.GetComponent<SimpleCarController>();
+                        Player playerController = players[playerID].player.GetComponent<Player>();
                         if (playerController != null)
                         {
                             playerController.hasFinished = true;
@@ -719,7 +738,7 @@ public class Racetrack : MonoBehaviour
         }
         else
         {
-            SimpleCarController playerScript = players[playerID].player.GetComponent<SimpleCarController>();
+            Player playerScript = players[playerID].player.GetComponent<Player>();
             hasCrashed = playerScript.hasCrashed;
             playerScript.hasCrashed = false;
         }

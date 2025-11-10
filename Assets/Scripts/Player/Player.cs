@@ -9,7 +9,7 @@ using System.Collections.Generic;
 using UnityEditor.Experimental.GraphView;
 
 [RequireComponent(typeof(Rigidbody))]
-public class SimpleCarController : MonoBehaviour
+public class Player : MonoBehaviour
 {
     public bool player0 = true;
     public Racetrack racetrack;
@@ -197,87 +197,86 @@ public class SimpleCarController : MonoBehaviour
             else currentRoadType = RoadType.Wet;
         }
 
-        if (SceneManager.GetActiveScene().name != "MultiPlayer")
+        string driftBar = player0 ? "p0bar" : "p1bar";
+
+        if (points >= 300) canvas.transform.Find($"{driftBar}/rightSide/shield").GetComponent<PowerUpsAnim>().UpdateAnim(true);
+        else canvas.transform.Find($"{driftBar}/rightSide/shield").GetComponent<PowerUpsAnim>().UpdateAnim(false);
+
+        if (points >= 600) canvas.transform.Find($"{driftBar}/rightSide/disco").GetComponent<PowerUpsAnim>().UpdateAnim(true);
+        else canvas.transform.Find($"{driftBar}/rightSide/disco").GetComponent<PowerUpsAnim>().UpdateAnim(false);
+
+        if (points >= 900) canvas.transform.Find($"{driftBar}/rightSide/auto").GetComponent<PowerUpsAnim>().UpdateAnim(true);
+        else canvas.transform.Find($"{driftBar}/rightSide/auto").GetComponent<PowerUpsAnim>().UpdateAnim(false);
+
+        if ((Input.GetKey(KeyCode.Alpha1) && points >= 300 && player0) || (Input.GetKey(KeyCode.Alpha0) && points >= 300 && !player0) || powerUps[0])
         {
+            powerUps[0] = true;
+            pointsUsed[0] -= 1;
+            points -= 1;
 
-            if (points >= 300) canvas.transform.Find("driftBar/rightSide/shield").GetComponent<PowerUpsAnim>().UpdateAnim(true);
-            else canvas.transform.Find("driftBar/rightSide/shield").GetComponent<PowerUpsAnim>().UpdateAnim(false);
-
-            if (points >= 600) canvas.transform.Find("driftBar/rightSide/disco").GetComponent<PowerUpsAnim>().UpdateAnim(true);
-            else canvas.transform.Find("driftBar/rightSide/disco").GetComponent<PowerUpsAnim>().UpdateAnim(false);
-
-            if (points >= 900) canvas.transform.Find("driftBar/rightSide/auto").GetComponent<PowerUpsAnim>().UpdateAnim(true);
-            else canvas.transform.Find("driftBar/rightSide/auto").GetComponent<PowerUpsAnim>().UpdateAnim(false);
-
-            if (Input.GetKey(KeyCode.Alpha1) && points >= 300 || powerUps[0])
+            transform.Find("shield").gameObject.SetActive(true);
+            if (pointsUsed[0] < 0)
             {
-                powerUps[0] = true;
-                pointsUsed[0] -= 1;
-                points -= 1;
-
-                transform.Find("shield").gameObject.SetActive(true);
-                if (pointsUsed[0] < 0)
-                {
-                    powerUps[0] = false;
-                    transform.Find("shield").gameObject.SetActive(false);
-                    pointsUsed[0] = 300;
-                }
-            }
-            else if (Input.GetKey(KeyCode.Alpha2) && points >= 600 || powerUps[1])
-            {
-                powerUps[1] = true;
-                points -= 2;
-                pointsUsed[1] -= 2;
-                racetrack.PartyTime(true);
-
-                if (pointsUsed[1] < 0)
-                {
-                    powerUps[1] = false;
-                    racetrack.PartyTime(false);
-                    pointsUsed[1] = 600;
-                }
-            }
-            else if (Input.GetKey(KeyCode.Alpha3) && points >= 900 || powerUps[2])
-            {
-                powerUps[2] = true;
-                points -= 3;
-                pointsUsed[2] -= 3;
-
-                if (pointsUsed[2] < 0)
-                {
-                    powerUps[2] = false;
-                    rb.useGravity = true;
-                    rb.linearDamping = BotPlayer.normalDrag;
-                    rb.angularDamping = 2f;
-                    rb.linearVelocity = transform.forward * BotPlayer.maxSpeed;
-                    pointsUsed[2] = 900;
-                    return;
-                }
-
-                AutoDriveTHingidk();
-
-                rb.useGravity = false;
-                rb.linearDamping = 0f;
-                rb.angularDamping = 0f;
-
-                Vector3 pos = transform.position;
-                transform.position = pos;
-                Vector3 toTarget = target - transform.position;
-                toTarget.y += .5f;
-
-                if (toTarget.sqrMagnitude > 1f)
-                {
-                    float autoDriveSpeed = BotPlayer.maxSpeed * 1.1f;
-                    transform.position += autoDriveSpeed * Time.fixedDeltaTime * transform.forward;
-
-                    Quaternion targetRot = Quaternion.LookRotation(toTarget.normalized, Vector3.up);
-                    transform.rotation = targetRot;
-                }
-                else rb.linearVelocity = Vector3.zero;
-                UpdateUI();
-                return;
+                powerUps[0] = false;
+                transform.Find("shield").gameObject.SetActive(false);
+                pointsUsed[0] = 300;
             }
         }
+        else if ((Input.GetKey(KeyCode.Alpha2) && points >= 600 && player0) || (Input.GetKey(KeyCode.Alpha9) && points >= 600 && !player0) || powerUps[1])
+        {
+            powerUps[1] = true;
+            points -= 2;
+            pointsUsed[1] -= 2;
+            racetrack.PartyTime(true);
+
+            if (pointsUsed[1] < 0)
+            {
+                powerUps[1] = false;
+                racetrack.PartyTime(false);
+                pointsUsed[1] = 600;
+            }
+        }
+        else if ((Input.GetKey(KeyCode.Alpha3) && points >= 900 && player0) || (Input.GetKey(KeyCode.Alpha8) && points >= 900 && !player0) || powerUps[2])
+        {
+            powerUps[2] = true;
+            points -= 3;
+            pointsUsed[2] -= 3;
+
+            if (pointsUsed[2] < 0)
+            {
+                powerUps[2] = false;
+                rb.useGravity = true;
+                rb.linearDamping = BotPlayer.normalDrag;
+                rb.angularDamping = 2f;
+                rb.linearVelocity = transform.forward * BotPlayer.maxSpeed;
+                pointsUsed[2] = 900;
+                return;
+            }
+
+            AutoDriveTHingidk();
+
+            rb.useGravity = false;
+            rb.linearDamping = 0f;
+            rb.angularDamping = 0f;
+
+            Vector3 pos = transform.position;
+            transform.position = pos;
+            Vector3 toTarget = target - transform.position;
+            toTarget.y += .5f;
+
+            if (toTarget.sqrMagnitude > 1f)
+            {
+                float autoDriveSpeed = BotPlayer.maxSpeed * 1.1f;
+                transform.position += autoDriveSpeed * Time.fixedDeltaTime * transform.forward;
+
+                Quaternion targetRot = Quaternion.LookRotation(toTarget.normalized, Vector3.up);
+                transform.rotation = targetRot;
+            }
+            else rb.linearVelocity = Vector3.zero;
+            UpdateUI();
+            return;
+        }
+
 
 
         float accel = 0f;
@@ -313,7 +312,13 @@ public class SimpleCarController : MonoBehaviour
                 else if (Input.GetKey(KeyCode.LeftArrow)) steer = -1f;
 
                 braking = Input.GetKey(KeyCode.RightCommand);
-                attemptDrift = Input.GetKey(KeyCode.RightShift);
+                if (Input.GetKey(KeyCode.RightShift))
+                {
+                    attemptDrift = true;
+                    points += 2;
+                }
+                else attemptDrift = false;
+                transform.Find("sparks").GetComponent<DriftSparks>().UpdateAnim(attemptDrift);
                 break;
         }
 
@@ -400,14 +405,13 @@ public class SimpleCarController : MonoBehaviour
 
     private void UpdateUI()
     {
-        if (SceneManager.GetActiveScene().name == "MultiPlayer") return;
 
         int max = 1000;
         if (points < 0) points = 0;
         if (points > max) points = max;
 
-
-        RectTransform gasRect = canvas.transform.Find("driftBar/leftSide/bar/tally").GetComponent<RectTransform>();
+        string driftBar = player0 ? "p0bar" : "p1bar";
+        RectTransform gasRect = canvas.transform.Find($"{driftBar}/leftSide/bar/tally").GetComponent<RectTransform>();
         float fill = Mathf.Clamp01(points / (1.0f * max));
 
         gasRect.anchorMin = new Vector2(gasRect.anchorMin.x, 0f);
