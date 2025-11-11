@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections;
 
 public enum RoadType
 {
@@ -11,6 +12,7 @@ public enum RoadType
 [RequireComponent(typeof(MeshFilter), typeof(MeshRenderer), typeof(MeshCollider))]
 public class RoadMesh : MonoBehaviour
 {
+    private static WaitForSeconds _waitForSeconds0_025 = new WaitForSeconds(0.025f);
     public BezierCurve curve;
     public int resolution = 50;
     public float roadWidth = 35f;
@@ -26,9 +28,13 @@ public class RoadMesh : MonoBehaviour
     public string segmentName = "Unknown";
 
     private Mesh mesh;
+    private Bounds cachedBounds;
 
     void Start()
     {
+        var col = GetComponent<BoxCollider>();
+        cachedBounds = col.bounds;
+
         GenerateRoad();
         AssignColliderMesh();
     }
@@ -207,5 +213,45 @@ public class RoadMesh : MonoBehaviour
             mc.sharedMesh = mesh;
             mc.convex = false;
         }
+    }
+
+    private Coroutine rainRoutine;
+    void FixedUpdate()
+    {
+        if (roadType == RoadType.Wet)
+        {
+            rainRoutine ??= StartCoroutine(SpawnRain());
+        }
+    }
+
+    IEnumerator SpawnRain()
+    {
+        while (roadType == RoadType.Wet)
+        {
+            for (int i = 0; i < 5; i++)
+            {
+                Vector3 spawnPos = GetRandomPositionAboveCollider();
+                GameObject drop = Instantiate(transform.Find("rainDrop").gameObject, spawnPos, Quaternion.identity);
+                Rigidbody rb = drop.transform.GetComponent<Rigidbody>();
+                rb.AddForce(Physics.gravity * 3f, ForceMode.Acceleration);
+
+                Destroy(drop, 2f);
+            }
+
+            yield return _waitForSeconds0_025;
+        }
+
+        rainRoutine = null;
+    }
+
+    Vector3 GetRandomPositionAboveCollider()
+    {
+        Bounds b = GetComponent<MeshRenderer>().bounds;
+
+        float x = Random.Range(b.min.x, b.max.x);
+        float z = Random.Range(b.min.z, b.max.z);
+        float y = b.max.y + Random.Range(8f, 12f);
+
+        return new Vector3(x, y, z);
     }
 }

@@ -103,6 +103,8 @@ public class Player : MonoBehaviour
             hasCrashed = true;
             raceCrashCount++; // Track crashes for progress track
             points -= 100;
+            transform.GetComponent<CloudTrail>().SetTrailActive(false, false);
+            transform.Find("sparks").GetComponent<DriftSparks>().UpdateAnim(false);
 
             if (player0)
                 p0RespawnTimer = 0f;
@@ -194,7 +196,7 @@ public class Player : MonoBehaviour
                 currentRoadType = roadMesh.roadType;
                 currentRoadMesh = roadMesh; // Track current segment for analytics
             }
-            else currentRoadType = RoadType.Wet;
+            else currentRoadType = RoadType.Normal;
         }
 
         string driftBar = player0 ? "p0bar" : "p1bar";
@@ -340,12 +342,17 @@ public class Player : MonoBehaviour
                 steerRoadMultiplier = BotPlayer.wetSteerMultiplier / 2f;
                 lateralGripMultiplier = BotPlayer.wetLateralGrip;
                 roadDragMultiplier = BotPlayer.wetDrag;
+                transform.GetComponent<CloudTrail>().SetTrailActive(true, true);
                 break;
             case RoadType.Dirt:
                 accelMultiplier = BotPlayer.dirtAccelMultiplier;
                 steerRoadMultiplier = BotPlayer.dirtSteerMultiplier / 2f;
                 lateralGripMultiplier = BotPlayer.dirtLateralGrip;
                 roadDragMultiplier = BotPlayer.dirtDrag;
+                transform.GetComponent<CloudTrail>().SetTrailActive(true, false);
+                break;
+            default:
+                transform.GetComponent<CloudTrail>().SetTrailActive(false, false);
                 break;
         }
 

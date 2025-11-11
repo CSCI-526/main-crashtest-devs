@@ -46,6 +46,7 @@ public class Bot : MonoBehaviour
         if (hasCrashed)
         {
             GameObject flashLight = transform.Find("crashLight").gameObject;
+            transform.GetComponent<CloudTrail>().SetTrailActive(false, false);
 
             if (t == 0) flashLight.GetComponent<LensFlareComponentSRP>().enabled = true;
             if (t < 1f)
@@ -74,7 +75,7 @@ public class Bot : MonoBehaviour
             if (wheelsInContact == -1) wheelsInContact = 4;
 
             if (roadMesh != null) currentRoadType = roadMesh.roadType;
-            else currentRoadType = RoadType.Wet;
+            else currentRoadType = RoadType.Normal;
         }
 
         // driving
@@ -84,19 +85,24 @@ public class Bot : MonoBehaviour
         float lateralGripMultiplier = .9f;
         float roadDragMultiplier = BotPlayer.normalDrag;
 
-        switch (currentRoadType)
+         switch (currentRoadType)
         {
             case RoadType.Wet:
                 accelMultiplier = BotPlayer.wetAccelMultiplier;
                 steerRoadMultiplier = BotPlayer.wetSteerMultiplier;
                 lateralGripMultiplier = BotPlayer.wetLateralGrip;
                 roadDragMultiplier = BotPlayer.wetDrag;
+                transform.GetComponent<CloudTrail>().SetTrailActive(true, true);
                 break;
             case RoadType.Dirt:
                 accelMultiplier = BotPlayer.dirtAccelMultiplier;
                 steerRoadMultiplier = BotPlayer.dirtSteerMultiplier;
                 lateralGripMultiplier = BotPlayer.dirtLateralGrip;
                 roadDragMultiplier = BotPlayer.dirtDrag;
+                transform.GetComponent<CloudTrail>().SetTrailActive(true, false);
+                break;
+            default:
+                transform.GetComponent<CloudTrail>().SetTrailActive(false, false);
                 break;
         }
 
