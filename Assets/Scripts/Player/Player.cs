@@ -54,6 +54,10 @@ public class Player : MonoBehaviour
     private readonly bool[] powerUps = new bool[3]; // shield, disco, auto
     private readonly int[] pointsUsed = new int[] { 300, 600, 900 };
 
+    // Shield flashing
+    private float shieldFlashTimer = 0f;
+    private bool shieldFlashState = true;
+
 
 
     void Start()
@@ -64,8 +68,6 @@ public class Player : MonoBehaviour
         rb.linearDamping = BotPlayer.normalDrag;
         rb.angularDamping = 2f;
 
-        // Get AutoDrive component (only for single player)
-        //autoDrive = GetComponent<AutoDrive>();
     }
 
     void FixedUpdate()
@@ -96,6 +98,8 @@ public class Player : MonoBehaviour
             {
                 powerUps[0] = false;
                 transform.Find("shield").gameObject.SetActive(false);
+                shieldFlashTimer = 0f;
+                shieldFlashState = true;
                 previousSpeed = 0;
                 return;
             }
@@ -216,12 +220,32 @@ public class Player : MonoBehaviour
             pointsUsed[0] -= 1;
             points -= 1;
 
-            transform.Find("shield").gameObject.SetActive(true);
+            GameObject shieldObj = transform.Find("shield").gameObject;
+
+            // Flash shield when less than 3 seconds remaining
+            if (pointsUsed[0] < 180)
+            {
+                shieldFlashTimer += Time.deltaTime;
+                if (shieldFlashTimer >= 0.2f) // flash every 0.2 seconds
+                {
+                    shieldFlashState = !shieldFlashState;
+                    shieldObj.SetActive(shieldFlashState);
+                    shieldFlashTimer = 0f;
+                }
+            }
+            else
+            {
+                shieldObj.SetActive(true);
+                shieldFlashState = true;
+            }
+
             if (pointsUsed[0] < 0)
             {
                 powerUps[0] = false;
-                transform.Find("shield").gameObject.SetActive(false);
+                shieldObj.SetActive(false);
                 pointsUsed[0] = 300;
+                shieldFlashTimer = 0f;
+                shieldFlashState = true;
             }
         }
         else if ((Input.GetKey(KeyCode.Alpha2) && points >= 600 && player0) || (Input.GetKey(KeyCode.Alpha9) && points >= 600 && !player0) || powerUps[1])
@@ -301,10 +325,8 @@ public class Player : MonoBehaviour
                     SceneManager.GetActiveScene().name != "MultiPlayer" && Input.GetKey(KeyCode.RightShift))
                 {
                     attemptDrift = true;
-                    points += 2;
                 }
                 else attemptDrift = false;
-                transform.Find("sparks").GetComponent<DriftSparks>().UpdateAnim(attemptDrift);
                 break;
             case false:
                 if (Input.GetKey(KeyCode.UpArrow)) accel = 1f;
@@ -317,10 +339,8 @@ public class Player : MonoBehaviour
                 if (Input.GetKey(KeyCode.RightShift))
                 {
                     attemptDrift = true;
-                    points += 2;
                 }
                 else attemptDrift = false;
-                transform.Find("sparks").GetComponent<DriftSparks>().UpdateAnim(attemptDrift);
                 break;
         }
 
@@ -360,6 +380,15 @@ public class Player : MonoBehaviour
         bool isSteering = Mathf.Abs(steer) > 0.1f;
         bool hasSpeed = Mathf.Abs(forwardVel) > BotPlayer.minDriftSpeed;
         bool drifting = attemptDrift && isSteering && hasSpeed;
+
+        // drift visual effects only during actual drifting
+        transform.Find("sparks").GetComponent<DriftSparks>().UpdateAnim(drifting);
+
+        // points only during actual drifting
+        if (drifting)
+        {
+            points += 3;
+        }
 
         // Track drift usage for analytics
         if (drifting)

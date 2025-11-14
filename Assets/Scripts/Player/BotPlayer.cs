@@ -21,7 +21,7 @@ public class BotPlayer : MonoBehaviour
     public static float normalGrip = 0.8f;
     public static float driftGrip = 0.25f;
     public static float driftDrag = 0.6f;
-    public static float minDriftSpeed = 50f;
+    public static float minDriftSpeed = 25f;
     public static float driftSteerBoost = 1.3f;
 
     [Header("Road Type Multipliers")]

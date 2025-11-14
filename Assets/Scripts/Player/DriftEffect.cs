@@ -3,7 +3,7 @@ using UnityEngine;
 public class DriftEffect : MonoBehaviour
 {
     [Header("Visual Settings")]
-    [SerializeField] private float cameraTiltAngle = 5f; // camera tilt during drift
+    [SerializeField] private float cameraTiltAngle = 12f; // camera tilt during drift
     [SerializeField] private float tiltSpeed = 5f;
 
     private Camera playerCamera;

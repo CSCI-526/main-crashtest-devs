@@ -16,7 +16,7 @@ public class Racetrack : MonoBehaviour
     public GameObject p0StuckScreen;
     public GameObject p1StuckScreen;
     private float startTimer = 1.0f;  // Time between each countdown
-    private int countdownStage = 0;  // 0=Ready, 1=3, 2=2, 3=1, 4=GO
+    public int countdownStage = 0;  // 0=Ready, 1=3, 2=2, 3=1, 4=GO
     private readonly List<CheckPointCheck> players = new();
     private List<BezierCurve> curves = new();
     private float raceStartTime = -1f;
