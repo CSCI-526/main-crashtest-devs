@@ -374,7 +374,10 @@ public class Player : MonoBehaviour
         }
 
         // apply drift assist to help players navigate turns
-        ApplyDriftAssist(drifting);
+        if (!isTutorial)
+        {
+            ApplyDriftAssist(drifting);
+        }
 
         // apply drift visual effects (car tilt, camera tilt)
         GetComponent<DriftEffect>()?.UpdateDrift(drifting, steer);
