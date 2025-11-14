@@ -8,6 +8,7 @@ public class InstructionsTransition : MonoBehaviour
 
     public GameObject InstructionsUI; // assign panel for instructions
     public GameObject menuUI;         // assign original menu UI parent here
+    public LoadingScreenManager loadingScreenManager; // assign LoadingScreenManager here
 
     private Vector3 startPos;
     private Quaternion startRot;

@@ -17,13 +17,14 @@ public class InstructionsUIManager : MonoBehaviour
 
     public void OnContinueButton()
     {
+        // Show loading screen with "Generating Track..." message
         if (InstructionsTransition.gameMode)
         {
-            SceneManager.LoadScene("Assets/Scenes/SinglePlayer.unity");
+            LoadingScreenManager.ShowLoadingScreen("Assets/Scenes/SinglePlayer.unity");
         }
         else
         {
-            SceneManager.LoadScene("Assets/Scenes/MultiPlayer.unity");
+            LoadingScreenManager.ShowLoadingScreen("Assets/Scenes/MultiPlayer.unity");
         }
     }
     public void OnTutorialButton()
