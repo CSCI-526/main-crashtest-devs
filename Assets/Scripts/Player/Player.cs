@@ -238,7 +238,7 @@ public class Player : MonoBehaviour
                 pointsUsed[1] = 600;
             }
         }
-        else if ((Input.GetKey(KeyCode.Alpha3) && points >= 900 && player0) || (Input.GetKey(KeyCode.Alpha8) && points >= 900 && !player0) || powerUps[2])
+        else if (!isTutorial && (Input.GetKey(KeyCode.Alpha3) && points >= 900 && player0) || (Input.GetKey(KeyCode.Alpha8) && points >= 900 && !player0) || powerUps[2])
         {
             powerUps[2] = true;
             points -= 3;
