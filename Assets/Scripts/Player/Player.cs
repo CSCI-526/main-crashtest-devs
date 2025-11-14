@@ -1,12 +1,8 @@
 
-using System.Data.Common;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Rendering;
-using UnityEngine.UI;
 using UnityEngine.SceneManagement;
-using System.Collections.Generic;
-using UnityEditor.Experimental.GraphView;
 
 [RequireComponent(typeof(Rigidbody))]
 public class Player : MonoBehaviour
@@ -208,7 +204,7 @@ public class Player : MonoBehaviour
 
         (int wheelsInContact, RoadMesh roadMesh) = BotPlayer.IsGrounded(transform.gameObject, BotPlayer.groundCheckDistance, roadLayer);
 
-        if (wheelsInContact == 0)
+        if (wheelsInContact == 0 && !powerUps[2])
         {
             rb.AddForce(BotPlayer.downforce * rb.linearVelocity.magnitude * Vector3.down, ForceMode.Force);
             return;
@@ -274,7 +270,7 @@ public class Player : MonoBehaviour
             GameObject shieldObj = transform.Find("shield").gameObject;
 
             // Flash shield when less than 3 seconds remaining
-            if (pointsUsed[0] < 180)
+            if (pointsUsed[0] < 180 || points < 180)
             {
                 shieldFlashTimer += Time.deltaTime;
                 if (shieldFlashTimer >= 0.2f) // flash every 0.2 seconds
@@ -290,7 +286,7 @@ public class Player : MonoBehaviour
                 shieldFlashState = true;
             }
 
-            if (pointsUsed[0] < 0)
+            if (pointsUsed[0] < 0 || points < 0)
             {
                 powerUps[0] = false;
                 shieldObj.SetActive(false);
@@ -306,14 +302,14 @@ public class Player : MonoBehaviour
                 canvas.transform.Find($"{driftBar}/rightSide/shield/text").gameObject.SetActive(false);
             }
         }
-        else if ((Input.GetKey(KeyCode.Alpha2) && points >= 600 && player0) || (Input.GetKey(KeyCode.Alpha9) && points >= 600 && !player0) || powerUps[1])
+        if ((Input.GetKey(KeyCode.Alpha2) && points >= 600 && player0) || (Input.GetKey(KeyCode.Alpha9) && points >= 600 && !player0) || powerUps[1])
         {
             powerUps[1] = true;
             points -= 2;
             pointsUsed[1] -= 2;
             racetrack.PartyTime(true);
 
-            if (pointsUsed[1] < 0)
+            if (pointsUsed[1] < 0 || points < 0)
             {
                 powerUps[1] = false;
                 racetrack.PartyTime(false);
@@ -327,7 +323,7 @@ public class Player : MonoBehaviour
                 canvas.transform.Find($"{driftBar}/rightSide/disco/text").gameObject.SetActive(false);
             }
         }
-        else if ((Input.GetKey(KeyCode.Alpha3) && points >= 900 && player0) || (Input.GetKey(KeyCode.Alpha8) && points >= 900 && !player0) || powerUps[2])
+        if ((Input.GetKey(KeyCode.Alpha3) && points >= 900 && player0) || (Input.GetKey(KeyCode.Alpha8) && points >= 900 && !player0) || powerUps[2])
         {
             powerUps[2] = true;
             points -= 3;
@@ -336,7 +332,7 @@ public class Player : MonoBehaviour
             target = Vector3.zero;
             AutoDriveTHingidk();
 
-            if (target == Vector3.zero || pointsUsed[2] < 0)
+            if (target == Vector3.zero || pointsUsed[2] < 0 || points < 0)
             {
                 powerUps[2] = false;
                 rb.useGravity = true;
@@ -358,20 +354,29 @@ public class Player : MonoBehaviour
             rb.linearDamping = 0f;
             rb.angularDamping = 0f;
 
-            Vector3 pos = transform.position;
-            transform.position = pos;
-            Vector3 toTarget = target - transform.position;
-            toTarget.y += .5f;
+            Vector3 aimTarget = target + new Vector3(0, 1.0f, 0);
+            float autoDriveSpeed = BotPlayer.maxSpeed * 1.1f;
 
-            if (toTarget.sqrMagnitude > 1f)
+            Vector3 toTarget = aimTarget - transform.position;
+
+            Vector3 moveDir = new Vector3(toTarget.x, 0f, toTarget.z).normalized;
+
+            transform.position += autoDriveSpeed * Time.fixedDeltaTime * moveDir;
+
+            Quaternion targetRot = Quaternion.LookRotation(toTarget.normalized, Vector3.up);
+            transform.rotation = Quaternion.Slerp(transform.rotation, targetRot, 8f * Time.fixedDeltaTime);
+
+            if (Physics.Raycast(transform.position + Vector3.up * 2f, Vector3.down, out RaycastHit hit, 5f))
             {
-                float autoDriveSpeed = BotPlayer.maxSpeed * 1.1f;
-                transform.position += autoDriveSpeed * Time.fixedDeltaTime * transform.forward;
-
-                Quaternion targetRot = Quaternion.LookRotation(toTarget.normalized, Vector3.up);
-                transform.rotation = targetRot;
+                float desiredHoverHeight = 1.0f;
+                transform.position = new Vector3(
+                    transform.position.x,
+                    hit.point.y + desiredHoverHeight,
+                    transform.position.z
+                );
             }
-            else rb.linearVelocity = Vector3.zero;
+
+
             UpdateUI();
             return;
         }

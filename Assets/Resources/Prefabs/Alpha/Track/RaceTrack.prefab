@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 900515166723799749}
   - component: {fileID: 6133483320267580460}
   - component: {fileID: 4247476151377260231}
+  - component: {fileID: 5945587299625966305}
   m_Layer: 0
   m_Name: RaceTrack
   m_TagString: Untagged
@@ -60,6 +61,7 @@ MonoBehaviour:
   - {fileID: 4654580684678167293, guid: 677e0fe27c6c64e56a20557325e53d7c, type: 3}
   - {fileID: 375610063478569201, guid: 75f891aeb8794438fad5cbbffae3ad42, type: 3}
   trackObject: {fileID: 3747074731663281780}
+  isTutorial: 0
 --- !u!114 &4247476151377260231
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -72,9 +74,26 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 01f72d98192264be9804ad23f0310d4a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  startLights: {fileID: 313706280489923305}
-  progressBar: {fileID: 0}
+  countdownText: {fileID: 0}
+  canvas: {fileID: 0}
   lightsOutAndAwayWeGOOOOO: 0
+  p0StuckScreen: {fileID: 0}
+  p1StuckScreen: {fileID: 0}
+  isTutorial: 0
+  countdownStage: 0
+--- !u!114 &5945587299625966305
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3747074731663281780}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 60ac655bc2e424ccdaa1428c42c812dd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  pauseMenuUI: {fileID: 0}
 --- !u!1001 &8801610540983083601
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -184,11 +203,6 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: ea1a978a76780423bbfaed62e03b2dc7, type: 3}
---- !u!1 &313706280489923305 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 9115030646187118776, guid: ea1a978a76780423bbfaed62e03b2dc7, type: 3}
-  m_PrefabInstance: {fileID: 8801610540983083601}
-  m_PrefabAsset: {fileID: 0}
 --- !u!4 &3967800012541557254 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 5563615911605508183, guid: ea1a978a76780423bbfaed62e03b2dc7, type: 3}

@@ -1,12 +1,9 @@
 using System;
 using System.Collections.Generic;
-using Unity.Mathematics;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using TMPro;
 using System.Collections;
-using Microsoft.Unity.VisualStudio.Editor;
 
 public class Racetrack : MonoBehaviour
 {
