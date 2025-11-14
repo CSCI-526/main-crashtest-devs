@@ -37,6 +37,8 @@ public class PauseMenu : MonoBehaviour
 
     public void OnMainMenuButton()
     {
+        // Reset time scale before returning to main menu
+        Time.timeScale = 1f;
         SceneManager.LoadScene("Assets/Scenes/StartScene.unity");
     }
 }

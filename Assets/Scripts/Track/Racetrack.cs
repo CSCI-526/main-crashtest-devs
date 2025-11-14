@@ -58,6 +58,24 @@ public class Racetrack : MonoBehaviour
         }
     }
 
+    private void Awake()
+    {
+        // Reset countdown state when scene loads
+        countdownStage = 0;
+        startTimer = 1.0f;
+        lightsOutAndAwayWeGOOOOO = false;
+        raceStartTime = -1f;
+        finishedPlayers = 0;
+        realFinishedPlayers = 0;
+        
+        // Make sure countdown text is visible and reset
+        if (countdownText != null)
+        {
+            countdownText.gameObject.SetActive(true);
+            countdownText.transform.localScale = Vector3.one;
+        }
+    }
+
     private void Start()
     {
         scoreboard = FindFirstObjectByType<ScoreboardUIManager>();

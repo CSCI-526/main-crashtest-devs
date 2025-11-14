@@ -9,6 +9,12 @@ public class StartScene : MonoBehaviour
 
     private Vector3 spawnBasePos = new(-228f, .5f, 63f);
 
+    void Start()
+    {
+        // Initialize timer when scene loads
+        timer = Random.Range(0f, spawnInterval);
+    }
+
     void Update()
     {
         timer -= Time.deltaTime;
