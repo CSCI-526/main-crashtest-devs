@@ -26,7 +26,12 @@ public class SendToGoogle : MonoBehaviour
     [SerializeField] private string completionTimeEntry = "entry.559683222";
     [SerializeField] private string progressPercentageEntry = "entry.1047091070";
     [SerializeField] private string crashCountEntry = "entry.1420641828";
-    
+
+    [Header("Turn Analytics Entry IDs")]
+    [SerializeField] private string URLForTurnAnalytics = "https://docs.google.com/forms/d/e/1FAIpQLScFq9vSKpf6Vmq7ML4fQtH61C0iH5Z6A6JDK7Skign65krtqQ/formResponse";
+    [SerializeField] private string sessionIDEntry3 = "entry.1506571139";
+    [SerializeField] private string turnSegmentNameEntry = "entry.833411458";
+    [SerializeField] private string driftUsedInTurnEntry = "entry.92877305";
 
     private long _sessionID;
 
@@ -91,6 +96,32 @@ public class SendToGoogle : MonoBehaviour
         else
         {
             Debug.Log($"Race completion analytics sent: {eventType}, Time: {completionTime:F2}s, Progress: {progressPercentage:F1}%, Crashes: {crashCount}");
+        }
+    }
+
+    public void SendTurnAnalytics(string turnSegmentName, bool driftUsed)
+    {
+        StartCoroutine(PostTurnAnalytics(turnSegmentName, driftUsed));
+    }
+
+    private IEnumerator PostTurnAnalytics(string turnSegmentName, bool driftUsed)
+    {
+        // Build URL with query parameters for turn analytics (only successful turns)
+        string url = URLForTurnAnalytics +
+            "?" + sessionIDEntry3 + "=" + UnityWebRequest.EscapeURL(_sessionID.ToString()) +
+            "&" + turnSegmentNameEntry + "=" + UnityWebRequest.EscapeURL(turnSegmentName) +
+            "&" + driftUsedInTurnEntry + "=" + UnityWebRequest.EscapeURL(driftUsed.ToString());
+
+        using UnityWebRequest www = UnityWebRequest.Get(url);
+        yield return www.SendWebRequest();
+
+        if (www.result != UnityWebRequest.Result.Success)
+        {
+            Debug.LogError("Turn analytics submission failed: " + www.error);
+        }
+        else
+        {
+            Debug.Log($"Turn analytics sent: {turnSegmentName}, Drift: {driftUsed}");
         }
     }
 

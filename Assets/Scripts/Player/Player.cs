@@ -39,6 +39,12 @@ public class Player : MonoBehaviour
     private float lastDriftTime = 0f;
     [SerializeField] private float driftTrackingWindow = 2f;
 
+    // turn tracking for analytics
+    private bool isInTurn = false;
+    private string currentTurnSegmentName = "";
+    private bool driftUsedDuringTurn = false;
+    private RoadMesh previousRoadMesh = null;
+
     // progress track
     private float raceStartTime = -1f;
     private int raceCrashCount = 0;
@@ -124,7 +130,7 @@ public class Player : MonoBehaviour
             UpdateUI();
 
             // Send crash analytics (only once per crash)
-            if (analytics != null && !analyticsAlreadySent && currentRoadMesh != null)
+            if (analytics != null && !analyticsAlreadySent && currentRoadMesh != null && !isTutorial)
             {
                 string segmentType = currentRoadMesh.segmentName;
                 string surfaceType = currentRoadMesh.roadType.ToString();
@@ -145,6 +151,15 @@ public class Player : MonoBehaviour
                 }
 
                 analytics.Send(segmentType, surfaceType, eventType, playerSpeed, headlightIntensity, headlightRange, driftUsedRecently);
+
+                // Reset turn tracking if crash happened during a turn (don't send failure analytics)
+                if (isInTurn)
+                {
+                    isInTurn = false;
+                    currentTurnSegmentName = "";
+                    driftUsedDuringTurn = false;
+                }
+
                 analyticsAlreadySent = true;
             }
         }
@@ -177,7 +192,7 @@ public class Player : MonoBehaviour
             rb.constraints = RigidbodyConstraints.FreezeAll;
 
             // Send race completion analytics (only once)
-            if (!raceCompletionSent && analytics != null && raceStartTime > 0f)
+            if (!raceCompletionSent && analytics != null && raceStartTime > 0f && !isTutorial)
             {
                 float completionTime = Time.realtimeSinceStartup - raceStartTime;
                 float progressPercentage = 100f;
@@ -205,6 +220,38 @@ public class Player : MonoBehaviour
             {
                 currentRoadType = roadMesh.roadType;
                 currentRoadMesh = roadMesh; // Track current segment for analytics
+
+                // Turn tracking: detect entering/exiting turns
+                if (currentRoadMesh != previousRoadMesh)
+                {
+                    // Check if current segment is a turn (ends with L/R or contains "Turn")
+                    bool isCurrentSegmentTurn = currentRoadMesh.segmentName.EndsWith("L") ||
+                                                currentRoadMesh.segmentName.EndsWith("R") ||
+                                                currentRoadMesh.segmentName.Contains("Turn");
+
+                    // Check if entering a turn
+                    if (!isInTurn && isCurrentSegmentTurn)
+                    {
+                        isInTurn = true;
+                        currentTurnSegmentName = currentRoadMesh.segmentName;
+                        driftUsedDuringTurn = false;
+                    }
+                    // Check if exiting a turn (was in turn, now not)
+                    else if (isInTurn && !isCurrentSegmentTurn)
+                    {
+                        // Turn completed successfully (no crash during turn)
+                        if (analytics != null && !isTutorial)
+                        {
+                            analytics.SendTurnAnalytics(currentTurnSegmentName, driftUsedDuringTurn);
+                        }
+
+                        isInTurn = false;
+                        currentTurnSegmentName = "";
+                        driftUsedDuringTurn = false;
+                    }
+
+                    previousRoadMesh = currentRoadMesh;
+                }
             }
             else currentRoadType = RoadType.Normal;
         }
@@ -419,6 +466,12 @@ public class Player : MonoBehaviour
         {
             driftUsedRecently = true;
             lastDriftTime = Time.time;
+
+            // Track drift usage during turn
+            if (isInTurn)
+            {
+                driftUsedDuringTurn = true;
+            }
         }
         else
         {
@@ -553,7 +606,7 @@ public class Player : MonoBehaviour
     private void OnDestroy() // to check if game shut down before finished
     {
         // Send dropout analytics if race started but not finished
-        if (raceStartTime > 0f && !hasFinished && !raceCompletionSent && analytics != null)
+        if (raceStartTime > 0f && !hasFinished && !raceCompletionSent && analytics != null && !isTutorial)
         {
             float elapsedTime = Time.realtimeSinceStartup - raceStartTime;
 
