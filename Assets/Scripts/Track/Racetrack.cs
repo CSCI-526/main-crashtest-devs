@@ -15,6 +15,7 @@ public class Racetrack : MonoBehaviour
     public bool lightsOutAndAwayWeGOOOOO = false;
     public GameObject p0StuckScreen;
     public GameObject p1StuckScreen;
+    public bool isTutorial = false;
     private float startTimer = 1.0f;  // Time between each countdown
     public int countdownStage = 0;  // 0=Ready, 1=3, 2=2, 3=1, 4=GO
     private readonly List<CheckPointCheck> players = new();
@@ -67,7 +68,7 @@ public class Racetrack : MonoBehaviour
         raceStartTime = -1f;
         finishedPlayers = 0;
         realFinishedPlayers = 0;
-        
+
         // Make sure countdown text is visible and reset
         if (countdownText != null)
         {
@@ -172,7 +173,7 @@ public class Racetrack : MonoBehaviour
             }
         }
 
-        UpdateUI();
+        if (!isTutorial) UpdateUI();
         if (disco)
         {
             Transform mainDiscoBall = transform.Find("Start Straight 0/discoballs/db1");
@@ -567,7 +568,8 @@ public class Racetrack : MonoBehaviour
 
                 totalAngle += angle;
             }
-            float averageAngle = totalAngle / nextCheckpoints.Count;
+            float averageAngle = 0f;
+            if (nextCheckpoints.Count != 0) averageAngle = totalAngle / nextCheckpoints.Count;
 
             RectTransform compass = canvas.transform.Find($"{compassGO}{j + 1}/Image").GetComponent<RectTransform>();
             compass.localEulerAngles = new Vector3(0f, 0f, -averageAngle);
@@ -597,7 +599,14 @@ public class Racetrack : MonoBehaviour
 
             if (sectionID >= curves.Count - 1)
             {
-                if (!players[playerID].finished)
+                if (isTutorial)
+                {
+                    Player playerScript = players[playerID].player.GetComponent<Player>();
+                    playerScript.ChangeTarget(0);
+                    players[playerID].currentSection = 0;
+                    players[playerID].currentSubSection = 0;
+                }
+                else if (!players[playerID].finished)
                 {
                     ++finishedPlayers;
                     players[playerID].finished = true;
@@ -696,6 +705,7 @@ public class Racetrack : MonoBehaviour
 
     private void RespawnPlayer(int playerID)
     {
+        if (players[playerID].finished) return;
         if (players[playerID].tries == 3 || players[playerID].respawnSection != players[playerID].currentSection)
         {
             players[playerID].respawnSection = players[playerID].currentSection;

@@ -26,8 +26,8 @@ public class TrackGen : MonoBehaviour
 
     private void Start()
     {
-        if(!isTutorial)
-            MakeTrack();
+        if (!isTutorial) MakeTrack();
+        else trackObject.GetComponent<Racetrack>().AddTrackCurves();
     }
 
     private void MakeTrack()

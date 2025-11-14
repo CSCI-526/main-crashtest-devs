@@ -85,7 +85,7 @@ public class Bot : MonoBehaviour
         float lateralGripMultiplier = .9f;
         float roadDragMultiplier = BotPlayer.normalDrag;
 
-         switch (currentRoadType)
+        switch (currentRoadType)
         {
             case RoadType.Wet:
                 accelMultiplier = BotPlayer.wetAccelMultiplier;
@@ -177,6 +177,7 @@ public class Bot : MonoBehaviour
     void UpdateTargetPoints()
     {
         targets.Clear();
+        if (currentTargetIndex >= racetrack.GetCurveCount()) { GetComponent<CrashEffect>().TriggerCrash(); hasCrashed = true; return;}
         BezierCurve currentCurve = racetrack.GetCurve(currentTargetIndex);
         float currentT = currentCurve.GetClosestTOnCurve(transform.position);
 
@@ -194,10 +195,8 @@ public class Bot : MonoBehaviour
             {
                 tAhead -= 1f;
                 curveIndex++;
-                if (curveIndex >= racetrack.GetCurveCount())
-                    curveIndex = racetrack.GetCurveCount() - 1;
             }
-
+            if (curveIndex >= racetrack.GetCurveCount()) break;
             BezierCurve curve = racetrack.GetCurve(curveIndex);
             targets.Add(curve.GetPoint(tAhead));
         }

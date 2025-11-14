@@ -2770,7 +2770,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f8c4b40ba40124564984e869c4347cef, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  loadingPanel: {fileID: 1981342699}
+  loadingPanel: {fileID: 1335073249}
   loadingText: {fileID: 457745582}
   loadingCanvas: {fileID: 1335073253}
   displayDuration: 2

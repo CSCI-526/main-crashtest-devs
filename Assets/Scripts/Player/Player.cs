@@ -74,6 +74,7 @@ public class Player : MonoBehaviour
     {
         string speedGO = "speed1";
         if (!player0) speedGO = "speed2";
+        string driftBar = player0 ? "p0bar" : "p1bar";
 
         p0RespawnTimer += Time.deltaTime;
         p1RespawnTimer += Time.deltaTime;
@@ -90,17 +91,22 @@ public class Player : MonoBehaviour
             analyticsAlreadySent = false;
         }
 
-        if (!isTutorial && (previousSpeed - rb.linearVelocity.magnitude * 2.237f >= BotPlayer.playerDeltaSpeed ||
+        if ((previousSpeed - rb.linearVelocity.magnitude * 2.237f >= BotPlayer.playerDeltaSpeed ||
             (player0 && Input.GetKey(KeyCode.R) && p0RespawnTimer >= 5.0f) ||
             (!player0 && Input.GetKey(KeyCode.Slash) && p1RespawnTimer >= 5.0f)) && !powerUps[2])
         {
             if (powerUps[0])
             {
-                powerUps[0] = false;
-                transform.Find("shield").gameObject.SetActive(false);
                 shieldFlashTimer = 0f;
                 shieldFlashState = true;
                 previousSpeed = 0;
+                powerUps[0] = false;
+                transform.Find("shield").gameObject.SetActive(false);
+                pointsUsed[0] = 300;
+                shieldFlashTimer = 0f;
+                shieldFlashState = true;
+                canvas.transform.Find($"{driftBar}/rightSide/shield").GetComponent<TMP_Text>().text = "Shield";
+                canvas.transform.Find($"{driftBar}/rightSide/shield/text").gameObject.SetActive(true);
                 return;
             }
             GetComponent<CrashEffect>().TriggerCrash();
@@ -203,8 +209,6 @@ public class Player : MonoBehaviour
             else currentRoadType = RoadType.Normal;
         }
 
-        string driftBar = player0 ? "p0bar" : "p1bar";
-
         if (points >= 300) canvas.transform.Find($"{driftBar}/rightSide/shield").GetComponent<PowerUpsAnim>().UpdateAnim(true);
         else canvas.transform.Find($"{driftBar}/rightSide/shield").GetComponent<PowerUpsAnim>().UpdateAnim(false);
 
@@ -246,6 +250,13 @@ public class Player : MonoBehaviour
                 pointsUsed[0] = 300;
                 shieldFlashTimer = 0f;
                 shieldFlashState = true;
+                canvas.transform.Find($"{driftBar}/rightSide/shield").GetComponent<TMP_Text>().text = "Shield";
+                canvas.transform.Find($"{driftBar}/rightSide/shield/text").gameObject.SetActive(true);
+            }
+            else
+            {
+                canvas.transform.Find($"{driftBar}/rightSide/shield").GetComponent<TMP_Text>().text = $"{pointsUsed[0] / 100f}";
+                canvas.transform.Find($"{driftBar}/rightSide/shield/text").gameObject.SetActive(false);
             }
         }
         else if ((Input.GetKey(KeyCode.Alpha2) && points >= 600 && player0) || (Input.GetKey(KeyCode.Alpha9) && points >= 600 && !player0) || powerUps[1])
@@ -260,15 +271,25 @@ public class Player : MonoBehaviour
                 powerUps[1] = false;
                 racetrack.PartyTime(false);
                 pointsUsed[1] = 600;
+                canvas.transform.Find($"{driftBar}/rightSide/disco").GetComponent<TMP_Text>().text = "Disco";
+                canvas.transform.Find($"{driftBar}/rightSide/disco/text").gameObject.SetActive(true);
+            }
+            else
+            {
+                canvas.transform.Find($"{driftBar}/rightSide/disco").GetComponent<TMP_Text>().text = $"{pointsUsed[1] / 200f}";
+                canvas.transform.Find($"{driftBar}/rightSide/disco/text").gameObject.SetActive(false);
             }
         }
-        else if (!isTutorial && (Input.GetKey(KeyCode.Alpha3) && points >= 900 && player0) || (Input.GetKey(KeyCode.Alpha8) && points >= 900 && !player0) || powerUps[2])
+        else if ((Input.GetKey(KeyCode.Alpha3) && points >= 900 && player0) || (Input.GetKey(KeyCode.Alpha8) && points >= 900 && !player0) || powerUps[2])
         {
             powerUps[2] = true;
             points -= 3;
             pointsUsed[2] -= 3;
 
-            if (pointsUsed[2] < 0)
+            target = Vector3.zero;
+            AutoDriveTHingidk();
+
+            if (target == Vector3.zero || pointsUsed[2] < 0)
             {
                 powerUps[2] = false;
                 rb.useGravity = true;
@@ -276,10 +297,15 @@ public class Player : MonoBehaviour
                 rb.angularDamping = 2f;
                 rb.linearVelocity = transform.forward * BotPlayer.maxSpeed;
                 pointsUsed[2] = 900;
+                canvas.transform.Find($"{driftBar}/rightSide/auto").GetComponent<TMP_Text>().text = "Auto";
+                canvas.transform.Find($"{driftBar}/rightSide/auto/text").gameObject.SetActive(true);
                 return;
             }
-
-            AutoDriveTHingidk();
+            else
+            {
+                canvas.transform.Find($"{driftBar}/rightSide/auto").GetComponent<TMP_Text>().text = $"{pointsUsed[2] / 300f}";
+                canvas.transform.Find($"{driftBar}/rightSide/auto/text").gameObject.SetActive(false);
+            }
 
             rb.useGravity = false;
             rb.linearDamping = 0f;
@@ -304,12 +330,10 @@ public class Player : MonoBehaviour
         }
 
 
-
         float accel = 0f;
         float steer = 0f;
         bool braking;
         bool attemptDrift;
-
 
         switch (player0)
         {
@@ -444,7 +468,6 @@ public class Player : MonoBehaviour
 
     private void UpdateUI()
     {
-
         int max = 1000;
         if (points < 0) points = 0;
         if (points > max) points = max;
@@ -458,19 +481,6 @@ public class Player : MonoBehaviour
 
         gasRect.offsetMin = Vector2.zero;
         gasRect.offsetMax = Vector2.zero;
-
-        /*
-        gasRect = canvas.transform.Find("playerStats/leftSide/brake/grey/Image").GetComponent<RectTransform>();
-        fill = Mathf.Clamp01(points / max);
-
-        gasRect.anchorMin = new Vector2(gasRect.anchorMin.x, 0f);
-        gasRect.anchorMax = new Vector2(gasRect.anchorMax.x, fill);
-
-        gasRect.offsetMin = Vector2.zero;
-        gasRect.offsetMax = Vector2.zero;*/
-
-        // Update AutoDrive UI
-        //UpdateAutoDriveUI();
     }
 
     private Vector3 target = new();
@@ -480,7 +490,6 @@ public class Player : MonoBehaviour
         BezierCurve currentCurve = racetrack.GetCurve(currentTargetIndex);
         float currentT = currentCurve.GetClosestTOnCurve(transform.position);
 
-
         int curveIndex = currentTargetIndex;
         float tAhead = currentT + 0.2f;
 
@@ -489,7 +498,10 @@ public class Player : MonoBehaviour
             tAhead -= 1f;
             curveIndex++;
             if (curveIndex >= racetrack.GetCurveCount())
-                curveIndex = racetrack.GetCurveCount() - 1;
+            {
+                if (isTutorial) { curveIndex = 0; tAhead = 0f; }
+                else return;
+            }
         }
 
         BezierCurve curve = racetrack.GetCurve(curveIndex);
