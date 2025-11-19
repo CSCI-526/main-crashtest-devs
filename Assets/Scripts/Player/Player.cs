@@ -10,6 +10,7 @@ public class Player : MonoBehaviour
     public bool player0 = true;
     public Racetrack racetrack;
     public GameObject canvas;
+    private readonly BotPlayer.WheelState ws = new();
     [SerializeField] private LayerMask roadLayer;
     public bool hasCrashed = false;
     public bool hasFinished = false;
@@ -69,7 +70,6 @@ public class Player : MonoBehaviour
         rb.centerOfMass = new Vector3(0f, -0.5f, 0f); // lowers center for stability
         rb.linearDamping = BotPlayer.normalDrag;
         rb.angularDamping = 2f;
-
     }
 
     void FixedUpdate()
@@ -111,7 +111,7 @@ public class Player : MonoBehaviour
                 canvas.transform.Find($"{driftBar}/rightSide/shield/text").gameObject.SetActive(true);
                 return;
             }
-            GetComponent<CrashEffect>().TriggerCrash();
+            BotPlayer.TriggerCrash(transform);
             hasCrashed = true;
             raceCrashCount++; // Track crashes for progress track
             points -= 100;
@@ -201,6 +201,8 @@ public class Player : MonoBehaviour
 
         if (!racetrack.lightsOutAndAwayWeGOOOOO || hasCrashed) return;
         else t = 0;
+
+        BotPlayer.RotateWheels(rb, transform, ws);
 
         (int wheelsInContact, RoadMesh roadMesh) = BotPlayer.IsGrounded(transform.gameObject, BotPlayer.groundCheckDistance, roadLayer);
 
@@ -424,6 +426,7 @@ public class Player : MonoBehaviour
         Transform rearLights = transform.Find("lights/rear");
         if (braking || (Input.GetKey(KeyCode.S) && player0) || (Input.GetKey(KeyCode.DownArrow) && !player0)) for (int i = 0; i < 2; i++) rearLights.GetChild(i).GetComponent<Light>().intensity = 25;
         else for (int i = 0; i < 2; i++) rearLights.GetChild(i).GetComponent<Light>().intensity = 1;
+        BotPlayer.TurnWheels((steer == 1) ? 30f : (steer == -1) ? -30f : 0f, ws);
 
         // Apply road type effects
         float accelMultiplier = 1.0f;
@@ -520,6 +523,7 @@ public class Player : MonoBehaviour
 
         if (!braking && forwardVel < BotPlayer.maxSpeed)
             rb.AddForce(accel * accelMultiplier * BotPlayer.motorPower * wheelsInContact * forward / 4f, ForceMode.Acceleration);
+
 
         UpdateUI();
     }
@@ -723,6 +727,5 @@ public class Player : MonoBehaviour
             }
         }
     }
-
-
 }
+

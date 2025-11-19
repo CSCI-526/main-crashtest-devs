@@ -8,6 +8,7 @@ public class Bot : MonoBehaviour
     public Racetrack racetrack;
     public LayerMask roadLayer;
     public bool hasCrashed = false;
+    private readonly BotPlayer.WheelState ws = new();
 
     [Header("Track Following")]
     public float targetSwitchDistance = 10f;
@@ -40,7 +41,7 @@ public class Bot : MonoBehaviour
     {
         // administrative 
 
-        if (previousSpeed - rb.linearVelocity.magnitude * 2.237f >= BotPlayer.botDeltaSpeed) { GetComponent<CrashEffect>().TriggerCrash(); hasCrashed = true; }
+        if (previousSpeed - rb.linearVelocity.magnitude * 2.237f >= BotPlayer.botDeltaSpeed) { BotPlayer.TriggerCrash(transform); hasCrashed = true; }
         previousSpeed = rb.linearVelocity.magnitude * 2.237f;
 
         if (hasCrashed)
@@ -61,8 +62,9 @@ public class Bot : MonoBehaviour
         if (!racetrack.lightsOutAndAwayWeGOOOOO || hasCrashed) return;
         else t = 0;
 
-        // ground check
+        BotPlayer.RotateWheels(rb, transform, ws);
 
+        // ground check
         (int wheelsInContact, RoadMesh roadMesh) = BotPlayer.IsGrounded(transform.gameObject, BotPlayer.groundCheckDistance, roadLayer);
 
         if (wheelsInContact == 0)
@@ -139,8 +141,9 @@ public class Bot : MonoBehaviour
 
         float angleToTarget = Vector3.SignedAngle(forward, avgDir, Vector3.up);
 
-        float maxSteerAngle = 45f;
+        float maxSteerAngle = 30f;
         float steerAmount = Mathf.Clamp(angleToTarget / maxSteerAngle, -1f, 1f);
+        BotPlayer.TurnWheels(angleToTarget, ws);
 
         float rotationSpeed = steerAmount * steerRoadMultiplier;
 
@@ -177,7 +180,7 @@ public class Bot : MonoBehaviour
     void UpdateTargetPoints()
     {
         targets.Clear();
-        if (currentTargetIndex >= racetrack.GetCurveCount()) { GetComponent<CrashEffect>().TriggerCrash(); hasCrashed = true; return;}
+        if (currentTargetIndex >= racetrack.GetCurveCount()) { BotPlayer.TriggerCrash(transform); hasCrashed = true; return; }
         BezierCurve currentCurve = racetrack.GetCurve(currentTargetIndex);
         float currentT = currentCurve.GetClosestTOnCurve(transform.position);
 
