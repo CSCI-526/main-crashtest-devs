@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class BotPlayer : MonoBehaviour
 {
-    public static float groundCheckDistance = 0.52f;
+    public static float groundCheckDistance = 0.45f;
     public static float DynamicObstacles = .25f; // anything above is cutoff
     public static float intensity = 100f;
     public static float range = 50f;
@@ -67,7 +67,7 @@ public class BotPlayer : MonoBehaviour
 
         if (wheelsInContact == 0)
         {
-            if (Physics.Raycast(player.transform.position, Vector3.down, out RaycastHit hit, .75f))
+            if (Physics.Raycast(player.transform.position, Vector3.down, out RaycastHit hit, 1.5f))
                 if (!hit.collider.TryGetComponent<RoadMesh>(out var _)) wheelsInContact = -1;
         }
 

@@ -8,7 +8,7 @@ public class CrashEffect : MonoBehaviour
     public void TriggerCrash()
     {
         // Hide the main model (the car)
-        GetComponent<MeshRenderer>().enabled = false;
+        //GetComponent<MeshRenderer>().enabled = false;
 
         // Enable the “fragment” object (the hidden cube group)
         Transform fragments = transform.Find("CrashFragments");

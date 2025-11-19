@@ -721,7 +721,7 @@ public class Racetrack : MonoBehaviour
 
         players[playerID].playerTimer = 7.5f;
         if (!players[playerID].bot) players[playerID].playerTimer = 20f;
-        RectTransform rt = players[playerID].player.GetComponent<RectTransform>();
+        Transform rt = players[playerID].player.GetComponent<Transform>();
 
         // position
         int respawnIndex = 0;
@@ -770,7 +770,7 @@ public class Racetrack : MonoBehaviour
 
         if (hasCrashed)
         {
-            players[playerID].player.GetComponent<MeshRenderer>().enabled = true;
+            //players[playerID].player.GetComponent<MeshRenderer>().enabled = true;
             for (int i = 0; i < 2; i++) players[playerID].player.transform.GetChild(i).gameObject.SetActive(true);
         }
     }
