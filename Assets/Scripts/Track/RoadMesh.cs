@@ -231,7 +231,7 @@ public class RoadMesh : MonoBehaviour
             for (int i = 0; i < 5; i++)
             {
                 Vector3 spawnPos = GetRandomPositionAboveCollider();
-                GameObject drop = Instantiate(transform.Find("rainDrop").gameObject, spawnPos, Quaternion.identity);
+                GameObject drop = Instantiate(transform.Find("rainDrop").gameObject, spawnPos, Quaternion.identity, transform);
                 Rigidbody rb = drop.transform.GetComponent<Rigidbody>();
                 rb.AddForce(Physics.gravity * 3f, ForceMode.Acceleration);
 

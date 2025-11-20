@@ -22,7 +22,8 @@ public class Player : MonoBehaviour
     private RoadType currentRoadType = RoadType.Normal;
     private RoadMesh currentRoadMesh;
     private float previousSpeed = 0f;
-    private float t = 0f;
+    private Vector3 previousVel = Vector3.zero;
+    private Vector3 previousAng = Vector3.zero;
     private bool analyticsAlreadySent = false;
 
     [Header("Drift Assist")]
@@ -88,20 +89,20 @@ public class Player : MonoBehaviour
         }
 
         // Reset analytics flag when player is no longer crashed (after respawn)
-        if (!hasCrashed)
-        {
-            analyticsAlreadySent = false;
-        }
+        if (!hasCrashed) analyticsAlreadySent = false;
+        else { previousSpeed = 0f; return; }
 
         if ((previousSpeed - rb.linearVelocity.magnitude * 2.237f >= BotPlayer.playerDeltaSpeed ||
-            (player0 && Input.GetKey(KeyCode.R) && p0RespawnTimer >= 5.0f) ||
-            (!player0 && Input.GetKey(KeyCode.Slash) && p1RespawnTimer >= 5.0f)) && !powerUps[2])
+            (player0 && Input.GetKey(KeyCode.R) && p0RespawnTimer >= 6.0f) ||
+            (!player0 && Input.GetKey(KeyCode.Slash) && p1RespawnTimer >= 6.0f)) && !powerUps[2])
         {
+            previousSpeed = 0;
             if (powerUps[0])
             {
                 shieldFlashTimer = 0f;
                 shieldFlashState = true;
-                previousSpeed = 0;
+                previousAng = Vector3.zero;
+                previousVel = Vector3.zero;
                 powerUps[0] = false;
                 transform.Find("shield").gameObject.SetActive(false);
                 pointsUsed[0] = 300;
@@ -111,7 +112,7 @@ public class Player : MonoBehaviour
                 canvas.transform.Find($"{driftBar}/rightSide/shield/text").gameObject.SetActive(true);
                 return;
             }
-            BotPlayer.TriggerCrash(transform);
+            BotPlayer.TriggerCrash(transform, previousVel, previousAng, this);
             hasCrashed = true;
             raceCrashCount++; // Track crashes for progress track
             points -= 100;
@@ -160,20 +161,8 @@ public class Player : MonoBehaviour
             }
         }
         previousSpeed = rb.linearVelocity.magnitude * 2.237f;
-
-        if (hasCrashed)
-        {
-            GameObject flashLight = transform.Find("crashLight").gameObject;
-
-            if (t == 0) flashLight.GetComponent<LensFlareComponentSRP>().enabled = true;
-            if (t < 1f)
-            {
-                t += Time.deltaTime;
-                flashLight.GetComponent<Light>().intensity = 200 * (1 - t);
-            }
-            else if (t > .5f) flashLight.GetComponent<LensFlareComponentSRP>().enabled = false;
-            else flashLight.GetComponent<Light>().intensity = 0;
-        }
+        previousAng = rb.angularVelocity;
+        previousVel = rb.linearVelocity;
 
         Vector3 forward = transform.forward;
         float forwardVel = Vector3.Dot(rb.linearVelocity, forward);
@@ -200,9 +189,8 @@ public class Player : MonoBehaviour
         }
 
         if (!racetrack.lightsOutAndAwayWeGOOOOO || hasCrashed) return;
-        else t = 0;
 
-        BotPlayer.RotateWheels(rb, transform, ws);
+        BotPlayer.RotateWheels(rb, transform.Find("Intact"), ws);
 
         (int wheelsInContact, RoadMesh roadMesh) = BotPlayer.IsGrounded(transform.gameObject, BotPlayer.groundCheckDistance, roadLayer);
 

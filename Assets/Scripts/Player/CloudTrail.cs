@@ -5,7 +5,10 @@ public class CloudTrail : MonoBehaviour
 {
     [Header("References")]
     public GameObject player;
-    public Transform spawnPoint;
+    public Transform FL;
+    public Transform FR;
+    public Transform BL;
+    public Transform BR;
     public GameObject dust;
     public GameObject mist;
 
@@ -17,7 +20,7 @@ public class CloudTrail : MonoBehaviour
     [Header("Motion Settings")]
     public float forwardVelocityFraction = 0.25f;
     public float upwardRandomness = 0.5f;
-    public float sidewaysRandomness = 0.75f;
+    private float sidewaysRandomness = 0.5f;
     private bool isWet = true;
 
     private Coroutine trailRoutine;
@@ -41,6 +44,10 @@ public class CloudTrail : MonoBehaviour
 
         while (isActive)
         {
+            bool left = Random.value < 0.5f;
+            bool forward = Random.value < 0.5f;
+
+            Transform spawnPoint = left ? (forward ? FL : BL) : (forward ? FR : BR);
             Vector3 spawnPos = spawnPoint.position + player.transform.right * Random.Range(-sidewaysRandomness, sidewaysRandomness) + Vector3.up * Random.Range(0f, upwardRandomness);
 
             GameObject sphere = Instantiate(isWet ? mist : dust, spawnPos, Random.rotation);

@@ -19,7 +19,8 @@ public class Bot : MonoBehaviour
     private int currentTargetIndex = 1;
     private RoadType currentRoadType = RoadType.Normal;
     private float previousSpeed = 0f;
-    private float t = 0f;
+    private Vector3 previousVel = Vector3.zero;
+    private Vector3 previousAng = Vector3.zero;
     private Vector3 botOffset;
     private float maxSpeedMultiplier;
     private float brakingAngle;
@@ -41,28 +42,23 @@ public class Bot : MonoBehaviour
     {
         // administrative 
 
-        if (previousSpeed - rb.linearVelocity.magnitude * 2.237f >= BotPlayer.botDeltaSpeed) { BotPlayer.TriggerCrash(transform); hasCrashed = true; }
-        previousSpeed = rb.linearVelocity.magnitude * 2.237f;
-
-        if (hasCrashed)
+        if (previousSpeed - rb.linearVelocity.magnitude * 2.237f >= BotPlayer.botDeltaSpeed && !hasCrashed)
         {
-            GameObject flashLight = transform.Find("crashLight").gameObject;
-            transform.GetComponent<CloudTrail>().SetTrailActive(false, false);
-
-            if (t == 0) flashLight.GetComponent<LensFlareComponentSRP>().enabled = true;
-            if (t < 1f)
-            {
-                t += Time.deltaTime;
-                flashLight.GetComponent<Light>().intensity = 200 * (1 - t);
-            }
-            else if (t > .5f) flashLight.GetComponent<LensFlareComponentSRP>().enabled = false;
-            else flashLight.GetComponent<Light>().intensity = 0;
+            BotPlayer.TriggerCrash(transform, previousVel, previousAng, this);
+            hasCrashed = true;
+            previousSpeed = 0;
+        }
+        else
+        {
+            if (hasCrashed) previousSpeed = 0;
+            else previousSpeed = rb.linearVelocity.magnitude * 2.237f;
+            previousAng = rb.angularVelocity;
+            previousVel = rb.linearVelocity;
         }
 
         if (!racetrack.lightsOutAndAwayWeGOOOOO || hasCrashed) return;
-        else t = 0;
 
-        BotPlayer.RotateWheels(rb, transform, ws);
+        BotPlayer.RotateWheels(rb, transform.Find("Intact"), ws);
 
         // ground check
         (int wheelsInContact, RoadMesh roadMesh) = BotPlayer.IsGrounded(transform.gameObject, BotPlayer.groundCheckDistance, roadLayer);
@@ -74,7 +70,7 @@ public class Bot : MonoBehaviour
         }
         else
         {
-            if (wheelsInContact == -1) wheelsInContact = 4;
+            //if (wheelsInContact == -1) wheelsInContact = 4;
 
             if (roadMesh != null) currentRoadType = roadMesh.roadType;
             else currentRoadType = RoadType.Normal;
@@ -180,7 +176,7 @@ public class Bot : MonoBehaviour
     void UpdateTargetPoints()
     {
         targets.Clear();
-        if (currentTargetIndex >= racetrack.GetCurveCount()) { BotPlayer.TriggerCrash(transform); hasCrashed = true; return; }
+        if (currentTargetIndex >= racetrack.GetCurveCount()) { BotPlayer.TriggerCrash(transform, previousVel, previousAng, this); hasCrashed = true; previousSpeed = 0; return; }
         BezierCurve currentCurve = racetrack.GetCurve(currentTargetIndex);
         float currentT = currentCurve.GetClosestTOnCurve(transform.position);
 

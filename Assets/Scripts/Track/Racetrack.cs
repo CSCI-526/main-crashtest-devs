@@ -136,17 +136,17 @@ public class Racetrack : MonoBehaviour
         {
             players[i].playerTimer -= Time.deltaTime;
             if (players[i].playerTimer <= 0f) RespawnPlayer(i);
-            else if (players[i].playerTimer > 3f)
+            else if (players[i].playerTimer > 5f)
             {
                 if (players[i].bot)
                 {
                     Bot botScript = players[i].player.GetComponent<Bot>();
-                    if (botScript.hasCrashed) players[i].playerTimer = 3f;
+                    if (botScript.hasCrashed) players[i].playerTimer = 5f;
                 }
                 else
                 {
                     Player playerScript = players[i].player.GetComponent<Player>();
-                    if (playerScript.hasCrashed) players[i].playerTimer = 3f;
+                    if (playerScript.hasCrashed) players[i].playerTimer = 5f;
                 }
             }
 
@@ -751,6 +751,12 @@ public class Racetrack : MonoBehaviour
         rb.linearVelocity = Vector3.zero;
         rb.angularVelocity = Vector3.zero;
 
+        Transform intact = players[playerID].player.transform.Find("Intact");
+        if (intact != null) intact.gameObject.SetActive(true);
+
+        if (players[playerID].player.transform.TryGetComponent<Collider>(out var mainCol))
+            mainCol.enabled = true;
+
         bool hasCrashed;
 
         if (players[playerID].bot)
@@ -766,11 +772,18 @@ public class Racetrack : MonoBehaviour
             Player playerScript = players[playerID].player.GetComponent<Player>();
             hasCrashed = playerScript.hasCrashed;
             playerScript.hasCrashed = false;
+
+            if (hasCrashed)
+            {
+                Transform cameraTransform = GameObject.Find("Main Camera").transform;
+                cameraTransform.SetParent(players[playerID].player.transform);
+
+                cameraTransform.SetLocalPositionAndRotation(new Vector3(0f, 7f, -8f), Quaternion.Euler(15f, 0f, 0f));
+            }
         }
 
         if (hasCrashed)
         {
-            //players[playerID].player.GetComponent<MeshRenderer>().enabled = true;
             for (int i = 0; i < 2; i++) players[playerID].player.transform.GetChild(i).gameObject.SetActive(true);
         }
     }

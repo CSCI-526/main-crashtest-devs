@@ -12,9 +12,9 @@ public class DriftSparks : MonoBehaviour
     public float spawnInterval = 0.001f;
     public float minLifetime = 0.05f;
     public float maxLifetime = 0.2f;
-    public float upwardForce = 3f;
-    public float sidewaysForce = 2f;
-    public float backwardForce = 0.5f;
+    private float upwardForce = 1f;
+    private float sidewaysForce = .5f;
+    private float backwardForce = 0.25f;
 
     [Header("Spark Settings (2D UI)")]
     public Transform uiSparkParent;
@@ -48,8 +48,8 @@ public class DriftSparks : MonoBehaviour
             Transform wheelPos = left ? leftWheelPos : rightWheelPos;
 
             Vector3 sparkPos = wheelPos.position;
-            float deltaX = left ? Random.Range(-0.05f, 0) : Random.Range(0, 0.05f);
-            sparkPos += new Vector3(deltaX, Random.Range(0, 0.05f), Random.Range(-0.05f, 0.025f));
+            float deltaX = Random.Range(-0.4f, 0.4f);
+            sparkPos += new Vector3(deltaX, Random.Range(0, 0.05f), Random.Range(-0.1f, 0f));
 
             int index3D = Random.Range(0, sparkParent.childCount);
             Transform chosenSpark3D = sparkParent.GetChild(index3D);

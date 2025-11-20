@@ -1,6 +1,6 @@
 
-using System.Runtime.InteropServices;
 using UnityEngine;
+using System.Collections;
 
 public class BotPlayer : MonoBehaviour
 {
@@ -37,13 +37,15 @@ public class BotPlayer : MonoBehaviour
     public static float dirtDrag = 0.18f;
 
     [Header("Explosion Settings")]
-    public static float explosionForce = 100;
-    public static float explosionRadius = 20f;
+    public static float explosionForce = 10;
+    public static float explosionRadius = 5f;
     public static float upwardModifier = 5f;
     public static float randomTorque = 20;
-    public static float lifetime = 3f;
+    public static float lifetime = 5f;
     public static float playerDeltaSpeed = 75f;
     public static float botDeltaSpeed = 50f;
+
+    private static readonly Quaternion FRCorrection = Quaternion.Euler(0f, 180f, 0f); // issue with the fbx FR wheel
 
     public static (int wheelsInContact, RoadMesh roadMesh) IsGrounded(GameObject player, float groundCheckDistance, LayerMask roadLayer)
     {
@@ -76,40 +78,86 @@ public class BotPlayer : MonoBehaviour
         return (wheelsInContact, roadMesh);
     }
 
-    public static void TriggerCrash(Transform car)
+    public static void TriggerCrash(Transform car, Vector3 previousVel, Vector3 previousAng, MonoBehaviour runner)
     {
-        // Hide the main model (the car)
-        //GetComponent<MeshRenderer>().enabled = false;
+        car.Find("Intact").gameObject.SetActive(false);
 
-        // Enable the “fragment” object (the hidden cube group)
+        Transform cam = car.Find("Main Camera");
+        if (cam != null)
+        {
+            cam.SetParent(null, true);
+            runner.StartCoroutine(PanCamera(cam));
+        }
+
         Transform fragments = car.Find("CrashFragments");
         GameObject fragmentClone = Instantiate(fragments.gameObject, fragments.position, fragments.rotation);
         fragmentClone.SetActive(true);
 
-        //Transform speed = transform.Find("speed");
-        //if (speed != null) speed.gameObject.SetActive(false);
-
         car.Find("lights").gameObject.SetActive(false);
 
-        // Apply random physics to each cube
         foreach (Transform child in fragmentClone.transform)
         {
             if (!child.TryGetComponent(out Rigidbody rb))
                 rb = child.gameObject.GetComponent<Rigidbody>();
 
-            // Random direction & spin
             Vector3 randomDir = Random.onUnitSphere;
             rb.AddForce(randomDir * explosionForce + Vector3.up * upwardModifier, ForceMode.Impulse);
             rb.AddTorque(Random.insideUnitSphere * randomTorque, ForceMode.Impulse);
 
-            // Auto-destroy fragment after lifetime
             Destroy(child.gameObject, lifetime + Random.Range(0f, 1f));
         }
         Destroy(fragmentClone, lifetime + 1);
+
+        if (car.TryGetComponent<Collider>(out var mainCol)) mainCol.enabled = false;
+
+        Transform breakableOriginal = car.Find("Breakable");
+
+        Transform brokenClone = Instantiate(
+            breakableOriginal.gameObject,
+            breakableOriginal.position,
+            breakableOriginal.rotation
+        ).transform;
+
+        brokenClone.gameObject.SetActive(true);
+
+        foreach (Transform piece in brokenClone)
+        {
+            if (!piece.TryGetComponent<Rigidbody>(out var rb)) continue;
+
+            rb.linearVelocity = previousVel / 2f + Random.insideUnitSphere * 2f;
+            rb.angularVelocity = previousAng / 2f + Random.insideUnitSphere;
+
+            rb.AddExplosionForce(explosionForce, car.position, explosionRadius);
+
+            if (piece.name == "Body") piece.GetComponent<Fire>().SetFireActive(true);
+        }
+
+        Destroy(brokenClone.gameObject, lifetime);
+
     }
 
+    private static IEnumerator PanCamera(Transform cam)
+    {
+        float duration = lifetime / 2f;
+        float t = 0f;
 
-    private static readonly Quaternion FRCorrection = Quaternion.Euler(0f, 180f, 0f);
+        Vector3 startPos = cam.position;
+
+        Vector3 targetPos = startPos + Vector3.up * 10f - cam.forward * 20f;
+
+        Quaternion startRot = cam.rotation;
+        Quaternion targetRot = Quaternion.LookRotation(Vector3.down + cam.forward * 2f);
+
+        while (t < duration)
+        {
+            t += Time.deltaTime;
+            float lerp = Mathf.SmoothStep(0f, 1f, t / duration);
+
+            cam.SetPositionAndRotation(Vector3.Lerp(startPos, targetPos, lerp), Quaternion.Slerp(startRot, targetRot, lerp));
+            yield return null;
+        }
+    }
+
 
     public static void RotateWheels(Rigidbody rb, Transform car, WheelState ws)
     {
@@ -133,18 +181,13 @@ public class BotPlayer : MonoBehaviour
             delta = -delta;
             ws.reverse = true;
         }
-        else
-        {
-            ws.reverse = false;
-        }
+        else ws.reverse = false;
 
-        // Update per-wheel roll angles
         ws.wheelRollFL += delta;
         ws.wheelRollFR += delta;
         ws.wheelRollBL += delta;
         ws.wheelRollBR += delta;
 
-        // Apply rolling + steering
         wheelFL.localRotation = Quaternion.Euler(ws.wheelRollFL, ws.currentSteerAngle, 0f);
         wheelFR.localRotation = Quaternion.Euler(ws.wheelRollFR, ws.currentSteerAngle, 0f) * FRCorrection;
         wheelBL.localRotation = Quaternion.Euler(ws.wheelRollBL, 0f, 0f);
@@ -156,9 +199,7 @@ public class BotPlayer : MonoBehaviour
     public static void TurnWheels(float targetSteer, WheelState ws)
     {
         float steerSmooth = 0.1f;
-
-        if (ws.reverse)
-            targetSteer *= -1;
+        if (ws.reverse) targetSteer *= -1;
 
         ws.currentSteerAngle = Mathf.SmoothDamp(
             ws.currentSteerAngle,
