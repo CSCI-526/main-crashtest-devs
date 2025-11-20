@@ -153,13 +153,13 @@ public class Racetrack : MonoBehaviour
             if (lightsOutAndAwayWeGOOOOO && players[i].playerTimer <= 7f && players[i].playerTimer > 3f)
             {
                 // show stuck? screen
-                if (!players[i].bot && players[i].playerID == 0 && p0ShowStuckTimer > 3.0f)
+                if (!players[i].bot && players[i].playerID == 0 && !Player.Instance.p0Respawning && p0ShowStuckTimer > 3.0f)
                 {
                     p0StuckScreen.SetActive(true);
                     p0ShowStuckTimer = 0f;
 
                 }
-                else if (!players[i].bot && players[i].playerID == 1 && p1ShowStuckTimer > 3.0f)
+                else if (!players[i].bot && players[i].playerID == 1 && !Player.Instance.p1Respawning && p1ShowStuckTimer > 3.0f)
                 {
                     if (p1StuckScreen)
                     {

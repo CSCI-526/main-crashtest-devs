@@ -7,6 +7,8 @@ using UnityEngine.SceneManagement;
 [RequireComponent(typeof(Rigidbody))]
 public class Player : MonoBehaviour
 {
+    public static Player Instance;
+
     public bool player0 = true;
     public Racetrack racetrack;
     public GameObject canvas;
@@ -48,9 +50,12 @@ public class Player : MonoBehaviour
     private int raceCrashCount = 0;
     private bool raceCompletionSent = false;
 
+    [Header("Respawn (ignore)")]
     //respawn timer
     private float p0RespawnTimer = 0f;
     private float p1RespawnTimer = 0f;
+    public bool p0Respawning = false;
+    public bool p1Respawning = false;
 
 
     // powerups
@@ -62,7 +67,10 @@ public class Player : MonoBehaviour
     private float shieldFlashTimer = 0f;
     private bool shieldFlashState = true;
 
-
+    private void Awake()
+    {
+        Instance = this;
+    }
 
     void Start()
     {
@@ -112,6 +120,11 @@ public class Player : MonoBehaviour
                 canvas.transform.Find($"{driftBar}/rightSide/shield/text").gameObject.SetActive(true);
                 return;
             }
+            if (player0)
+                p0Respawning = true;
+            else
+                p1Respawning = true;
+
             BotPlayer.TriggerCrash(transform, previousVel, previousAng, this, player0);
             hasCrashed = true;
             raceCrashCount++; // Track crashes for progress track

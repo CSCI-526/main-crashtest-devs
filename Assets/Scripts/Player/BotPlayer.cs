@@ -87,7 +87,7 @@ public class BotPlayer : MonoBehaviour
         if (cam != null)
         {
             cam.SetParent(null, true);
-            runner.StartCoroutine(PanCamera(cam));
+            runner.StartCoroutine(PanCamera(cam, isPlayerZero));
         }
 
         Transform fragments = car.Find("CrashFragments");
@@ -137,7 +137,7 @@ public class BotPlayer : MonoBehaviour
 
     }
 
-    private static IEnumerator PanCamera(Transform cam)
+    private static IEnumerator PanCamera(Transform cam, bool isPlayerZero = false)
     {
         float duration = lifetime / 2f;
         float t = 0f;
@@ -157,6 +157,11 @@ public class BotPlayer : MonoBehaviour
             cam.SetPositionAndRotation(Vector3.Lerp(startPos, targetPos, lerp), Quaternion.Slerp(startRot, targetRot, lerp));
             yield return null;
         }
+
+        if (isPlayerZero)
+            Player.Instance.p0Respawning = false;
+        else
+            Player.Instance.p1Respawning = false;
     }
 
 
