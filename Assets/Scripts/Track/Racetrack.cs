@@ -775,10 +775,14 @@ public class Racetrack : MonoBehaviour
 
             if (hasCrashed)
             {
-                Transform cameraTransform = GameObject.Find("Main Camera").transform;
+                string camera = "Main Camera ";
+                camera += $"{playerID}";
+                Vector3 coords = isSinglePlayer ? new(0f, 7f, -8f) : new(0f, 8f, -10f);
+
+                Transform cameraTransform = GameObject.Find(camera).transform;
                 cameraTransform.SetParent(players[playerID].player.transform);
 
-                cameraTransform.SetLocalPositionAndRotation(new Vector3(0f, 7f, -8f), Quaternion.Euler(15f, 0f, 0f));
+                cameraTransform.SetLocalPositionAndRotation(coords, Quaternion.Euler(15f, 0f, 0f));
             }
         }
 

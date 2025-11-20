@@ -78,11 +78,12 @@ public class BotPlayer : MonoBehaviour
         return (wheelsInContact, roadMesh);
     }
 
-    public static void TriggerCrash(Transform car, Vector3 previousVel, Vector3 previousAng, MonoBehaviour runner)
+    public static void TriggerCrash(Transform car, Vector3 previousVel, Vector3 previousAng, MonoBehaviour runner, bool isPlayerZero = false)
     {
         car.Find("Intact").gameObject.SetActive(false);
 
-        Transform cam = car.Find("Main Camera");
+        string camera = isPlayerZero ? " 0" : " 1";
+        Transform cam = car.Find($"Main Camera{camera}");
         if (cam != null)
         {
             cam.SetParent(null, true);

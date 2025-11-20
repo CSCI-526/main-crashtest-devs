@@ -112,7 +112,7 @@ public class Player : MonoBehaviour
                 canvas.transform.Find($"{driftBar}/rightSide/shield/text").gameObject.SetActive(true);
                 return;
             }
-            BotPlayer.TriggerCrash(transform, previousVel, previousAng, this);
+            BotPlayer.TriggerCrash(transform, previousVel, previousAng, this, player0);
             hasCrashed = true;
             raceCrashCount++; // Track crashes for progress track
             points -= 100;
