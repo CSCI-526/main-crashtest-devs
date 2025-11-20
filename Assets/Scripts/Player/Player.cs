@@ -380,11 +380,15 @@ public class Player : MonoBehaviour
         switch (player0)
         {
             case true:
-                if (Input.GetKey(KeyCode.W)) accel = 1f;
-                if (Input.GetKey(KeyCode.S)) accel = -.75f;
+                if (Input.GetKey(KeyCode.W) || (
+                    SceneManager.GetActiveScene().name != "MultiPlayer" && Input.GetKey(KeyCode.UpArrow))) accel = 1f;
+                if (Input.GetKey(KeyCode.S) || (
+                    SceneManager.GetActiveScene().name != "MultiPlayer" && Input.GetKey(KeyCode.DownArrow))) accel = -.75f;
 
-                if (Input.GetKey(KeyCode.D)) steer = 1f;
-                else if (Input.GetKey(KeyCode.A)) steer = -1f;
+                if (Input.GetKey(KeyCode.D) || (
+                    SceneManager.GetActiveScene().name != "MultiPlayer" && Input.GetKey(KeyCode.RightArrow))) steer = 1f;
+                else if (Input.GetKey(KeyCode.A) || (
+                    SceneManager.GetActiveScene().name != "MultiPlayer" && Input.GetKey(KeyCode.LeftArrow))) steer = -1f;
 
                 braking = Input.GetKey(KeyCode.LeftCommand);
                 if (Input.GetKey(KeyCode.LeftShift) ||
