@@ -12,8 +12,8 @@ public class ScoreboardUIManager : MonoBehaviour
     public GameObject playAgainButton; // Buttons/PlayAgainButton
     public GameObject mainMenuButton;  // Buttons/MainMenuButton
 
-    public Canvas P1FinishScreen;
-    public Canvas P2FinishScreen;
+    public GameObject P1FinishScreen;
+    public GameObject P2FinishScreen;
 
     private bool shown;
 
