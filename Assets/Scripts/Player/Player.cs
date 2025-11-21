@@ -207,9 +207,11 @@ public class Player : MonoBehaviour
 
         (int wheelsInContact, RoadMesh roadMesh) = BotPlayer.IsGrounded(transform.gameObject, BotPlayer.groundCheckDistance, roadLayer);
 
-        if (wheelsInContact == 0 && !powerUps[2])
+        if (wheelsInContact == 0 && !powerUps[2]) //Apply downforce when player is on air
         {
-            rb.AddForce(BotPlayer.downforce * rb.linearVelocity.magnitude * Vector3.down, ForceMode.Force);
+            float constantDownforce = 500f;
+            float velocityDownforce = BotPlayer.downforce * rb.linearVelocity.magnitude;
+            rb.AddForce((constantDownforce + velocityDownforce) * Vector3.down, ForceMode.Force);
             return;
         }
         else
