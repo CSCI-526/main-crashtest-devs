@@ -41,11 +41,13 @@ public class StartScene : MonoBehaviour
 
     public void SinglePlayer()
     {
-        SceneManager.LoadScene("Assets/Scenes/SinglePlayer.unity");
+        TrackSketchLoader.targetScene = "SinglePlayer";
+        SceneManager.LoadScene("LoadingScene");
     }
 
     public void MultiPlayer()
     {
-        SceneManager.LoadScene("Assets/Scenes/MultiPlayer.unity");
+        TrackSketchLoader.targetScene = "MultiPlayer";
+        SceneManager.LoadScene("LoadingScene");
     }
 }

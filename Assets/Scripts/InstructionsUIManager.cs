@@ -17,19 +17,20 @@ public class InstructionsUIManager : MonoBehaviour
 
     public void OnContinueButton()
     {
-        // Show loading screen with "Generating Track..." message
+        // Load the sketch loading screen
         if (InstructionsTransition.gameMode)
         {
-            LoadingScreenManager.ShowLoadingScreen("Assets/Scenes/SinglePlayer.unity");
+            TrackSketchLoader.targetScene = "SinglePlayer";
         }
         else
         {
-            LoadingScreenManager.ShowLoadingScreen("Assets/Scenes/MultiPlayer.unity");
+            TrackSketchLoader.targetScene = "MultiPlayer";
         }
+        SceneManager.LoadScene("LoadingScene");
     }
     public void OnTutorialButton()
     {
-        SceneManager.LoadScene("Assets/Scenes/Tutorial.unity");
+        SceneManager.LoadScene("Tutorial");
     }
 
     public void ChangeDiff(int newDiff)
