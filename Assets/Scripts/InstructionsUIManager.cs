@@ -44,6 +44,7 @@ public class InstructionsUIManager : MonoBehaviour
                 diffButtons.transform.Find("med").transform.GetComponent<Image>().color = new Color(.4f, .4f, 0);
                 diffButtons.transform.Find("hard").transform.GetComponent<Image>().color = new Color(.4f, 0, 0);
 
+                BotPlayer.diff = 0;
                 BotPlayer.motorPower = 30;
                 BotPlayer.botPowerMulti = .8f;
                 BotPlayer.maxSpeed = 50;
@@ -59,6 +60,7 @@ public class InstructionsUIManager : MonoBehaviour
                 diffButtons.transform.Find("med").transform.GetComponent<Image>().color = new Color(1, 1, 0);
                 diffButtons.transform.Find("hard").transform.GetComponent<Image>().color = new Color(.4f, 0, 0);
 
+                BotPlayer.diff = 1;
                 BotPlayer.motorPower = 40;
                 BotPlayer.botPowerMulti = 1f;
                 BotPlayer.maxSpeed = 98;
@@ -74,6 +76,7 @@ public class InstructionsUIManager : MonoBehaviour
                 diffButtons.transform.Find("med").transform.GetComponent<Image>().color = new Color(.4f, .4f, 0);
                 diffButtons.transform.Find("hard").transform.GetComponent<Image>().color = new Color(1, 0, 0);
 
+                BotPlayer.diff = 2;
                 BotPlayer.motorPower = 60;
                 BotPlayer.botPowerMulti = 1.2f;
                 BotPlayer.maxSpeed = 150;

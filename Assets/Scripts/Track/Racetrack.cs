@@ -79,6 +79,23 @@ public class Racetrack : MonoBehaviour
         scoreboard = FindFirstObjectByType<ScoreboardUIManager>();
         int start = 1;
 
+        for (int i = 0; i < curves.Count; i++)
+        {
+            Transform treeTF = transform.GetChild(i).Find("Obstacles/Trees");
+
+            float cutoff = 0.5f;
+            if (BotPlayer.diff == 2) cutoff = .9f;
+            for (int j = 0; j < 2; j++)
+            {
+                GameObject tree = treeTF.GetChild(j).gameObject;
+                if (tree.name == "ctree"){
+                    if (UnityEngine.Random.value <= cutoff) tree.SetActive(false);
+                    
+                }
+            }
+
+        }
+
         players.Add(new CheckPointCheck(0, GameObject.Find("Player 0"), GameObject.Find("RaceTrack/Start Straight 0/Checkpoints/cp 3"), false));
         if (SceneManager.GetActiveScene().name == "MultiPlayer")
         {

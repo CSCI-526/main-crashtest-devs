@@ -263,8 +263,8 @@ public class Player : MonoBehaviour
         if (points >= 600) canvas.transform.Find($"{driftBar}/rightSide/disco").GetComponent<PowerUpsAnim>().UpdateAnim(true);
         else canvas.transform.Find($"{driftBar}/rightSide/disco").GetComponent<PowerUpsAnim>().UpdateAnim(false);
 
-        //if (points >= 900) canvas.transform.Find($"{driftBar}/rightSide/auto").GetComponent<PowerUpsAnim>().UpdateAnim(true);
-        //else canvas.transform.Find($"{driftBar}/rightSide/auto").GetComponent<PowerUpsAnim>().UpdateAnim(false);
+        if (points >= 900) canvas.transform.Find($"{driftBar}/rightSide/auto").GetComponent<PowerUpsAnim>().UpdateAnim(true);
+        else canvas.transform.Find($"{driftBar}/rightSide/auto").GetComponent<PowerUpsAnim>().UpdateAnim(false);
 
         if ((Input.GetKey(KeyCode.Alpha1) && points >= 300 && player0) || (Input.GetKey(KeyCode.Alpha0) && points >= 300 && !player0) || powerUps[0])
         {
@@ -328,7 +328,7 @@ public class Player : MonoBehaviour
                 canvas.transform.Find($"{driftBar}/rightSide/disco/text").gameObject.SetActive(false);
             }
         }
-        /*if ((Input.GetKey(KeyCode.Alpha3) && points >= 900 && player0) || (Input.GetKey(KeyCode.Alpha8) && points >= 900 && !player0) || powerUps[2])
+        if ((Input.GetKey(KeyCode.Alpha3) && points >= 900 && player0) || (Input.GetKey(KeyCode.Alpha8) && points >= 900 && !player0) || powerUps[2])
         {
             powerUps[2] = true;
             points -= 3;
@@ -384,7 +384,7 @@ public class Player : MonoBehaviour
 
             UpdateUI();
             return;
-        }*/
+        }
 
 
         float accel = 0f;

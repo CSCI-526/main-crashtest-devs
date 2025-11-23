@@ -1,6 +1,7 @@
 
 using UnityEngine;
 using System.Collections;
+using UnityEditor.SpeedTree.Importer;
 
 public class BotPlayer : MonoBehaviour
 {
@@ -9,6 +10,7 @@ public class BotPlayer : MonoBehaviour
     public static float intensity = 100f;
     public static float range = 50f;
     public static float wheelRadius = 0.9f;
+    public static int diff = 1;
 
     [Header("Car Physics")]
     public static float motorPower = 40;
