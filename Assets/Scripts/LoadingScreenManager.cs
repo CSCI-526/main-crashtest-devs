@@ -7,6 +7,7 @@ using UnityEngine.UI;
 public class LoadingScreenManager : MonoBehaviour
 {
     public GameObject loadingPanel;           // The panel containing the loading UI
+    public TMP_FontAsset LoadFont;
     public TMP_Text loadingText;              // Text component for "Generating Track..." message
     public Canvas loadingCanvas;              // The canvas containing the loading screen
     public float displayDuration = 2f;        // How long to show the message
@@ -69,6 +70,7 @@ public class LoadingScreenManager : MonoBehaviour
 
     private IEnumerator ShowLoadingCoroutine(string sceneName)
     {
+        loadingText.font = LoadFont;
         // Show the loading panel
         if (loadingPanel != null)
         {
