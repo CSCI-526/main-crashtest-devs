@@ -335,15 +335,12 @@ public class Player : MonoBehaviour
             pointsUsed[2] -= 3;
 
             target = Vector3.zero;
-            AutoDriveTHingidk();
+            AutoDriveTarget();
 
             if (target == Vector3.zero || pointsUsed[2] < 0 || points < 0)
             {
                 powerUps[2] = false;
-                rb.useGravity = true;
-                rb.linearDamping = BotPlayer.normalDrag;
-                rb.angularDamping = 2f;
-                rb.linearVelocity = transform.forward * BotPlayer.maxSpeed;
+                rb.linearVelocity = transform.forward * BotPlayer.maxSpeed / 5f;
                 pointsUsed[2] = 900;
                 canvas.transform.Find($"{driftBar}/rightSide/auto").GetComponent<TMP_Text>().text = "Auto";
                 canvas.transform.Find($"{driftBar}/rightSide/auto/text").gameObject.SetActive(true);
@@ -355,32 +352,19 @@ public class Player : MonoBehaviour
                 canvas.transform.Find($"{driftBar}/rightSide/auto/text").gameObject.SetActive(false);
             }
 
-            rb.useGravity = false;
-            rb.linearDamping = 0f;
-            rb.angularDamping = 0f;
+            Vector3 rawDir = target - transform.position;
+            Vector3 moveDir = new Vector3(rawDir.x, 0f, rawDir.z).normalized;
 
-            Vector3 aimTarget = target + new Vector3(0, 1.0f, 0);
-            float autoDriveSpeed = BotPlayer.maxSpeed * 1.1f;
+            Vector3 idealPos = target;
+            transform.position = Vector3.Lerp(transform.position, idealPos, 10f * Time.fixedDeltaTime);
 
-            Vector3 toTarget = aimTarget - transform.position;
-
-            Vector3 moveDir = new Vector3(toTarget.x, 0f, toTarget.z).normalized;
-
-            transform.position += autoDriveSpeed * Time.fixedDeltaTime * moveDir;
-
-            Quaternion targetRot = Quaternion.LookRotation(toTarget.normalized, Vector3.up);
-            transform.rotation = Quaternion.Slerp(transform.rotation, targetRot, 8f * Time.fixedDeltaTime);
-
-            if (Physics.Raycast(transform.position + Vector3.up * 2f, Vector3.down, out RaycastHit hit, 5f))
+            if (rawDir.sqrMagnitude > 0.1f)
             {
-                float desiredHoverHeight = 1.0f;
-                transform.position = new Vector3(
-                    transform.position.x,
-                    hit.point.y + desiredHoverHeight,
-                    transform.position.z
-                );
+                Quaternion targetRot = Quaternion.LookRotation(rawDir.normalized, Vector3.up);
+                rb.MoveRotation(Quaternion.Slerp(rb.rotation, targetRot, Time.fixedDeltaTime * 6f));
             }
 
+            if (rb.linearVelocity.magnitude < BotPlayer.maxSpeed * .25f) rb.AddForce(moveDir, ForceMode.Acceleration);
 
             UpdateUI();
             return;
@@ -554,7 +538,7 @@ public class Player : MonoBehaviour
 
     private Vector3 target = new();
     private int currentTargetIndex = 1;
-    private void AutoDriveTHingidk()
+    private void AutoDriveTarget()
     {
         BezierCurve currentCurve = racetrack.GetCurve(currentTargetIndex);
         float currentT = currentCurve.GetClosestTOnCurve(transform.position);
@@ -568,7 +552,7 @@ public class Player : MonoBehaviour
             curveIndex++;
             if (curveIndex >= racetrack.GetCurveCount())
             {
-                if (isTutorial) { curveIndex = 0; tAhead = 0f; }
+                if (isTutorial) { currentTargetIndex = 0; curveIndex = 0; tAhead = 0f; }
                 else return;
             }
         }
