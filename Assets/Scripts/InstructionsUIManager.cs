@@ -12,7 +12,7 @@ public class InstructionsUIManager : MonoBehaviour
     void Start()
     {
         // Show the instructions panel when scene loads
-        instructionsPanel.SetActive(true);
+        instructionsPanel.SetActive(false);
     }
 
     public void OnContinueButton()

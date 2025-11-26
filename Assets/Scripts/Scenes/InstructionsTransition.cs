@@ -20,6 +20,7 @@ public class InstructionsTransition : MonoBehaviour
     {
         if (transitioning)
         {
+            InstructionsUI.SetActive(true);
             elapsed += Time.deltaTime;
             float t = Mathf.Clamp01(elapsed / transitionDuration);
             transform.position = Vector3.Lerp(startPos, tutorialView.position, t);
@@ -28,7 +29,7 @@ public class InstructionsTransition : MonoBehaviour
             if (t >= 1f)
             {
                 transitioning = false;
-                // InstructionsUI.SetActive(true);
+                //InstructionsUI.SetActive(true);
             }
         }
     }
@@ -48,7 +49,7 @@ public class InstructionsTransition : MonoBehaviour
         {
             menuUI.SetActive(false);      // Hide original menu UI
         }
-        // InstructionsUI.SetActive(false);   // Hide instructions UI at start of transition
+        //InstructionsUI.SetActive(false);   // Hide instructions UI at start of transition
         startPos = transform.position;
         startRot = transform.rotation;
         elapsed = 0f;
