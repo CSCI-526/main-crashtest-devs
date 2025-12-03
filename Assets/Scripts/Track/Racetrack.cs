@@ -836,11 +836,6 @@ public class Racetrack : MonoBehaviour
         if (sectionTrees == null || sectionTrees.childCount == 0) return;
 
         Transform tree = sectionTrees.GetChild(UnityEngine.Random.Range(0, sectionTrees.childCount));
-        if (!tree.TryGetComponent<Rigidbody>(out var rb))
-        {
-            rb = tree.gameObject.AddComponent<Rigidbody>();
-            rb.mass = 250f;
-        }
 
         Vector3 curveMid = curves[section].GetPoint(0.5f);
         Vector3 dirToRoad = (curveMid - tree.position).normalized;
