@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using TMPro;
 using System.Collections;
+using UnityEngine.UI;
 
 public class Racetrack : MonoBehaviour
 {
@@ -13,6 +14,10 @@ public class Racetrack : MonoBehaviour
     public GameObject p0StuckScreen;
     public GameObject p1StuckScreen;
     public bool isTutorial = false;
+
+    public GameObject Player1;
+    public Image Player1ProgBar;
+
     private float startTimer = 1.0f;  // Time between each countdown
     public int countdownStage = 0;  // 0=Ready, 1=3, 2=2, 3=1, 4=GO
     private readonly List<CheckPointCheck> players = new();
@@ -58,6 +63,9 @@ public class Racetrack : MonoBehaviour
 
     private void Awake()
     {
+        //set player color
+        SetPlayer1Color();
+
         // Reset countdown state when scene loads
         countdownStage = 0;
         startTimer = 1.0f;
@@ -856,6 +864,59 @@ public class Racetrack : MonoBehaviour
         if (partyTime == disco) return;
         disco = partyTime;
         StartCoroutine(RaiseOrLowerDiscoBalls());
+    }
+
+    public void SetPlayer1Color()
+    {
+        int newColor = InstructionsUIManager.Instance.getP1Color();
+        Color color;
+
+        switch (newColor)
+        {
+            case 0:
+                color = new Color(1f, 0, 0);
+                break;
+            case 1:
+                color = new Color(0f, 0.811f, 0.0482f);
+                break;
+            case 2:
+                color = new Color(0, 0.653f, 1);
+                break;
+            case 3:
+                color = new Color(0.981f, 0.793f, 0);
+                break;
+            case 4:
+                color = new Color(1, 0.514f, 0.975f);
+                break;
+            default:
+                color = new Color(1f, 0, 0);
+                break;
+        }
+
+
+        Renderer[] renderers = Player1.GetComponentsInChildren<Renderer>(true);
+
+        foreach (Renderer rend in renderers)
+        {
+            Material[] mats = rend.materials;
+
+            for (int i = 0; i < mats.Length; i++)
+            {
+                // Material name will appear as: "red (Instance)"
+                if (mats[i].name.StartsWith("red"))
+                {
+                    if (mats[i].HasProperty("_BaseColor"))
+                    {
+                        mats[i].SetColor("_BaseColor", color);
+                    }
+                }
+            }
+
+            // Apply updated materials back to renderer
+            rend.materials = mats;
+        }
+
+        Player1ProgBar.color = color;
     }
 
 }

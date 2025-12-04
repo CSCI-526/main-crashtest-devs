@@ -5,10 +5,17 @@ using UnityEngine.UI;
 
 public class InstructionsUIManager : MonoBehaviour
 {
+    public static InstructionsUIManager Instance;
     public GameObject instructionsPanel; // Assign in Inspector
     public GameObject diffButtons;
+    public GameObject p1ColorButtons;
     private int currentDiff = 1;
+    private int currP1Color = 0;
 
+    private void Awake()
+    {
+        Instance = this;
+    }
     void Start()
     {
         // Show the instructions panel when scene loads
@@ -91,4 +98,57 @@ public class InstructionsUIManager : MonoBehaviour
 
         currentDiff = newDiff;
     }
+
+    public void ChangeP1Color(int newP1Color)
+    {
+        if (newP1Color == currP1Color) return;
+
+        switch (newP1Color)
+        {
+            case 0: // red
+                p1ColorButtons.transform.Find("red").transform.GetComponent<Image>().color = new Color(1f, 0, 0);
+                p1ColorButtons.transform.Find("green").transform.GetComponent<Image>().color = new Color(0, 0.490f, 0.0284f);
+                p1ColorButtons.transform.Find("blue").transform.GetComponent<Image>().color = new Color(0, 0.463f, 0.707f);
+                p1ColorButtons.transform.Find("yellow").transform.GetComponent<Image>().color = new Color(0.67f, 0.541f, 0);
+                p1ColorButtons.transform.Find("pink").transform.GetComponent<Image>().color = new Color(0.613f, 0.304f, 0.598f);
+
+                break;
+            case 1: // green
+                p1ColorButtons.transform.Find("red").transform.GetComponent<Image>().color = new Color(0.603f, 0.002f, 0.003f);
+                p1ColorButtons.transform.Find("green").transform.GetComponent<Image>().color = new Color(0f, 0.811f, 0.0482f);
+                p1ColorButtons.transform.Find("blue").transform.GetComponent<Image>().color = new Color(0, 0.463f, 0.707f);
+                p1ColorButtons.transform.Find("yellow").transform.GetComponent<Image>().color = new Color(0.67f, 0.541f, 0);
+                p1ColorButtons.transform.Find("pink").transform.GetComponent<Image>().color = new Color(0.613f, 0.304f, 0.598f);
+
+                break;
+            case 2: // blue
+                p1ColorButtons.transform.Find("red").transform.GetComponent<Image>().color = new Color(0.603f, 0.002f, 0.003f);
+                p1ColorButtons.transform.Find("green").transform.GetComponent<Image>().color = new Color(0, 0.490f, 0.0284f);
+                p1ColorButtons.transform.Find("blue").transform.GetComponent<Image>().color = new Color(0, 0.653f, 1);
+                p1ColorButtons.transform.Find("yellow").transform.GetComponent<Image>().color = new Color(0.67f, 0.541f, 0);
+                p1ColorButtons.transform.Find("pink").transform.GetComponent<Image>().color = new Color(0.613f, 0.304f, 0.598f);
+
+                break;
+            case 3: // yellow
+                p1ColorButtons.transform.Find("red").transform.GetComponent<Image>().color = new Color(0.603f, 0.002f, 0.003f);
+                p1ColorButtons.transform.Find("green").transform.GetComponent<Image>().color = new Color(0, 0.490f, 0.0284f);
+                p1ColorButtons.transform.Find("blue").transform.GetComponent<Image>().color = new Color(0, 0.463f, 0.707f);
+                p1ColorButtons.transform.Find("yellow").transform.GetComponent<Image>().color = new Color(0.981f, 0.793f, 0);
+                p1ColorButtons.transform.Find("pink").transform.GetComponent<Image>().color = new Color(0.613f, 0.304f, 0.598f);
+
+                break;
+            case 4: // pink
+                p1ColorButtons.transform.Find("red").transform.GetComponent<Image>().color = new Color(0.603f, 0.002f, 0.003f);
+                p1ColorButtons.transform.Find("green").transform.GetComponent<Image>().color = new Color(0, 0.490f, 0.0284f);
+                p1ColorButtons.transform.Find("blue").transform.GetComponent<Image>().color = new Color(0, 0.463f, 0.707f);
+                p1ColorButtons.transform.Find("yellow").transform.GetComponent<Image>().color = new Color(0.67f, 0.541f, 0);
+                p1ColorButtons.transform.Find("pink").transform.GetComponent<Image>().color = new Color(1, 0.514f, 0.975f);
+
+                break;
+        }
+
+        currP1Color = newP1Color;
+    }
+
+    public int getP1Color() { return currP1Color;  }
 }
