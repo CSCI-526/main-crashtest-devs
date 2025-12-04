@@ -9794,6 +9794,8 @@ MonoBehaviour:
   driftAssistStrength: 5
   driftAssistDuration: 3
   driftTrackingWindow: 2
+  p0Respawning: 0
+  p1Respawning: 0
 --- !u!114 &5821403110380541593
 MonoBehaviour:
   m_ObjectHideFlags: 0
