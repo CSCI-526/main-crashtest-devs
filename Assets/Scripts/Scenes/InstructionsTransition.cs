@@ -10,6 +10,9 @@ public class InstructionsTransition : MonoBehaviour
     public GameObject menuUI;         // assign original menu UI parent here
     public LoadingScreenManager loadingScreenManager; // assign LoadingScreenManager here
 
+    public GameObject P2ColorTxt;
+    public GameObject P2Colors;
+
     private Vector3 startPos;
     private Quaternion startRot;
     private float elapsed;
@@ -21,6 +24,17 @@ public class InstructionsTransition : MonoBehaviour
         if (transitioning)
         {
             InstructionsUI.SetActive(true);
+
+            if (gameMode)
+            {
+                P2ColorTxt.SetActive(false);
+                P2Colors.SetActive(false);
+            }
+            else
+            {
+                P2ColorTxt.SetActive(true);
+                P2Colors.SetActive(true);
+            }
             elapsed += Time.deltaTime;
             float t = Mathf.Clamp01(elapsed / transitionDuration);
             transform.position = Vector3.Lerp(startPos, tutorialView.position, t);

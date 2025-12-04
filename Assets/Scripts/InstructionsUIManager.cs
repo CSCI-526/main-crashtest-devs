@@ -9,8 +9,10 @@ public class InstructionsUIManager : MonoBehaviour
     public GameObject instructionsPanel; // Assign in Inspector
     public GameObject diffButtons;
     public GameObject p1ColorButtons;
+    public GameObject p2ColorButtons;
     private int currentDiff = 1;
     private int currP1Color = 0;
+    private int currP2Color = 0;
 
     private void Awake()
     {
@@ -150,5 +152,57 @@ public class InstructionsUIManager : MonoBehaviour
         currP1Color = newP1Color;
     }
 
+    public void ChangeP2Color(int newP2Color)
+    {
+        if (newP2Color == currP2Color) return;
+
+        switch (newP2Color)
+        {
+            case 0: // red
+                p2ColorButtons.transform.Find("orange").transform.GetComponent<Image>().color = new Color(1f, 0.586f, 0.212f);
+                p2ColorButtons.transform.Find("purple").transform.GetComponent<Image>().color = new Color(0.400f, 0.209f, 0.509f);
+                p2ColorButtons.transform.Find("cyan").transform.GetComponent<Image>().color = new Color(0.197f, 0.623f, 0.594f);
+                p2ColorButtons.transform.Find("white").transform.GetComponent<Image>().color = new Color(0.6f, 0.6f, 0.6f);
+                p2ColorButtons.transform.Find("idk").transform.GetComponent<Image>().color = new Color(0.462f, 0.155f, 0.213f);
+
+                break;
+            case 1: // green
+                p2ColorButtons.transform.Find("orange").transform.GetComponent<Image>().color = new Color(0.651f, 0.406f, 0.187f);
+                p2ColorButtons.transform.Find("purple").transform.GetComponent<Image>().color = new Color(0.746f, 0.297f, 1f);
+                p2ColorButtons.transform.Find("cyan").transform.GetComponent<Image>().color = new Color(0.197f, 0.623f, 0.594f);
+                p2ColorButtons.transform.Find("white").transform.GetComponent<Image>().color = new Color(0.6f, 0.6f, 0.6f);
+                p2ColorButtons.transform.Find("idk").transform.GetComponent<Image>().color = new Color(0.462f, 0.155f, 0.213f);
+
+                break;
+            case 2: // blue
+                p2ColorButtons.transform.Find("orange").transform.GetComponent<Image>().color = new Color(0.651f, 0.406f, 0.187f);
+                p2ColorButtons.transform.Find("purple").transform.GetComponent<Image>().color = new Color(0.400f, 0.209f, 0.509f);
+                p2ColorButtons.transform.Find("cyan").transform.GetComponent<Image>().color = new Color(0.193f, 1, 0.944f);
+                p2ColorButtons.transform.Find("white").transform.GetComponent<Image>().color = new Color(0.6f, 0.6f, 0.6f);
+                p2ColorButtons.transform.Find("idk").transform.GetComponent<Image>().color = new Color(0.462f, 0.155f, 0.213f);
+
+                break;
+            case 3: // yellow
+                p2ColorButtons.transform.Find("orange").transform.GetComponent<Image>().color = new Color(0.651f, 0.406f, 0.187f);
+                p2ColorButtons.transform.Find("purple").transform.GetComponent<Image>().color = new Color(0.400f, 0.209f, 0.509f);
+                p2ColorButtons.transform.Find("cyan").transform.GetComponent<Image>().color = new Color(0.197f, 0.623f, 0.594f);
+                p2ColorButtons.transform.Find("white").transform.GetComponent<Image>().color = new Color(1, 1, 1);
+                p2ColorButtons.transform.Find("idk").transform.GetComponent<Image>().color = new Color(0.462f, 0.155f, 0.213f);
+
+                break;
+            case 4: // pink
+                p2ColorButtons.transform.Find("orange").transform.GetComponent<Image>().color = new Color(0.651f, 0.406f, 0.187f);
+                p2ColorButtons.transform.Find("purple").transform.GetComponent<Image>().color = new Color(0.400f, 0.209f, 0.509f);
+                p2ColorButtons.transform.Find("cyan").transform.GetComponent<Image>().color = new Color(0.197f, 0.623f, 0.594f);
+                p2ColorButtons.transform.Find("white").transform.GetComponent<Image>().color = new Color(0.6f, 0.6f, 0.6f);
+                p2ColorButtons.transform.Find("idk").transform.GetComponent<Image>().color = new Color(0.765f, 0.243f, 0.340f);
+
+                break;
+        }
+
+        currP2Color = newP2Color;
+    }
+
     public int getP1Color() { return currP1Color;  }
+    public int getP2Color() { return currP2Color; }
 }

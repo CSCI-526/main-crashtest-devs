@@ -18,6 +18,9 @@ public class Racetrack : MonoBehaviour
     public GameObject Player1;
     public Image Player1ProgBar;
 
+    public GameObject Player2;
+    public Image Player2ProgBar;
+
     private float startTimer = 1.0f;  // Time between each countdown
     public int countdownStage = 0;  // 0=Ready, 1=3, 2=2, 3=1, 4=GO
     private readonly List<CheckPointCheck> players = new();
@@ -64,7 +67,11 @@ public class Racetrack : MonoBehaviour
     private void Awake()
     {
         //set player color
-        SetPlayer1Color();
+        if (Player1)
+            SetPlayer1Color();
+
+        if (Player2)
+            SetPlayer2Color();
 
         // Reset countdown state when scene loads
         countdownStage = 0;
@@ -917,6 +924,59 @@ public class Racetrack : MonoBehaviour
         }
 
         Player1ProgBar.color = color;
+    }
+
+    public void SetPlayer2Color()
+    {
+        int newColor = InstructionsUIManager.Instance.getP2Color();
+        Color color = new Color(1f, 0.586f, 0.212f);
+
+        switch (newColor)
+        {
+            case 0:
+                color = new Color(1f, 0.586f, 0.212f);
+                break;
+            case 1:
+                color = new Color(0.746f, 0.297f, 1f);
+                break;
+            case 2:
+                new Color(0.193f, 1, 0.944f);
+                break;
+            case 3:
+                color = new Color(0.981f, 0.793f, 0);
+                break;
+            case 4:
+                color = new Color(1, 1, 1);
+                break;
+            default:
+                color = new Color(0.765f, 0.243f, 0.340f);
+                break;
+        }
+
+
+        Renderer[] renderers = Player2.GetComponentsInChildren<Renderer>(true);
+
+        foreach (Renderer rend in renderers)
+        {
+            Material[] mats = rend.materials;
+
+            for (int i = 0; i < mats.Length; i++)
+            {
+                // Material name will appear as: "red (Instance)"
+                if (mats[i].name.StartsWith("Player2"))
+                {
+                    if (mats[i].HasProperty("_BaseColor"))
+                    {
+                        mats[i].SetColor("_BaseColor", color);
+                    }
+                }
+            }
+
+            // Apply updated materials back to renderer
+            rend.materials = mats;
+        }
+
+        Player2ProgBar.color = color;
     }
 
 }
