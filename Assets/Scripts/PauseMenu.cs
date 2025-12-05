@@ -51,6 +51,13 @@ public class PauseMenu : MonoBehaviour
                 menuNav = gameObject.AddComponent<ControllerMenuNavigation>();
             }
         }
+        
+        // Enable and refresh navigation for pause menu
+        if (menuNav != null)
+        {
+            menuNav.enabled = true;
+            menuNav.RefreshSelection();
+        }
     }
 
     public void Resume()
@@ -61,6 +68,12 @@ public class PauseMenu : MonoBehaviour
 
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
+        
+        // Disable menu navigation when resuming
+        if (menuNav != null)
+        {
+            menuNav.enabled = false;
+        }
     }
 
     public void OnMainMenuButton()

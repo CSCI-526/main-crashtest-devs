@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 
 public class ScoreboardUIManager : MonoBehaviour
@@ -30,6 +31,28 @@ public class ScoreboardUIManager : MonoBehaviour
         playerScores.text = scores;
 
         scoreboardCanvas.gameObject.SetActive(true);
+        
+        // Add controller menu navigation for scoreboard
+        ControllerMenuNavigation menuNav = FindObjectOfType<ControllerMenuNavigation>();
+        if (menuNav == null)
+        {
+            menuNav = gameObject.AddComponent<ControllerMenuNavigation>();
+        }
+        else
+        {
+            menuNav.enabled = true;
+            menuNav.RefreshSelection();
+        }
+        
+        // Set default selected button to Play Again
+        if (menuNav != null && playAgainButton != null)
+        {
+            Button playAgainBtn = playAgainButton.GetComponent<Button>();
+            if (playAgainBtn != null)
+            {
+                UnityEngine.EventSystems.EventSystem.current?.SetSelectedGameObject(playAgainButton);
+            }
+        }
     }
 
     public void HideAndGoTo(string scenePath)
@@ -45,6 +68,18 @@ public class ScoreboardUIManager : MonoBehaviour
             P1FinishScreen.gameObject.SetActive(true);
         else if (P2FinishScreen != null)
             P2FinishScreen.gameObject.SetActive(true);
+        
+        // Enable controller navigation when finish screen shows
+        ControllerMenuNavigation menuNav = FindObjectOfType<ControllerMenuNavigation>();
+        if (menuNav == null)
+        {
+            menuNav = gameObject.AddComponent<ControllerMenuNavigation>();
+        }
+        else
+        {
+            menuNav.enabled = true;
+            menuNav.RefreshSelection();
+        }
     }
 
     public void OnPlayAgainButton()

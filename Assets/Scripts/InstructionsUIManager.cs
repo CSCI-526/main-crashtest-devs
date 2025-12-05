@@ -40,10 +40,17 @@ public class InstructionsUIManager : MonoBehaviour
     {
         // Check for cancel input from both keyboard and controller
         bool cancelPressed = false;
+        bool pausePressed = false;
         
         if (InputManager.Instance != null)
         {
             cancelPressed = InputManager.Instance.GetUICancelPressed();
+            pausePressed = InputManager.Instance.GetPausePressed();
+            
+            if (pausePressed)
+            {
+                InputManager.Instance.ResetPauseInput(); // Prevent multiple triggers
+            }
         }
         else
         {
@@ -51,7 +58,8 @@ public class InstructionsUIManager : MonoBehaviour
             cancelPressed = Input.GetKeyDown(KeyCode.Escape);
         }
         
-        if (cancelPressed)
+        // Back button (B/Circle) or Start/Options button goes back to main menu
+        if (cancelPressed || pausePressed)
         {
             OnBackToMainMenu();
         }
