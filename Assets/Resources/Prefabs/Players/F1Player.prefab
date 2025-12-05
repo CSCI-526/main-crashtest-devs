@@ -9690,9 +9690,10 @@ GameObject:
   - component: {fileID: 5821403110380541593}
   - component: {fileID: 6809614933923094465}
   - component: {fileID: 9044602323037527450}
+  - component: {fileID: 6450911020347663606}
   m_Layer: 0
   m_Name: F1Player
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -9787,7 +9788,7 @@ MonoBehaviour:
   roadLayer:
     serializedVersion: 2
     m_Bits: 8
-  hasCrashed: 0
+  hasCrashed: 1
   hasFinished: 0
   analytics: {fileID: 0}
   isTutorial: 0
@@ -9865,6 +9866,20 @@ MonoBehaviour:
   maxLifetime: 0.8
   forwardVelocityFraction: 0.25
   upwardRandomness: 0.5
+--- !u!114 &6450911020347663606
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7014105956302524402}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4dc081192c3d7e843827a4862984f73f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  cameraTiltAngle: 42
+  tiltSpeed: 5
 --- !u!1 &7035198386350004616
 GameObject:
   m_ObjectHideFlags: 0

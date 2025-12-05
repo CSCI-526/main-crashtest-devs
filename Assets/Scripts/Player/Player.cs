@@ -5,6 +5,7 @@ using UnityEngine.Rendering;
 using UnityEngine.SceneManagement;
 
 [RequireComponent(typeof(Rigidbody))]
+[RequireComponent(typeof(DriftEffect))]
 public class Player : MonoBehaviour
 {
     public static Player Instance;
@@ -479,10 +480,7 @@ public class Player : MonoBehaviour
         }
 
         // apply drift assist to help players navigate turns
-        if (!isTutorial)
-        {
-            ApplyDriftAssist(drifting);
-        }
+        ApplyDriftAssist(drifting);
 
         // apply drift visual effects (car tilt, camera tilt)
         GetComponent<DriftEffect>()?.UpdateDrift(drifting, steer);
