@@ -41,13 +41,13 @@ public class StartScene : MonoBehaviour
 
     public void SinglePlayer()
     {
-        TrackSketchLoader.targetScene = "SinglePlayer";
+        TrackGen.Scene2Load = "SinglePlayer";
         SceneManager.LoadScene("LoadingScene");
     }
 
     public void MultiPlayer()
     {
-        TrackSketchLoader.targetScene = "MultiPlayer";
+        TrackGen.Scene2Load = "MultiPlayer";
         SceneManager.LoadScene("LoadingScene");
     }
 }

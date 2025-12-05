@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using TMPro;
 
-public class TrackSketchLoader : MonoBehaviour
+public class TrackSketchLoaderNOLONGERUSING : MonoBehaviour
 {
     [Header("Track Preview Settings")]
     public List<GameObject> trackPrefabs; // Assign your track prefabs here (0=straight, 3=turn)

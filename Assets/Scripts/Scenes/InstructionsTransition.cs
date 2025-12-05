@@ -15,35 +15,73 @@ public class InstructionsTransition : MonoBehaviour
 
     private Vector3 startPos;
     private Quaternion startRot;
+    private Vector3 menuPos;
+    private Quaternion menuRot;
     private float elapsed;
     private bool transitioning;
+    private bool reverseTransition;
     
     public static bool gameMode;
+    public static InstructionsTransition instance;
+
+    void Awake()
+    {
+        instance = this;
+    }
+
     void Update()
     {
         if (transitioning)
         {
-            InstructionsUI.SetActive(true);
+            elapsed += Time.deltaTime;
+            float t = Mathf.Clamp01(elapsed / transitionDuration);
 
-            if (gameMode)
+            if (reverseTransition)
             {
-                P2ColorTxt.SetActive(false);
-                P2Colors.SetActive(false);
+                // Transition back from instructions view to menu
+                transform.position = Vector3.Lerp(startPos, menuPos, t);
+                transform.rotation = Quaternion.Slerp(startRot, menuRot, t);
+
+                if (t >= 1f)
+                {
+                    transitioning = false;
+                    reverseTransition = false;
+                    if (InstructionsUI != null)
+                    {
+                        InstructionsUI.SetActive(false);
+                    }
+                    if (menuUI != null)
+                    {
+                        menuUI.SetActive(true);
+                    }
+                }
             }
             else
             {
-                P2ColorTxt.SetActive(true);
-                P2Colors.SetActive(true);
-            }
-            elapsed += Time.deltaTime;
-            float t = Mathf.Clamp01(elapsed / transitionDuration);
-            transform.position = Vector3.Lerp(startPos, tutorialView.position, t);
-            transform.rotation = Quaternion.Slerp(startRot, tutorialView.rotation, t);
+                // Forward transition from menu to instructions view
+                InstructionsUI.SetActive(true);
 
-            if (t >= 1f)
-            {
-                transitioning = false;
-                //InstructionsUI.SetActive(true);
+                if (P2ColorTxt != null && P2Colors != null)
+                {
+                    if (gameMode)
+                    {
+                        P2ColorTxt.SetActive(false);
+                        P2Colors.SetActive(false);
+                    }
+                    else
+                    {
+                        P2ColorTxt.SetActive(true);
+                        P2Colors.SetActive(true);
+                    }
+                }
+
+                transform.position = Vector3.Lerp(startPos, tutorialView.position, t);
+                transform.rotation = Quaternion.Slerp(startRot, tutorialView.rotation, t);
+
+                if (t >= 1f)
+                {
+                    transitioning = false;
+                }
             }
         }
     }
@@ -59,6 +97,10 @@ public class InstructionsTransition : MonoBehaviour
     }
     public void StartTutorialTransition()
     {
+        // Store the menu position before transitioning
+        menuPos = transform.position;
+        menuRot = transform.rotation;
+
         if (menuUI != null)
         {
             menuUI.SetActive(false);      // Hide original menu UI
@@ -68,6 +110,17 @@ public class InstructionsTransition : MonoBehaviour
         startRot = transform.rotation;
         elapsed = 0f;
         transitioning = true;
+        reverseTransition = false;
+    }
+
+    public void StartReverseTransition()
+    {
+        // Transition back to main menu
+        startPos = transform.position;
+        startRot = transform.rotation;
+        elapsed = 0f;
+        transitioning = true;
+        reverseTransition = true;
     }
 
     public void StartTutoral()

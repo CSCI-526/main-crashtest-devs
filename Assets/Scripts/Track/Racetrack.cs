@@ -869,33 +869,18 @@ public class Racetrack : MonoBehaviour
     }
 
     public void SetPlayer1Color()
-    {
-        int newColor = InstructionsUIManager.Instance.getP1Color();
-        Color color;
-
-        switch (newColor)
+    {   
+        int newColor = 0;
+        if (InstructionsUIManager.Instance != null) newColor = InstructionsUIManager.Instance.getP1Color();
+        var color = newColor switch
         {
-            case 0:
-                color = new Color(1f, 0, 0);
-                break;
-            case 1:
-                color = new Color(0f, 0.811f, 0.0482f);
-                break;
-            case 2:
-                color = new Color(0, 0.653f, 1);
-                break;
-            case 3:
-                color = new Color(0.981f, 0.793f, 0);
-                break;
-            case 4:
-                color = new Color(1, 0.514f, 0.975f);
-                break;
-            default:
-                color = new Color(1f, 0, 0);
-                break;
-        }
-
-
+            0 => new Color(1f, 0, 0),
+            1 => new Color(0f, 0.811f, 0.0482f),
+            2 => new Color(0, 0.653f, 1),
+            3 => new Color(0.981f, 0.793f, 0),
+            4 => new Color(1, 0.514f, 0.975f),
+            _ => new Color(1f, 0, 0),
+        };
         Renderer[] renderers = Player1.GetComponentsInChildren<Renderer>(true);
 
         foreach (Renderer rend in renderers)
@@ -924,7 +909,7 @@ public class Racetrack : MonoBehaviour
     public void SetPlayer2Color()
     {
         int newColor = InstructionsUIManager.Instance.getP2Color();
-        Color color = new Color(1f, 0.586f, 0.212f);
+        Color color = new(1f, 0.586f, 0.212f);
 
         switch (newColor)
         {

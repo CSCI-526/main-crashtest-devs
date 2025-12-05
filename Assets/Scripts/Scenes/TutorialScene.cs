@@ -20,7 +20,7 @@ public class TutorialScene : MonoBehaviour
     // Track individual WASD key presses
     private bool pressedW = false;
     private bool pressedA = false;
-    private bool pressedS = false;
+    //private bool pressedS = false;
     private bool pressedD = false;
     private float wasdTimer = 0f;
     private const float wasdTimeLimit = 3f;
@@ -54,7 +54,7 @@ public class TutorialScene : MonoBehaviour
         {
             if (Input.GetKey(KeyCode.W)) pressedW = true;
             if (Input.GetKey(KeyCode.A)) pressedA = true;
-            if (Input.GetKey(KeyCode.S)) pressedS = true;
+            //if (Input.GetKey(KeyCode.S)) pressedS = true;
             if (Input.GetKey(KeyCode.D)) pressedD = true;
 
             wasdTimer += Time.fixedDeltaTime;
