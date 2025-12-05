@@ -1,7 +1,6 @@
 
 using UnityEngine;
 using System.Collections;
-using UnityEditor.SpeedTree.Importer;
 
 public class BotPlayer : MonoBehaviour
 {
