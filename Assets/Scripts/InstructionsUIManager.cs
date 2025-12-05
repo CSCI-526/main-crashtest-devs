@@ -24,6 +24,24 @@ public class InstructionsUIManager : MonoBehaviour
         instructionsPanel.SetActive(false);
     }
 
+    void Update()
+    {
+        // Check if Escape key is pressed to go back to main menu
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            OnBackToMainMenu();
+        }
+    }
+
+    public void OnBackToMainMenu()
+    {
+        // Trigger reverse camera transition back to main menu
+        if (InstructionsTransition.instance != null)
+        {
+            InstructionsTransition.instance.StartReverseTransition();
+        }
+    }
+
     public void OnContinueButton()
     {
         // Load the sketch loading screen
