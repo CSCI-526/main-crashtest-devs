@@ -216,11 +216,71 @@ public class InputManager : MonoBehaviour
                 p1UsingController = true;
             }
         }
-        
+        else
+        {
+            // Player 1 using keyboard (WASD or Arrow keys) (no arrows in multi
+            if (isMultiplayer)
+            {
+                if (Input.GetKey(KeyCode.W))
+                    P1Accelerate = 1f;
+                else if (Input.GetKey(KeyCode.S))
+                    P1Accelerate = -0.75f;
+                else
+                    P1Accelerate = 0f;
+
+                if (Input.GetKey(KeyCode.S))
+                    P1Brake = 1f;
+                else
+                    P1Brake = 0f;
+
+                if (Input.GetKey(KeyCode.D))
+                    P1Steer = 1f;
+                else if (Input.GetKey(KeyCode.A))
+                    P1Steer = -1f;
+                else
+                    P1Steer = 0f;
+
+                P1Drift = Input.GetKey(KeyCode.LeftShift);
+                P1HardBrake = Input.GetKey(KeyCode.LeftCommand);
+                P1Respawn = Input.GetKey(KeyCode.R);
+                P1PowerUp1 = Input.GetKey(KeyCode.Alpha1);
+                P1PowerUp2 = Input.GetKey(KeyCode.Alpha2);
+                P1PowerUp3 = Input.GetKey(KeyCode.Alpha3);
+            }
+            else
+            {
+                if (Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.UpArrow))
+                    P1Accelerate = 1f;
+                else if (Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.DownArrow))
+                    P1Accelerate = -0.75f;
+                else
+                    P1Accelerate = 0f;
+
+                if (Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.DownArrow))
+                    P1Brake = 1f;
+                else
+                    P1Brake = 0f;
+
+                if (Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow))
+                    P1Steer = 1f;
+                else if (Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow))
+                    P1Steer = -1f;
+                else
+                    P1Steer = 0f;
+
+                P1Drift = Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift);
+                P1HardBrake = Input.GetKey(KeyCode.LeftCommand);
+                P1Respawn = Input.GetKey(KeyCode.R);
+                P1PowerUp1 = Input.GetKey(KeyCode.Alpha1);
+                P1PowerUp2 = Input.GetKey(KeyCode.Alpha2);
+                P1PowerUp3 = Input.GetKey(KeyCode.Alpha3);
+            }
+        }
+
         // If Player 1 not using controller, InputActions handle keyboard
         // In multiplayer, we DON'T want to block P1's WASD input
         // The InputActions correctly read WASD for P1, we just need to ensure it's not zeroed out
-        
+
         // Also check for keyboard fallback on Player 1 inputs
         // This ensures number keys (1,2,3) and R still work even if InputActions don't capture them
         if (Input.GetKey(KeyCode.Alpha1)) P1PowerUp1 = true;
