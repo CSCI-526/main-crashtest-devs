@@ -36,6 +36,8 @@ public class InstructionsUIManager : MonoBehaviour
         }
     }
 
+    private bool pauseButtonWasPressed = false;
+    
     void Update()
     {
         // Check for cancel input from both keyboard and controller
@@ -46,11 +48,6 @@ public class InstructionsUIManager : MonoBehaviour
         {
             cancelPressed = InputManager.Instance.GetUICancelPressed();
             pausePressed = InputManager.Instance.GetPausePressed();
-            
-            if (pausePressed)
-            {
-                InputManager.Instance.ResetPauseInput(); // Prevent multiple triggers
-            }
         }
         else
         {
@@ -58,8 +55,12 @@ public class InstructionsUIManager : MonoBehaviour
             cancelPressed = Input.GetKeyDown(KeyCode.Escape);
         }
         
+        // Detect pause button press (edge detection to prevent multiple triggers)
+        bool pausePressedThisFrame = pausePressed && !pauseButtonWasPressed;
+        pauseButtonWasPressed = pausePressed;
+        
         // Back button (B/Circle) or Start/Options button goes back to main menu
-        if (cancelPressed || pausePressed)
+        if (cancelPressed || pausePressedThisFrame)
         {
             OnBackToMainMenu();
         }

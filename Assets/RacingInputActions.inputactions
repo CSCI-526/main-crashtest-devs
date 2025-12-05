@@ -363,17 +363,6 @@
                 },
                 {
                     "name": "",
-                    "id": "7e3a1c2f-4d9b-4e8a-a5f6-1c7e3d2a9b4f",
-                    "path": "<Keyboard>/slash",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "Keyboard&Mouse",
-                    "action": "Respawn",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
                     "id": "9a2e4c1f-6d8b-4e7a-b5f3-2c9e1d4a7b6f",
                     "path": "<Gamepad>/buttonNorth",
                     "interactions": "",

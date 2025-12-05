@@ -217,27 +217,16 @@ public class InputManager : MonoBehaviour
             }
         }
         
-        // If Player 1 not using controller, InputActions will handle keyboard input
-        // But we need to prevent arrow keys from affecting P1 in multiplayer mode
-        if (isMultiplayer && !p1UsingController)
-        {
-            // In multiplayer, if P1 is using keyboard, block arrow keys from InputActions
-            // Only WASD should work for P1 in multiplayer
-            // The InputActions will still read arrow keys, so we need to zero them out
-            float currentAccel = P1Accelerate;
-            float currentSteer = P1Steer;
-            
-            // Check if input came from arrow keys (not WASD)
-            bool arrowKeyUsed = Input.GetKey(KeyCode.UpArrow) || Input.GetKey(KeyCode.DownArrow) ||
-                               Input.GetKey(KeyCode.LeftArrow) || Input.GetKey(KeyCode.RightArrow);
-            
-            if (arrowKeyUsed)
-            {
-                // Zero out P1 inputs if they came from arrow keys in multiplayer
-                P1Accelerate = 0f;
-                P1Steer = 0f;
-            }
-        }
+        // If Player 1 not using controller, InputActions handle keyboard
+        // In multiplayer, we DON'T want to block P1's WASD input
+        // The InputActions correctly read WASD for P1, we just need to ensure it's not zeroed out
+        
+        // Also check for keyboard fallback on Player 1 inputs
+        // This ensures number keys (1,2,3) and R still work even if InputActions don't capture them
+        if (Input.GetKey(KeyCode.Alpha1)) P1PowerUp1 = true;
+        if (Input.GetKey(KeyCode.Alpha2)) P1PowerUp2 = true;
+        if (Input.GetKey(KeyCode.Alpha3)) P1PowerUp3 = true;
+        if (Input.GetKey(KeyCode.R)) P1Respawn = true;
         
         // Handle Player 2 inputs - can use second controller OR keyboard
         if (player2Gamepad != null && player2Gamepad.enabled)
@@ -302,13 +291,6 @@ public class InputManager : MonoBehaviour
                 P2PowerUp3 = false;
             }
         }
-        
-        // Also check for keyboard fallback on Player 1 inputs
-        // This ensures number keys (1,2,3) and R still work even if InputActions don't capture them
-        if (Input.GetKey(KeyCode.Alpha1)) P1PowerUp1 = true;
-        if (Input.GetKey(KeyCode.Alpha2)) P1PowerUp2 = true;
-        if (Input.GetKey(KeyCode.Alpha3)) P1PowerUp3 = true;
-        if (Input.GetKey(KeyCode.R)) P1Respawn = true;
     }
 
     private void OnDestroy()
