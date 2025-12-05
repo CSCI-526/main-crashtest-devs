@@ -10,9 +10,11 @@ public class InstructionsUIManager : MonoBehaviour
     public GameObject diffButtons;
     public GameObject p1ColorButtons;
     public GameObject p2ColorButtons;
+    public GameObject p1ModelButtons; // For car/roadrunner selection
     private int currentDiff = 1;
-    private int currP1Color = 0;
-    private int currP2Color = 0;
+    private static int currP1Color = 0; // static so it persists between scenes
+    private static int currP2Color = 0; // static so it persists between scenes
+    private static bool p1UseRoadrunner = false; // static so it persists between scenes
 
     private void Awake()
     {
@@ -119,51 +121,61 @@ public class InstructionsUIManager : MonoBehaviour
         currentDiff = newDiff;
     }
 
+    private Image FindButtonImage(GameObject parent, string buttonName)
+    {
+        foreach (Transform child in parent.transform)
+        {
+            if (child.name == buttonName)
+            {
+                return child.GetComponent<Image>();
+            }
+        }
+        return null;
+    }
+
     public void ChangeP1Color(int newP1Color)
     {
         if (newP1Color == currP1Color) return;
+        if (p1ColorButtons == null) return;
+
+        // Get all button images
+        Image redBtn = FindButtonImage(p1ColorButtons, "red");
+        Image greenBtn = FindButtonImage(p1ColorButtons, "green");
+        Image blueBtn = FindButtonImage(p1ColorButtons, "blue");
+        Image yellowBtn = FindButtonImage(p1ColorButtons, "yellow");
+        Image pinkBtn = FindButtonImage(p1ColorButtons, "pink");
+        Image birdBtn = FindButtonImage(p1ColorButtons, "bird");
+
+        // Dim all color buttons first
+        if (redBtn != null) redBtn.color = new Color(0.603f, 0.002f, 0.003f);
+        if (greenBtn != null) greenBtn.color = new Color(0, 0.490f, 0.0284f);
+        if (blueBtn != null) blueBtn.color = new Color(0, 0.463f, 0.707f);
+        if (yellowBtn != null) yellowBtn.color = new Color(0.67f, 0.541f, 0);
+        if (pinkBtn != null) pinkBtn.color = new Color(0.613f, 0.304f, 0.598f);
+        if (birdBtn != null) birdBtn.color = new Color(0.4f, 0.4f, 0.4f);
+
+        // Highlight the selected option and set roadrunner flag
+        p1UseRoadrunner = (newP1Color == 5);
 
         switch (newP1Color)
         {
             case 0: // red
-                p1ColorButtons.transform.Find("red").transform.GetComponent<Image>().color = new Color(1f, 0, 0);
-                p1ColorButtons.transform.Find("green").transform.GetComponent<Image>().color = new Color(0, 0.490f, 0.0284f);
-                p1ColorButtons.transform.Find("blue").transform.GetComponent<Image>().color = new Color(0, 0.463f, 0.707f);
-                p1ColorButtons.transform.Find("yellow").transform.GetComponent<Image>().color = new Color(0.67f, 0.541f, 0);
-                p1ColorButtons.transform.Find("pink").transform.GetComponent<Image>().color = new Color(0.613f, 0.304f, 0.598f);
-
+                if (redBtn != null) redBtn.color = new Color(1f, 0, 0);
                 break;
             case 1: // green
-                p1ColorButtons.transform.Find("red").transform.GetComponent<Image>().color = new Color(0.603f, 0.002f, 0.003f);
-                p1ColorButtons.transform.Find("green").transform.GetComponent<Image>().color = new Color(0f, 0.811f, 0.0482f);
-                p1ColorButtons.transform.Find("blue").transform.GetComponent<Image>().color = new Color(0, 0.463f, 0.707f);
-                p1ColorButtons.transform.Find("yellow").transform.GetComponent<Image>().color = new Color(0.67f, 0.541f, 0);
-                p1ColorButtons.transform.Find("pink").transform.GetComponent<Image>().color = new Color(0.613f, 0.304f, 0.598f);
-
+                if (greenBtn != null) greenBtn.color = new Color(0f, 0.811f, 0.0482f);
                 break;
             case 2: // blue
-                p1ColorButtons.transform.Find("red").transform.GetComponent<Image>().color = new Color(0.603f, 0.002f, 0.003f);
-                p1ColorButtons.transform.Find("green").transform.GetComponent<Image>().color = new Color(0, 0.490f, 0.0284f);
-                p1ColorButtons.transform.Find("blue").transform.GetComponent<Image>().color = new Color(0, 0.653f, 1);
-                p1ColorButtons.transform.Find("yellow").transform.GetComponent<Image>().color = new Color(0.67f, 0.541f, 0);
-                p1ColorButtons.transform.Find("pink").transform.GetComponent<Image>().color = new Color(0.613f, 0.304f, 0.598f);
-
+                if (blueBtn != null) blueBtn.color = new Color(0, 0.653f, 1);
                 break;
             case 3: // yellow
-                p1ColorButtons.transform.Find("red").transform.GetComponent<Image>().color = new Color(0.603f, 0.002f, 0.003f);
-                p1ColorButtons.transform.Find("green").transform.GetComponent<Image>().color = new Color(0, 0.490f, 0.0284f);
-                p1ColorButtons.transform.Find("blue").transform.GetComponent<Image>().color = new Color(0, 0.463f, 0.707f);
-                p1ColorButtons.transform.Find("yellow").transform.GetComponent<Image>().color = new Color(0.981f, 0.793f, 0);
-                p1ColorButtons.transform.Find("pink").transform.GetComponent<Image>().color = new Color(0.613f, 0.304f, 0.598f);
-
+                if (yellowBtn != null) yellowBtn.color = new Color(0.981f, 0.793f, 0);
                 break;
             case 4: // pink
-                p1ColorButtons.transform.Find("red").transform.GetComponent<Image>().color = new Color(0.603f, 0.002f, 0.003f);
-                p1ColorButtons.transform.Find("green").transform.GetComponent<Image>().color = new Color(0, 0.490f, 0.0284f);
-                p1ColorButtons.transform.Find("blue").transform.GetComponent<Image>().color = new Color(0, 0.463f, 0.707f);
-                p1ColorButtons.transform.Find("yellow").transform.GetComponent<Image>().color = new Color(0.67f, 0.541f, 0);
-                p1ColorButtons.transform.Find("pink").transform.GetComponent<Image>().color = new Color(1, 0.514f, 0.975f);
-
+                if (pinkBtn != null) pinkBtn.color = new Color(1, 0.514f, 0.975f);
+                break;
+            case 5: // bird (roadrunner)
+                if (birdBtn != null) birdBtn.color = Color.white;
                 break;
         }
 
@@ -221,6 +233,25 @@ public class InstructionsUIManager : MonoBehaviour
         currP2Color = newP2Color;
     }
 
-    public int getP1Color() { return currP1Color;  }
-    public int getP2Color() { return currP2Color; }
+    public static int GetP1Color() { return currP1Color; } // static so it works across scenes
+    public static int GetP2Color() { return currP2Color; } // static so it works across scenes
+    public static bool GetP1UseRoadrunner() { return p1UseRoadrunner; } // static so it works across scenes
+
+    // Call this from UI buttons: 0 = car, 1 = roadrunner
+    public void SetP1Model(int model)
+    {
+        p1UseRoadrunner = (model == 1);
+
+        // Update button visuals if they exist
+        if (p1ModelButtons != null)
+        {
+            Transform carBtn = p1ModelButtons.transform.Find("car");
+            Transform birdBtn = p1ModelButtons.transform.Find("bird");
+
+            if (carBtn != null)
+                carBtn.GetComponent<Image>().color = p1UseRoadrunner ? new Color(0.4f, 0.4f, 0.4f) : Color.white;
+            if (birdBtn != null)
+                birdBtn.GetComponent<Image>().color = p1UseRoadrunner ? Color.white : new Color(0.4f, 0.4f, 0.4f);
+        }
+    }
 }

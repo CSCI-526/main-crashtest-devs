@@ -96,11 +96,15 @@ public class TrackMaster : MonoBehaviour
         int wet = (int)(counts[3] / total * 100f);
         int dirt = (int)(counts[4] / total * 100f);
 
-        yield return StartCoroutine(Roll("TextGO/S", s));
-        yield return StartCoroutine(Roll("TextGO/T", t));
-        yield return StartCoroutine(Roll("TextGO/H", h));
-        yield return StartCoroutine(Roll("TextGO/W", wet));
-        yield return StartCoroutine(Roll("TextGO/D", dirt));
+        // Start all rolls in parallel
+        StartCoroutine(Roll("TextGO/S", s));
+        StartCoroutine(Roll("TextGO/T", t));
+        StartCoroutine(Roll("TextGO/H", h));
+        StartCoroutine(Roll("TextGO/W", wet));
+        StartCoroutine(Roll("TextGO/D", dirt));
+
+        // Wait for the roll duration (they all run at the same time now)
+        yield return new WaitForSeconds(0.75f);
 
         CenterAndScaleTrack();
     }
@@ -190,7 +194,7 @@ public class TrackMaster : MonoBehaviour
 
     }
 
-    public float spawnDelay = .1f;
+    public float spawnDelay = .03f; // Faster track piece spawning
     public IEnumerator AnimateAll(float bestScale)
     {
         for (int i = -1; i < TrackGen.raceTrack.Count; i++)
@@ -199,7 +203,7 @@ public class TrackMaster : MonoBehaviour
             yield return new WaitForSeconds(spawnDelay);
         }
 
-        yield return _waitForSeconds2;
+        yield return new WaitForSeconds(0.75f); // Shorter wait before loading
         SceneManager.LoadScene(TrackGen.Scene2Load);
     }
 

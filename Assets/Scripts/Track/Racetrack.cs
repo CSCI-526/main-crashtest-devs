@@ -66,9 +66,12 @@ public class Racetrack : MonoBehaviour
 
     private void Awake()
     {
-        //set player color
+        //set player model and color
         if (Player1)
+        {
+            SetPlayer1Model();
             SetPlayer1Color();
+        }
 
         if (Player2)
             SetPlayer2Color();
@@ -783,8 +786,12 @@ public class Racetrack : MonoBehaviour
         rb.linearVelocity = Vector3.zero;
         rb.angularVelocity = Vector3.zero;
 
+        // Re-enable the correct model based on selection
+        bool useRoadrunner = InstructionsUIManager.GetP1UseRoadrunner();
         Transform intact = players[playerID].player.transform.Find("Intact");
-        if (intact != null) intact.gameObject.SetActive(true);
+        Transform roadrunner = players[playerID].player.transform.Find("Roadrunner");
+        if (intact != null) intact.gameObject.SetActive(!useRoadrunner);
+        if (roadrunner != null) roadrunner.gameObject.SetActive(useRoadrunner);
 
         if (players[playerID].player.transform.TryGetComponent<Collider>(out var mainCol))
             mainCol.enabled = true;
@@ -820,7 +827,16 @@ public class Racetrack : MonoBehaviour
 
         if (hasCrashed)
         {
-            for (int i = 0; i < 2; i++) players[playerID].player.transform.GetChild(i).gameObject.SetActive(true);
+            // Re-enable correct model after crash
+            bool useRoadrunnerCrash = InstructionsUIManager.GetP1UseRoadrunner();
+            Transform intactCrash = players[playerID].player.transform.Find("Intact");
+            Transform roadrunnerCrash = players[playerID].player.transform.Find("Roadrunner");
+            if (intactCrash != null) intactCrash.gameObject.SetActive(!useRoadrunnerCrash);
+            if (roadrunnerCrash != null) roadrunnerCrash.gameObject.SetActive(useRoadrunnerCrash);
+
+            // Re-enable lights after crash
+            Transform lights = players[playerID].player.transform.Find("lights");
+            if (lights != null) lights.gameObject.SetActive(true);
         }
     }
 
@@ -869,9 +885,8 @@ public class Racetrack : MonoBehaviour
     }
 
     public void SetPlayer1Color()
-    {   
-        int newColor = 0;
-        if (InstructionsUIManager.Instance != null) newColor = InstructionsUIManager.Instance.getP1Color();
+    {
+        int newColor = InstructionsUIManager.GetP1Color();
         var color = newColor switch
         {
             0 => new Color(1f, 0, 0),
@@ -908,7 +923,7 @@ public class Racetrack : MonoBehaviour
 
     public void SetPlayer2Color()
     {
-        int newColor = InstructionsUIManager.Instance.getP2Color();
+        int newColor = InstructionsUIManager.GetP2Color();
         Color color = new(1f, 0.586f, 0.212f);
 
         switch (newColor)
@@ -957,6 +972,21 @@ public class Racetrack : MonoBehaviour
         }
 
         Player2ProgBar.color = color;
+    }
+
+    public void SetPlayer1Model()
+    {
+        bool useRoadrunner = InstructionsUIManager.GetP1UseRoadrunner();
+
+        // Find and toggle the models
+        Transform intact = Player1.transform.Find("Intact");
+        Transform roadrunner = Player1.transform.Find("Roadrunner");
+
+        if (intact != null)
+            intact.gameObject.SetActive(!useRoadrunner);
+
+        if (roadrunner != null)
+            roadrunner.gameObject.SetActive(useRoadrunner);
     }
 
 }

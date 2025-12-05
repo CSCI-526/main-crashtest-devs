@@ -8,7 +8,7 @@ public class BirdAnimation : MonoBehaviour
 
     [Header("Settings")]
     [SerializeField] private float minSpeed = 0.1f;
-    [SerializeField] private float maxSpeedForAnimation = 100f;
+    [SerializeField] private float maxSpeedForAnimation = 150f;
     [SerializeField] private float minAnimSpeed = 1f;
     [SerializeField] private float maxAnimSpeed = 10f;
 

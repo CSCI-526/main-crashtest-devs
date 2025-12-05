@@ -10,7 +10,7 @@ public class LoadingScreenManager : MonoBehaviour
     public TMP_FontAsset LoadFont;
     public TMP_Text loadingText;              // Text component for "Generating Track..." message
     public Canvas loadingCanvas;              // The canvas containing the loading screen
-    public float displayDuration = 2f;        // How long to show the message
+    public float displayDuration = 1f;        // How long to show the message
     
     private static LoadingScreenManager instance;
 
@@ -122,7 +122,7 @@ public class LoadingScreenManager : MonoBehaviour
         Debug.Log("Track Generated!");
 
         // Wait a bit to show the success message
-        yield return new WaitForSeconds(1f);
+        yield return new WaitForSeconds(0.5f);
 
         // Load the target scene
         SceneManager.LoadScene(sceneName);
