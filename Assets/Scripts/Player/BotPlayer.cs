@@ -82,7 +82,11 @@ public class BotPlayer : MonoBehaviour
 
     public static void TriggerCrash(Transform car, Vector3 previousVel, Vector3 previousAng, MonoBehaviour runner, bool isPlayerZero = false)
     {
-        car.Find("Intact").gameObject.SetActive(false);
+        // Disable whichever model is active (Intact or Roadrunner)
+        Transform intact = car.Find("Intact");
+        Transform roadrunner = car.Find("Roadrunner");
+        if (intact != null) intact.gameObject.SetActive(false);
+        if (roadrunner != null) roadrunner.gameObject.SetActive(false);
 
         string camera = isPlayerZero ? " 0" : " 1";
         Transform cam = car.Find($"Main Camera{camera}");

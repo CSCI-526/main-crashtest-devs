@@ -208,7 +208,10 @@ public class Player : MonoBehaviour
 
         if (!racetrack.lightsOutAndAwayWeGOOOOO || hasCrashed) return;
 
-        BotPlayer.RotateWheels(rb, transform.Find("Intact"), ws);
+        // Only rotate wheels if using car model (Intact), not Roadrunner
+        Transform intact = transform.Find("Intact");
+        if (intact != null && intact.gameObject.activeInHierarchy)
+            BotPlayer.RotateWheels(rb, intact, ws);
 
         (int wheelsInContact, RoadMesh roadMesh) = BotPlayer.IsGrounded(transform.gameObject, BotPlayer.groundCheckDistance, roadLayer);
 

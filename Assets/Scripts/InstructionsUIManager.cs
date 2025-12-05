@@ -15,6 +15,7 @@ public class InstructionsUIManager : MonoBehaviour
     private static int currP1Color = 0; // static so it persists between scenes
     private static int currP2Color = 0; // static so it persists between scenes
     private static bool p1UseRoadrunner = false; // static so it persists between scenes
+    private static bool p2UseRoadrunner = false; // static so it persists between scenes
 
     private void Awake()
     {
@@ -185,48 +186,46 @@ public class InstructionsUIManager : MonoBehaviour
     public void ChangeP2Color(int newP2Color)
     {
         if (newP2Color == currP2Color) return;
+        if (p2ColorButtons == null) return;
+
+        // Get all button images
+        Image orangeBtn = FindButtonImage(p2ColorButtons, "orange");
+        Image purpleBtn = FindButtonImage(p2ColorButtons, "purple");
+        Image cyanBtn = FindButtonImage(p2ColorButtons, "cyan");
+        Image whiteBtn = FindButtonImage(p2ColorButtons, "white");
+        Image idkBtn = FindButtonImage(p2ColorButtons, "idk");
+        Image birdBtn = FindButtonImage(p2ColorButtons, "bird");
+
+        // Dim all buttons first
+        if (orangeBtn != null) orangeBtn.color = new Color(0.651f, 0.406f, 0.187f);
+        if (purpleBtn != null) purpleBtn.color = new Color(0.400f, 0.209f, 0.509f);
+        if (cyanBtn != null) cyanBtn.color = new Color(0.197f, 0.623f, 0.594f);
+        if (whiteBtn != null) whiteBtn.color = new Color(0.6f, 0.6f, 0.6f);
+        if (idkBtn != null) idkBtn.color = new Color(0.462f, 0.155f, 0.213f);
+        if (birdBtn != null) birdBtn.color = new Color(0.4f, 0.4f, 0.4f);
+
+        // Set roadrunner flag
+        p2UseRoadrunner = (newP2Color == 5);
 
         switch (newP2Color)
         {
-            case 0: // red
-                p2ColorButtons.transform.Find("orange").transform.GetComponent<Image>().color = new Color(1f, 0.586f, 0.212f);
-                p2ColorButtons.transform.Find("purple").transform.GetComponent<Image>().color = new Color(0.400f, 0.209f, 0.509f);
-                p2ColorButtons.transform.Find("cyan").transform.GetComponent<Image>().color = new Color(0.197f, 0.623f, 0.594f);
-                p2ColorButtons.transform.Find("white").transform.GetComponent<Image>().color = new Color(0.6f, 0.6f, 0.6f);
-                p2ColorButtons.transform.Find("idk").transform.GetComponent<Image>().color = new Color(0.462f, 0.155f, 0.213f);
-
+            case 0: // orange
+                if (orangeBtn != null) orangeBtn.color = new Color(1f, 0.586f, 0.212f);
                 break;
-            case 1: // green
-                p2ColorButtons.transform.Find("orange").transform.GetComponent<Image>().color = new Color(0.651f, 0.406f, 0.187f);
-                p2ColorButtons.transform.Find("purple").transform.GetComponent<Image>().color = new Color(0.746f, 0.297f, 1f);
-                p2ColorButtons.transform.Find("cyan").transform.GetComponent<Image>().color = new Color(0.197f, 0.623f, 0.594f);
-                p2ColorButtons.transform.Find("white").transform.GetComponent<Image>().color = new Color(0.6f, 0.6f, 0.6f);
-                p2ColorButtons.transform.Find("idk").transform.GetComponent<Image>().color = new Color(0.462f, 0.155f, 0.213f);
-
+            case 1: // purple
+                if (purpleBtn != null) purpleBtn.color = new Color(0.746f, 0.297f, 1f);
                 break;
-            case 2: // blue
-                p2ColorButtons.transform.Find("orange").transform.GetComponent<Image>().color = new Color(0.651f, 0.406f, 0.187f);
-                p2ColorButtons.transform.Find("purple").transform.GetComponent<Image>().color = new Color(0.400f, 0.209f, 0.509f);
-                p2ColorButtons.transform.Find("cyan").transform.GetComponent<Image>().color = new Color(0.193f, 1, 0.944f);
-                p2ColorButtons.transform.Find("white").transform.GetComponent<Image>().color = new Color(0.6f, 0.6f, 0.6f);
-                p2ColorButtons.transform.Find("idk").transform.GetComponent<Image>().color = new Color(0.462f, 0.155f, 0.213f);
-
+            case 2: // cyan
+                if (cyanBtn != null) cyanBtn.color = new Color(0.193f, 1, 0.944f);
                 break;
-            case 3: // yellow
-                p2ColorButtons.transform.Find("orange").transform.GetComponent<Image>().color = new Color(0.651f, 0.406f, 0.187f);
-                p2ColorButtons.transform.Find("purple").transform.GetComponent<Image>().color = new Color(0.400f, 0.209f, 0.509f);
-                p2ColorButtons.transform.Find("cyan").transform.GetComponent<Image>().color = new Color(0.197f, 0.623f, 0.594f);
-                p2ColorButtons.transform.Find("white").transform.GetComponent<Image>().color = new Color(1, 1, 1);
-                p2ColorButtons.transform.Find("idk").transform.GetComponent<Image>().color = new Color(0.462f, 0.155f, 0.213f);
-
+            case 3: // white
+                if (whiteBtn != null) whiteBtn.color = new Color(1, 1, 1);
                 break;
-            case 4: // pink
-                p2ColorButtons.transform.Find("orange").transform.GetComponent<Image>().color = new Color(0.651f, 0.406f, 0.187f);
-                p2ColorButtons.transform.Find("purple").transform.GetComponent<Image>().color = new Color(0.400f, 0.209f, 0.509f);
-                p2ColorButtons.transform.Find("cyan").transform.GetComponent<Image>().color = new Color(0.197f, 0.623f, 0.594f);
-                p2ColorButtons.transform.Find("white").transform.GetComponent<Image>().color = new Color(0.6f, 0.6f, 0.6f);
-                p2ColorButtons.transform.Find("idk").transform.GetComponent<Image>().color = new Color(0.765f, 0.243f, 0.340f);
-
+            case 4: // idk (pink/red)
+                if (idkBtn != null) idkBtn.color = new Color(0.765f, 0.243f, 0.340f);
+                break;
+            case 5: // bird (roadrunner)
+                if (birdBtn != null) birdBtn.color = Color.white;
                 break;
         }
 
@@ -236,6 +235,7 @@ public class InstructionsUIManager : MonoBehaviour
     public static int GetP1Color() { return currP1Color; } // static so it works across scenes
     public static int GetP2Color() { return currP2Color; } // static so it works across scenes
     public static bool GetP1UseRoadrunner() { return p1UseRoadrunner; } // static so it works across scenes
+    public static bool GetP2UseRoadrunner() { return p2UseRoadrunner; } // static so it works across scenes
 
     // Call this from UI buttons: 0 = car, 1 = roadrunner
     public void SetP1Model(int model)

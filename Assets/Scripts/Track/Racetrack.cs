@@ -74,7 +74,10 @@ public class Racetrack : MonoBehaviour
         }
 
         if (Player2)
+        {
+            SetPlayer2Model();
             SetPlayer2Color();
+        }
 
         // Reset countdown state when scene loads
         countdownStage = 0;
@@ -786,8 +789,8 @@ public class Racetrack : MonoBehaviour
         rb.linearVelocity = Vector3.zero;
         rb.angularVelocity = Vector3.zero;
 
-        // Re-enable the correct model based on selection
-        bool useRoadrunner = InstructionsUIManager.GetP1UseRoadrunner();
+        // Re-enable the correct model based on selection (check which player)
+        bool useRoadrunner = (playerID == 0) ? InstructionsUIManager.GetP1UseRoadrunner() : InstructionsUIManager.GetP2UseRoadrunner();
         Transform intact = players[playerID].player.transform.Find("Intact");
         Transform roadrunner = players[playerID].player.transform.Find("Roadrunner");
         if (intact != null) intact.gameObject.SetActive(!useRoadrunner);
@@ -827,8 +830,8 @@ public class Racetrack : MonoBehaviour
 
         if (hasCrashed)
         {
-            // Re-enable correct model after crash
-            bool useRoadrunnerCrash = InstructionsUIManager.GetP1UseRoadrunner();
+            // Re-enable correct model after crash (check which player)
+            bool useRoadrunnerCrash = (playerID == 0) ? InstructionsUIManager.GetP1UseRoadrunner() : InstructionsUIManager.GetP2UseRoadrunner();
             Transform intactCrash = players[playerID].player.transform.Find("Intact");
             Transform roadrunnerCrash = players[playerID].player.transform.Find("Roadrunner");
             if (intactCrash != null) intactCrash.gameObject.SetActive(!useRoadrunnerCrash);
@@ -978,9 +981,22 @@ public class Racetrack : MonoBehaviour
     {
         bool useRoadrunner = InstructionsUIManager.GetP1UseRoadrunner();
 
-        // Find and toggle the models
         Transform intact = Player1.transform.Find("Intact");
         Transform roadrunner = Player1.transform.Find("Roadrunner");
+
+        if (intact != null)
+            intact.gameObject.SetActive(!useRoadrunner);
+
+        if (roadrunner != null)
+            roadrunner.gameObject.SetActive(useRoadrunner);
+    }
+
+    public void SetPlayer2Model()
+    {
+        bool useRoadrunner = InstructionsUIManager.GetP2UseRoadrunner();
+
+        Transform intact = Player2.transform.Find("Intact");
+        Transform roadrunner = Player2.transform.Find("Roadrunner");
 
         if (intact != null)
             intact.gameObject.SetActive(!useRoadrunner);
