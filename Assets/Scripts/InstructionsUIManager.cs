@@ -29,11 +29,11 @@ public class InstructionsUIManager : MonoBehaviour
         // Load the sketch loading screen
         if (InstructionsTransition.gameMode)
         {
-            TrackSketchLoader.targetScene = "SinglePlayer";
+            TrackGen.Scene2Load = "SinglePlayer";
         }
         else
         {
-            TrackSketchLoader.targetScene = "MultiPlayer";
+            TrackGen.Scene2Load = "MultiPlayer";
         }
         SceneManager.LoadScene("LoadingScene");
     }

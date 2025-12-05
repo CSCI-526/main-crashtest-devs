@@ -1,52 +1,105 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class TrackGen : MonoBehaviour
+public static class TrackGen
 {
-    public List<GameObject> trackPrefabs;
-    public GameObject trackObject;
-    public bool isTutorial = false;
-    private BezierCurve lastCurve;
-    private int segmentCount = 1;
+    public static List<GameObject> trackPrefabs;
+    public static readonly List<GameObject> raceTrack = new();
+    public static readonly List<RoadType> roadTypes = new();
+    private static VirtualSegment lastVirtual;
     private enum TrackSegmentsChoices { smallS, largeS, smallT, largeT }
     /*
-        smallS: 3-4 straights,                  # -> 4-5
-        largeS: 5-7 straights,                  # -> 4-5
+        smallS: 3-4 straights,                  # -> 4-5 prefabs
+        largeS: 5-7 straights,                  # -> 4-5 ...
         smallT: 2-3 turns,                      # -> 5-6
         largeT: 4-6 turns,                      # -> 1-2
         slope: deltaSlope during straights,     # -> 2-4
 
-        short case: 4*3 + 4*5 + 5*2 + 1*4 + 2*2 = 50 ( + 16 + 2 = 68)
-        long case: 5*4 + 5*7 + 6*3 + 2*6 + 4*2 = 93 ( + 22 + 2 = 117)
+        short case: 4*3 + 4*5 + 5*2 + 1*4 + 2*2 = 50 ( + 16 + 2 = 68 prefabs)
+        long case: 5*4 + 5*7 + 6*3 + 2*6 + 4*2 = 93 ( + 22 + 2 = 117 prefabs)
     */
-
-    private readonly List<GameObject> raceTrack = new();
-    private int numberOfRedos = 0;
-
-
-    private void Start()
+    public static int numberOfRedos = 0;
+    public static bool success = false;
+    private static readonly Dictionary<GameObject, PrefabData> prefabData = new();
+    private class PrefabData
     {
-        if (!isTutorial) MakeTrack();
-        else trackObject.GetComponent<Racetrack>().AddTrackCurves();
+        public Vector3 colliderCenter, colliderSize;
+        public Vector3 p0, p1, p2, p3;
+    }
+    private static readonly List<VirtualSegment> virtualTrack = new();
+    private struct VirtualSegment
+    {
+        public Vector3 position;
+        public Quaternion rotation;
+        public Vector3 colliderCenter;
+        public Vector3 colliderSize;
+
+        public Vector3 p0, p1, p2, p3;
+    }
+    public static string Scene2Load;
+
+    public static void CachePrefabData()
+    {
+        prefabData.Clear();
+
+        foreach (var prefab in trackPrefabs)
+        {
+            BoxCollider bc = prefab.GetComponent<BoxCollider>();
+            BezierCurve curve = prefab.GetComponent<BezierCurve>();
+
+            PrefabData pd = new()
+            {
+                colliderCenter = bc.center,
+                colliderSize = bc.size,
+
+                p0 = curve.p0.localPosition,
+                p1 = curve.p1.localPosition,
+                p2 = curve.p2.localPosition,
+                p3 = curve.p3.localPosition
+            };
+
+            prefabData[prefab] = pd;
+        }
     }
 
-    private void MakeTrack()
+    private static void InitializeStartVirtual(GameObject startGO)
     {
-        bool success = false;
+        virtualTrack.Clear();
+
+        var data = prefabData[startGO];
+
+        VirtualSegment start = new()
+        {
+            position = Vector3.zero,
+            rotation = Quaternion.identity,
+
+            p0 = data.p0,
+            p1 = data.p1,
+            p2 = data.p2,
+            p3 = data.p3,
+
+            colliderCenter = data.colliderCenter,
+            colliderSize = data.colliderSize
+        };
+
+        virtualTrack.Add(start);
+        lastVirtual = start;
+    }
+
+    public static void MakeTrack()
+    {
+        success = false;
         int specialCount = 0;
         RoadType roadType = RoadType.Normal;
 
         while (!success && numberOfRedos < 100)
         {
             raceTrack.Clear();
-            segmentCount = 1;
-
-            for (int i = trackObject.transform.childCount - 1; i >= 1; i--)
-                DestroyImmediate(trackObject.transform.GetChild(i).gameObject);
-
+            roadTypes.Clear();
             GenerateTrack();
 
-            lastCurve = trackObject.transform.GetChild(0).GetComponent<BezierCurve>();
+            InitializeStartVirtual(trackPrefabs[^2]);
+
             raceTrack.Add(trackPrefabs[^1]);
             foreach (GameObject prefab in raceTrack)
             {
@@ -66,23 +119,17 @@ public class TrackGen : MonoBehaviour
                     else roadType = RoadType.Normal;
                 }
                 else specialCount--;
-                SpawnNextSegment(prefab, roadType);
+                roadTypes.Add(roadType);
+
+                SpawnNextSegmentVirtual(prefab);
             }
 
-            if (CheckTrack())
-            {
-                success = true;
-                foreach (Transform child in trackObject.transform)
-                    child.GetComponent<BoxCollider>().enabled = false;
-            }
+            if (CheckTrackVirtual()) success = true;
             numberOfRedos++;
         }
-
-        trackObject.GetComponent<Racetrack>().AddTrackCurves();
-
     }
 
-    private void GenerateTrack()
+    private static void GenerateTrack()
     {
         Dictionary<TrackSegmentsChoices, int> summary = new();
         List<TrackSegmentsChoices> segmentList = new();
@@ -178,54 +225,96 @@ public class TrackGen : MonoBehaviour
         }
     }
 
-    private void SpawnNextSegment(GameObject prefab, RoadType roadType)
+    private static void SpawnNextSegmentVirtual(GameObject prefab)
     {
-        GameObject newSegment = Instantiate(prefab, Vector3.zero, Quaternion.identity, transform);
-        newSegment.name += $" {segmentCount}";
-        segmentCount++;
-        BezierCurve newCurve = newSegment.GetComponent<BezierCurve>();
+        var data = prefabData[prefab];
 
-        Vector3 lastP2 = lastCurve.p2.position;
-        Vector3 lastP3 = lastCurve.p3.position;
+        Vector3 lastP2 = lastVirtual.p2;
+        Vector3 lastP3 = lastVirtual.p3;
 
         Vector3 tangent = (lastP3 - lastP2).normalized;
 
-        Vector3 offset = lastP3 - newCurve.p0.position;
-        offset.y -= 0.001f;
-        newSegment.transform.position += offset;
+        Quaternion rotation = Quaternion.LookRotation(tangent, Vector3.up);
 
-        Quaternion rotation = Quaternion.LookRotation(tangent, lastCurve.transform.up);
-        newSegment.transform.rotation = rotation;
+        Vector3 worldP0 = lastP3;
 
-        // Set road type and segment name for analytics
-        RoadMesh roadMesh = newSegment.GetComponentInChildren<RoadMesh>();
-        roadMesh.roadType = roadType;
+        Vector3 offset = worldP0 - (rotation * data.p0);
+        offset.y -= 0.001f; // dont actually know if this fixes the random collision bug
 
-        // Extract segment name from prefab (remove suffix if present)
-        string segmentName = prefab.name.Replace(" Variant", "").Replace("(Clone)", "").Trim();
-        roadMesh.segmentName = segmentName;
+        VirtualSegment seg = new()
+        {
+            position = offset,
+            rotation = rotation,
 
-        lastCurve = newCurve;
+            p0 = offset + rotation * data.p0,
+            p1 = offset + rotation * data.p1,
+            p2 = offset + rotation * data.p2,
+            p3 = offset + rotation * data.p3,
+
+            colliderCenter = data.colliderCenter,
+            colliderSize = data.colliderSize
+        };
+
+        virtualTrack.Add(seg);
+        lastVirtual = seg;
     }
 
-    private bool CheckTrack()
+    private static bool CheckTrackVirtual()
     {
-        Physics.SyncTransforms();
+        int count = virtualTrack.Count;
 
-        BoxCollider one;
-        BoxCollider two;
-        int numSegments = raceTrack.Count;
-
-        for (int i = 3; i < numSegments; i++)
+        for (int i = 3; i < count; i++)
         {
-            one = trackObject.transform.GetChild(i).GetComponent<BoxCollider>();
-
-            for (int j = i - 2; j >= 0; j--)
+            for (int j = 0; j < i - 2; j++)
             {
-                two = trackObject.transform.GetChild(j).GetComponent<BoxCollider>();
-                if (Physics.ComputePenetration(one, one.transform.position, one.transform.rotation, two, two.transform.position, two.transform.rotation, out Vector3 _, out float _))
+                if (OBBOverlap(virtualTrack[i], virtualTrack[j]))
                     return false;
             }
+        }
+
+        return true;
+    }
+    
+    private static bool OBBOverlap(in VirtualSegment a, in VirtualSegment b)
+    {
+        Vector3 aExt = a.colliderSize * 0.5f;
+        Vector3 bExt = b.colliderSize * 0.5f;
+
+        Vector3 aCenter = a.position + a.rotation * a.colliderCenter;
+        Vector3 bCenter = b.position + b.rotation * b.colliderCenter;
+
+        Vector3[] aAxes = {
+            a.rotation * Vector3.right,
+            a.rotation * Vector3.up,
+            a.rotation * Vector3.forward
+        };
+
+        Vector3[] bAxes = {
+            b.rotation * Vector3.right,
+            b.rotation * Vector3.up,
+            b.rotation * Vector3.forward
+        };
+
+        Vector3 T = bCenter - aCenter;
+
+        float R, R0, R1;
+
+        for (int i = 0; i < 3; i++)
+        {
+            R = Mathf.Abs(Vector3.Dot(T, aAxes[i]));
+            R0 = aExt[i];
+            R1 = Mathf.Abs(Vector3.Dot(bExt.x * bAxes[0], aAxes[i])) + Mathf.Abs(Vector3.Dot(bExt.y * bAxes[1], aAxes[i])) + Mathf.Abs(Vector3.Dot(bExt.z * bAxes[2], aAxes[i]));
+
+            if (R > R0 + R1) return false;
+        }
+
+        for (int i = 0; i < 3; i++)
+        {
+            R = Mathf.Abs(Vector3.Dot(T, bAxes[i]));
+            R0 = Mathf.Abs(Vector3.Dot(aExt.x * aAxes[0], bAxes[i])) + Mathf.Abs(Vector3.Dot(aExt.y * aAxes[1], bAxes[i])) + Mathf.Abs(Vector3.Dot(aExt.z * aAxes[2], bAxes[i]));
+            R1 = bExt[i];
+
+            if (R > R0 + R1) return false;
         }
 
         return true;

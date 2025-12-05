@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections;
+using UnityEngine.SceneManagement;
 
 public enum RoadType
 {
@@ -218,7 +219,7 @@ public class RoadMesh : MonoBehaviour
     private Coroutine rainRoutine;
     void FixedUpdate()
     {
-        if (roadType == RoadType.Wet)
+        if (roadType == RoadType.Wet && SceneManager.GetActiveScene().name != "LoadingScene")
         {
             rainRoutine ??= StartCoroutine(SpawnRain());
         }
