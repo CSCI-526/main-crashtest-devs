@@ -5,6 +5,7 @@ public class PauseMenu : MonoBehaviour
 {
     public GameObject pauseMenuUI;
     private bool isPaused = false;
+    private ControllerMenuNavigation menuNav;
 
     void Update()
     {
@@ -40,6 +41,16 @@ public class PauseMenu : MonoBehaviour
 
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
+        
+        // Add controller menu navigation for pause menu
+        if (menuNav == null)
+        {
+            menuNav = gameObject.GetComponent<ControllerMenuNavigation>();
+            if (menuNav == null)
+            {
+                menuNav = gameObject.AddComponent<ControllerMenuNavigation>();
+            }
+        }
     }
 
     public void Resume()

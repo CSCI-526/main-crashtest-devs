@@ -81,8 +81,52 @@ public class InstructionsTransition : MonoBehaviour
                 if (t >= 1f)
                 {
                     transitioning = false;
+                    
+                    // Enable controller navigation when instructions panel is fully visible
+                    EnableInstructionsNavigation();
                 }
             }
+        }
+    }
+    
+    private void EnableInstructionsNavigation()
+    {
+        // Add or enable controller menu navigation for instructions panel
+        ControllerMenuNavigation menuNav = FindObjectOfType<ControllerMenuNavigation>();
+        if (menuNav == null)
+        {
+            // Add to InstructionsUI or this GameObject
+            if (InstructionsUI != null)
+            {
+                menuNav = InstructionsUI.AddComponent<ControllerMenuNavigation>();
+            }
+            else
+            {
+                menuNav = gameObject.AddComponent<ControllerMenuNavigation>();
+            }
+        }
+        else
+        {
+            menuNav.enabled = true;
+            // Refresh selection to pick up newly visible buttons
+            menuNav.RefreshSelection();
+        }
+    }
+    
+    public void StartReverseTransition()
+    {
+        // Transition back to main menu
+        startPos = transform.position;
+        startRot = transform.rotation;
+        elapsed = 0f;
+        transitioning = true;
+        reverseTransition = true;
+        
+        // Disable controller navigation for instructions when going back
+        ControllerMenuNavigation menuNav = FindObjectOfType<ControllerMenuNavigation>();
+        if (menuNav != null && menuNav.gameObject == InstructionsUI)
+        {
+            menuNav.enabled = false;
         }
     }
     public void StartTutorialTransitionMulti()
@@ -111,16 +155,6 @@ public class InstructionsTransition : MonoBehaviour
         elapsed = 0f;
         transitioning = true;
         reverseTransition = false;
-    }
-
-    public void StartReverseTransition()
-    {
-        // Transition back to main menu
-        startPos = transform.position;
-        startRot = transform.rotation;
-        elapsed = 0f;
-        transitioning = true;
-        reverseTransition = true;
     }
 
     public void StartTutoral()

@@ -13,6 +13,12 @@ public class StartScene : MonoBehaviour
     {
         // Initialize timer when scene loads
         timer = Random.Range(0f, spawnInterval);
+        
+        // Add controller menu navigation if not already present
+        if (FindObjectOfType<ControllerMenuNavigation>() == null)
+        {
+            gameObject.AddComponent<ControllerMenuNavigation>();
+        }
     }
 
     void Update()

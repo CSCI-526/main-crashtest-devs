@@ -26,6 +26,15 @@ public class InstructionsUIManager : MonoBehaviour
         // Show the instructions panel when scene loads
         instructionsPanel.SetActive(false);
     }
+    
+    void OnEnable()
+    {
+        // Add controller menu navigation when this UI becomes active
+        if (FindObjectOfType<ControllerMenuNavigation>() == null)
+        {
+            gameObject.AddComponent<ControllerMenuNavigation>();
+        }
+    }
 
     void Update()
     {
