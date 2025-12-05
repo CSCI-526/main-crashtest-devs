@@ -182,6 +182,8 @@ public class InputManager : MonoBehaviour
 
     private void Update()
     {
+        bool isMultiplayer = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name == "MultiPlayer";
+        
         // Reset P1 inputs first
         bool p1UsingController = false;
         
@@ -215,8 +217,27 @@ public class InputManager : MonoBehaviour
             }
         }
         
-        // If Player 1 not using controller, check keyboard via InputActions
-        // The InputActions will handle keyboard input automatically
+        // If Player 1 not using controller, InputActions will handle keyboard input
+        // But we need to prevent arrow keys from affecting P1 in multiplayer mode
+        if (isMultiplayer && !p1UsingController)
+        {
+            // In multiplayer, if P1 is using keyboard, block arrow keys from InputActions
+            // Only WASD should work for P1 in multiplayer
+            // The InputActions will still read arrow keys, so we need to zero them out
+            float currentAccel = P1Accelerate;
+            float currentSteer = P1Steer;
+            
+            // Check if input came from arrow keys (not WASD)
+            bool arrowKeyUsed = Input.GetKey(KeyCode.UpArrow) || Input.GetKey(KeyCode.DownArrow) ||
+                               Input.GetKey(KeyCode.LeftArrow) || Input.GetKey(KeyCode.RightArrow);
+            
+            if (arrowKeyUsed)
+            {
+                // Zero out P1 inputs if they came from arrow keys in multiplayer
+                P1Accelerate = 0f;
+                P1Steer = 0f;
+            }
+        }
         
         // Handle Player 2 inputs - can use second controller OR keyboard
         if (player2Gamepad != null && player2Gamepad.enabled)
@@ -238,32 +259,48 @@ public class InputManager : MonoBehaviour
         }
         else
         {
-            // Player 2 using keyboard (Arrow keys)
-            if (Input.GetKey(KeyCode.UpArrow))
-                P2Accelerate = 1f;
-            else if (Input.GetKey(KeyCode.DownArrow))
-                P2Accelerate = -0.75f;
+            // Player 2 using keyboard (Arrow keys) - ONLY in multiplayer
+            if (isMultiplayer)
+            {
+                if (Input.GetKey(KeyCode.UpArrow))
+                    P2Accelerate = 1f;
+                else if (Input.GetKey(KeyCode.DownArrow))
+                    P2Accelerate = -0.75f;
+                else
+                    P2Accelerate = 0f;
+
+                if (Input.GetKey(KeyCode.DownArrow))
+                    P2Brake = 1f;
+                else
+                    P2Brake = 0f;
+
+                if (Input.GetKey(KeyCode.RightArrow))
+                    P2Steer = 1f;
+                else if (Input.GetKey(KeyCode.LeftArrow))
+                    P2Steer = -1f;
+                else
+                    P2Steer = 0f;
+
+                P2Drift = Input.GetKey(KeyCode.RightShift);
+                P2HardBrake = Input.GetKey(KeyCode.RightCommand);
+                P2Respawn = Input.GetKey(KeyCode.Slash);
+                P2PowerUp1 = Input.GetKey(KeyCode.Alpha0);
+                P2PowerUp2 = Input.GetKey(KeyCode.Alpha9);
+                P2PowerUp3 = Input.GetKey(KeyCode.Alpha8);
+            }
             else
+            {
+                // In single player, zero out P2 inputs
                 P2Accelerate = 0f;
-
-            if (Input.GetKey(KeyCode.DownArrow))
-                P2Brake = 1f;
-            else
                 P2Brake = 0f;
-
-            if (Input.GetKey(KeyCode.RightArrow))
-                P2Steer = 1f;
-            else if (Input.GetKey(KeyCode.LeftArrow))
-                P2Steer = -1f;
-            else
                 P2Steer = 0f;
-
-            P2Drift = Input.GetKey(KeyCode.RightShift);
-            P2HardBrake = Input.GetKey(KeyCode.RightCommand);
-            P2Respawn = Input.GetKey(KeyCode.Slash);
-            P2PowerUp1 = Input.GetKey(KeyCode.Alpha0);
-            P2PowerUp2 = Input.GetKey(KeyCode.Alpha9);
-            P2PowerUp3 = Input.GetKey(KeyCode.Alpha8);
+                P2Drift = false;
+                P2HardBrake = false;
+                P2Respawn = false;
+                P2PowerUp1 = false;
+                P2PowerUp2 = false;
+                P2PowerUp3 = false;
+            }
         }
         
         // Also check for keyboard fallback on Player 1 inputs
