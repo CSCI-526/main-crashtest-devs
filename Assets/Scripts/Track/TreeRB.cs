@@ -6,6 +6,7 @@ public class TreeRB : MonoBehaviour
 {
     private Rigidbody rb;
     private Vector3 startPos;
+    private bool initialized = false;
 
     public float velocityThreshold = 50f;
     public float distanceThreshold = 0.5f;
@@ -21,13 +22,22 @@ public class TreeRB : MonoBehaviour
     private void Start()
     {
         rb = GetComponent<Rigidbody>();
-        startPos = transform.position;
-
         initialScale = transform.localScale;
+
+        // Delay capturing start position to allow scene to settle
+        Invoke(nameof(CaptureStartPosition), 0.5f);
+    }
+
+    private void CaptureStartPosition()
+    {
+        startPos = transform.position;
+        initialized = true;
     }
 
     private void FixedUpdate()
     {
+        if (!initialized) return;
+
         if (rb.useGravity && !transform.name.Contains("ctree"))
         {
             timer += Time.fixedDeltaTime;

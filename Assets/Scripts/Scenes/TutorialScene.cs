@@ -33,6 +33,10 @@ public class TutorialScene : MonoBehaviour
 
     void Start()
     {
+        // Auto-find racetrack if not assigned
+        if (racetrack == null)
+            racetrack = FindFirstObjectByType<Racetrack>();
+
         // Skip countdown and enable player movement immediately in tutorial
         if (racetrack != null)
         {

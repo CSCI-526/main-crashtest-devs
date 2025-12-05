@@ -80,6 +80,10 @@ public class Player : MonoBehaviour
         rb.centerOfMass = new Vector3(0f, -0.5f, 0f); // lowers center for stability
         rb.linearDamping = BotPlayer.normalDrag;
         rb.angularDamping = 2f;
+
+        // Auto-find racetrack if not assigned
+        if (racetrack == null)
+            racetrack = FindFirstObjectByType<Racetrack>();
     }
 
     void FixedUpdate()

@@ -9878,7 +9878,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4dc081192c3d7e843827a4862984f73f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cameraTiltAngle: 42
+  cameraTiltAngle: 12
   tiltSpeed: 5
 --- !u!1 &7035198386350004616
 GameObject:
