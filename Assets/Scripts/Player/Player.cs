@@ -105,9 +105,20 @@ public class Player : MonoBehaviour
         if (!hasCrashed) analyticsAlreadySent = false;
         else { previousSpeed = 0f; return; }
 
-        if ((previousSpeed - rb.linearVelocity.magnitude * 2.237f >= BotPlayer.playerDeltaSpeed ||
-            (player0 && Input.GetKey(KeyCode.R) && p0RespawnTimer >= 6.0f) ||
-            (!player0 && Input.GetKey(KeyCode.Slash) && p1RespawnTimer >= 6.0f)) && !powerUps[2])
+        // Check for respawn input from InputManager or keyboard fallback
+        bool respawnInput = false;
+        if (player0)
+        {
+            respawnInput = ((InputManager.Instance != null && InputManager.Instance.P1Respawn) || 
+                           Input.GetKey(KeyCode.R)) && p0RespawnTimer >= 6.0f;
+        }
+        else
+        {
+            respawnInput = ((InputManager.Instance != null && InputManager.Instance.P2Respawn) || 
+                           Input.GetKey(KeyCode.Slash)) && p1RespawnTimer >= 6.0f;
+        }
+        
+        if ((previousSpeed - rb.linearVelocity.magnitude * 2.237f >= BotPlayer.playerDeltaSpeed || respawnInput) && !powerUps[2])
         {
             previousSpeed = 0;
             if (powerUps[0])
@@ -274,7 +285,20 @@ public class Player : MonoBehaviour
         if (points >= 900) canvas.transform.Find($"{driftBar}/rightSide/auto").GetComponent<PowerUpsAnim>().UpdateAnim(true);
         else canvas.transform.Find($"{driftBar}/rightSide/auto").GetComponent<PowerUpsAnim>().UpdateAnim(false);
 
-        if ((Input.GetKey(KeyCode.Alpha1) && points >= 300 && player0) || (Input.GetKey(KeyCode.Alpha0) && points >= 300 && !player0) || powerUps[0])
+        // Check PowerUp1 input from InputManager or keyboard fallback
+        bool powerUp1Input = false;
+        if (player0)
+        {
+            powerUp1Input = (InputManager.Instance != null && InputManager.Instance.P1PowerUp1) || 
+                           Input.GetKey(KeyCode.Alpha1);
+        }
+        else
+        {
+            powerUp1Input = (InputManager.Instance != null && InputManager.Instance.P2PowerUp1) || 
+                           Input.GetKey(KeyCode.Alpha0);
+        }
+        
+        if ((powerUp1Input && points >= 300) || powerUps[0])
         {
             powerUps[0] = true;
             pointsUsed[0] -= 1;
@@ -315,7 +339,20 @@ public class Player : MonoBehaviour
                 canvas.transform.Find($"{driftBar}/rightSide/shield/text").gameObject.SetActive(false);
             }
         }
-        if ((Input.GetKey(KeyCode.Alpha2) && points >= 600 && player0) || (Input.GetKey(KeyCode.Alpha9) && points >= 600 && !player0) || powerUps[1])
+        // Check PowerUp2 input from InputManager or keyboard fallback
+        bool powerUp2Input = false;
+        if (player0)
+        {
+            powerUp2Input = (InputManager.Instance != null && InputManager.Instance.P1PowerUp2) || 
+                           Input.GetKey(KeyCode.Alpha2);
+        }
+        else
+        {
+            powerUp2Input = (InputManager.Instance != null && InputManager.Instance.P2PowerUp2) || 
+                           Input.GetKey(KeyCode.Alpha9);
+        }
+        
+        if ((powerUp2Input && points >= 600) || powerUps[1])
         {
             powerUps[1] = true;
             points -= 2;
@@ -336,7 +373,20 @@ public class Player : MonoBehaviour
                 canvas.transform.Find($"{driftBar}/rightSide/disco/text").gameObject.SetActive(false);
             }
         }
-        if ((Input.GetKey(KeyCode.Alpha3) && points >= 900 && player0) || (Input.GetKey(KeyCode.Alpha8) && points >= 900 && !player0) || powerUps[2])
+        // Check PowerUp3 input from InputManager or keyboard fallback
+        bool powerUp3Input = false;
+        if (player0)
+        {
+            powerUp3Input = (InputManager.Instance != null && InputManager.Instance.P1PowerUp3) || 
+                           Input.GetKey(KeyCode.Alpha3);
+        }
+        else
+        {
+            powerUp3Input = (InputManager.Instance != null && InputManager.Instance.P2PowerUp3) || 
+                           Input.GetKey(KeyCode.Alpha8);
+        }
+        
+        if ((powerUp3Input && points >= 900) || powerUps[2])
         {
             powerUps[2] = true;
             points -= 3;
@@ -379,52 +429,83 @@ public class Player : MonoBehaviour
         }
 
 
+        // Get input from InputManager (supports both keyboard and controller)
         float accel = 0f;
         float steer = 0f;
         bool braking;
         bool attemptDrift;
 
-        switch (player0)
+        if (InputManager.Instance != null)
         {
-            case true:
-                if (Input.GetKey(KeyCode.W) || (
-                    SceneManager.GetActiveScene().name != "MultiPlayer" && Input.GetKey(KeyCode.UpArrow))) accel = 1f;
-                if (Input.GetKey(KeyCode.S) || (
-                    SceneManager.GetActiveScene().name != "MultiPlayer" && Input.GetKey(KeyCode.DownArrow))) accel = -.75f;
+            if (player0)
+            {
+                // Player 1 uses InputManager (supports controller + WASD)
+                accel = InputManager.Instance.P1Accelerate;
+                steer = InputManager.Instance.P1Steer;
+                braking = InputManager.Instance.P1HardBrake;
+                attemptDrift = InputManager.Instance.P1Drift;
+            }
+            else
+            {
+                // Player 2 can use second controller OR arrow keys (handled in InputManager)
+                accel = InputManager.Instance.P2Accelerate;
+                steer = InputManager.Instance.P2Steer;
+                braking = InputManager.Instance.P2HardBrake;
+                attemptDrift = InputManager.Instance.P2Drift;
+            }
+        }
+        else
+        {
+            // Fallback to old input system if InputManager not available
+            switch (player0)
+            {
+                case true:
+                    if (Input.GetKey(KeyCode.W) || (
+                        SceneManager.GetActiveScene().name != "MultiPlayer" && Input.GetKey(KeyCode.UpArrow))) accel = 1f;
+                    if (Input.GetKey(KeyCode.S) || (
+                        SceneManager.GetActiveScene().name != "MultiPlayer" && Input.GetKey(KeyCode.DownArrow))) accel = -.75f;
 
-                if (Input.GetKey(KeyCode.D) || (
-                    SceneManager.GetActiveScene().name != "MultiPlayer" && Input.GetKey(KeyCode.RightArrow))) steer = 1f;
-                else if (Input.GetKey(KeyCode.A) || (
-                    SceneManager.GetActiveScene().name != "MultiPlayer" && Input.GetKey(KeyCode.LeftArrow))) steer = -1f;
+                    if (Input.GetKey(KeyCode.D) || (
+                        SceneManager.GetActiveScene().name != "MultiPlayer" && Input.GetKey(KeyCode.RightArrow))) steer = 1f;
+                    else if (Input.GetKey(KeyCode.A) || (
+                        SceneManager.GetActiveScene().name != "MultiPlayer" && Input.GetKey(KeyCode.LeftArrow))) steer = -1f;
 
-                braking = Input.GetKey(KeyCode.LeftCommand);
-                if (Input.GetKey(KeyCode.LeftShift) ||
-                    SceneManager.GetActiveScene().name != "MultiPlayer" && Input.GetKey(KeyCode.RightShift))
-                {
-                    attemptDrift = true;
-                }
-                else attemptDrift = false;
-                break;
-            case false:
-                if (Input.GetKey(KeyCode.UpArrow)) accel = 1f;
-                else if (Input.GetKey(KeyCode.DownArrow)) accel = -.75f;
+                    braking = Input.GetKey(KeyCode.LeftCommand);
+                    if (Input.GetKey(KeyCode.LeftShift) ||
+                        SceneManager.GetActiveScene().name != "MultiPlayer" && Input.GetKey(KeyCode.RightShift))
+                    {
+                        attemptDrift = true;
+                    }
+                    else attemptDrift = false;
+                    break;
+                case false:
+                    if (Input.GetKey(KeyCode.UpArrow)) accel = 1f;
+                    else if (Input.GetKey(KeyCode.DownArrow)) accel = -.75f;
 
-                if (Input.GetKey(KeyCode.RightArrow)) steer = 1f;
-                else if (Input.GetKey(KeyCode.LeftArrow)) steer = -1f;
+                    if (Input.GetKey(KeyCode.RightArrow)) steer = 1f;
+                    else if (Input.GetKey(KeyCode.LeftArrow)) steer = -1f;
 
-                braking = Input.GetKey(KeyCode.RightCommand);
-                if (Input.GetKey(KeyCode.RightShift))
-                {
-                    attemptDrift = true;
-                }
-                else attemptDrift = false;
-                break;
+                    braking = Input.GetKey(KeyCode.RightCommand);
+                    if (Input.GetKey(KeyCode.RightShift))
+                    {
+                        attemptDrift = true;
+                    }
+                    else attemptDrift = false;
+                    break;
+            }
         }
 
 
+        // Update rear lights based on braking
         Transform rearLights = transform.Find("lights/rear");
-        if (braking || (Input.GetKey(KeyCode.S) && player0) || (Input.GetKey(KeyCode.DownArrow) && !player0)) for (int i = 0; i < 2; i++) rearLights.GetChild(i).GetComponent<Light>().intensity = 25;
-        else for (int i = 0; i < 2; i++) rearLights.GetChild(i).GetComponent<Light>().intensity = 1;
+        bool isBraking = braking || (InputManager.Instance != null && 
+            ((player0 && InputManager.Instance.P1Brake > 0) || (!player0 && InputManager.Instance.P2Brake > 0))) ||
+            (Input.GetKey(KeyCode.S) && player0) || (Input.GetKey(KeyCode.DownArrow) && !player0);
+        
+        if (isBraking) 
+            for (int i = 0; i < 2; i++) rearLights.GetChild(i).GetComponent<Light>().intensity = 25;
+        else 
+            for (int i = 0; i < 2; i++) rearLights.GetChild(i).GetComponent<Light>().intensity = 1;
         BotPlayer.TurnWheels((steer == 1) ? 30f : (steer == -1) ? -30f : 0f, ws);
 
         // Apply road type effects

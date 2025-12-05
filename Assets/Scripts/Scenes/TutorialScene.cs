@@ -56,9 +56,17 @@ public class TutorialScene : MonoBehaviour
 
         if (!finishedWASDTutoral)
         {
+            // Check for movement inputs from both keyboard and controller
+            if (InputManager.Instance != null)
+            {
+                if (InputManager.Instance.P1Accelerate > 0) pressedW = true;
+                if (InputManager.Instance.P1Steer < 0) pressedA = true;
+                if (InputManager.Instance.P1Steer > 0) pressedD = true;
+            }
+            
+            // Also check keyboard
             if (Input.GetKey(KeyCode.W)) pressedW = true;
             if (Input.GetKey(KeyCode.A)) pressedA = true;
-            //if (Input.GetKey(KeyCode.S)) pressedS = true;
             if (Input.GetKey(KeyCode.D)) pressedD = true;
 
             wasdTimer += Time.fixedDeltaTime;
@@ -122,10 +130,20 @@ public class TutorialScene : MonoBehaviour
                 {
                     Rigidbody rb = player.GetComponent<Rigidbody>();
                     float steer = 0f;
+                    bool attemptDrift = false;
+                    
+                    // Get input from InputManager (supports controller)
+                    if (InputManager.Instance != null)
+                    {
+                        steer = InputManager.Instance.P1Steer;
+                        attemptDrift = InputManager.Instance.P1Drift;
+                    }
+                    
+                    // Also check keyboard
                     if (Input.GetKey(KeyCode.D)) steer = 1f;
                     else if (Input.GetKey(KeyCode.A)) steer = -1f;
-
-                    bool attemptDrift = Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift);
+                    if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift)) attemptDrift = true;
+                    
                     Vector3 forward = player.transform.forward;
                     float forwardVel = Vector3.Dot(rb.linearVelocity, forward);
                     bool isSteering = Mathf.Abs(steer) > 0.1f;
@@ -150,12 +168,34 @@ public class TutorialScene : MonoBehaviour
             }
         }
 
-        if(finishedPowerUpTutorial && PowerUpTutorial2.activeInHierarchy && (Input.GetKey(KeyCode.Alpha1) || Input.GetKey(KeyCode.Alpha2) || Input.GetKey(KeyCode.Alpha3)))
+        // Check for power-up activation
+        bool powerUpPressed = false;
+        if (InputManager.Instance != null)
+        {
+            powerUpPressed = InputManager.Instance.P1PowerUp1 || InputManager.Instance.P1PowerUp2 || InputManager.Instance.P1PowerUp3;
+        }
+        if (Input.GetKey(KeyCode.Alpha1) || Input.GetKey(KeyCode.Alpha2) || Input.GetKey(KeyCode.Alpha3))
+        {
+            powerUpPressed = true;
+        }
+        
+        if(finishedPowerUpTutorial && PowerUpTutorial2.activeInHierarchy && powerUpPressed)
         {
             StartCoroutine(HidePowerUpTutorial2());
         }
 
-        if(finishedPowerUpTutorial && RespawnTutorial.activeInHierarchy && !finishedRespawnTutorial && Input.GetKey(KeyCode.R))
+        // Check for respawn input
+        bool respawnPressed = false;
+        if (InputManager.Instance != null)
+        {
+            respawnPressed = InputManager.Instance.P1Respawn;
+        }
+        if (Input.GetKey(KeyCode.R))
+        {
+            respawnPressed = true;
+        }
+        
+        if(finishedPowerUpTutorial && RespawnTutorial.activeInHierarchy && !finishedRespawnTutorial && respawnPressed)
         {
             finishedRespawnTutorial = true;
 

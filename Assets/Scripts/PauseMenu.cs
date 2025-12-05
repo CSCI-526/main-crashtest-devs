@@ -8,7 +8,24 @@ public class PauseMenu : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Escape))
+        // Check for pause input from both keyboard and controller
+        bool pausePressed = false;
+        
+        if (InputManager.Instance != null)
+        {
+            pausePressed = InputManager.Instance.GetPausePressed();
+            if (pausePressed)
+            {
+                InputManager.Instance.ResetPauseInput(); // Prevent multiple triggers
+            }
+        }
+        else
+        {
+            // Fallback to old input
+            pausePressed = Input.GetKeyDown(KeyCode.Escape);
+        }
+        
+        if (pausePressed)
         {
             if (isPaused) Resume();
             else Pause();

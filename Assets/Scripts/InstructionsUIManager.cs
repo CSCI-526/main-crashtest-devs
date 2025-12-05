@@ -29,8 +29,20 @@ public class InstructionsUIManager : MonoBehaviour
 
     void Update()
     {
-        // Check if Escape key is pressed to go back to main menu
-        if (Input.GetKeyDown(KeyCode.Escape))
+        // Check for cancel input from both keyboard and controller
+        bool cancelPressed = false;
+        
+        if (InputManager.Instance != null)
+        {
+            cancelPressed = InputManager.Instance.GetUICancelPressed();
+        }
+        else
+        {
+            // Fallback to old input
+            cancelPressed = Input.GetKeyDown(KeyCode.Escape);
+        }
+        
+        if (cancelPressed)
         {
             OnBackToMainMenu();
         }
